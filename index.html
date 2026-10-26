@@ -1,0 +1,1487 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Калькулятор плиточных работ</title>
+
+  <style>
+    :root {
+      --bg: var(--tg-theme-bg-color, #ffffff);
+      --text: var(--tg-theme-text-color, #20242a);
+      --hint: var(--tg-theme-hint-color, #7d8590);
+      --secondary: var(--tg-theme-secondary-bg-color, #f3f5f8);
+      --button: var(--tg-theme-button-color, #2481cc);
+      --button-text: var(--tg-theme-button-text-color, #ffffff);
+      --link: var(--tg-theme-link-color, #2481cc);
+      --border: var(--tg-theme-section-separator-color, #dce1e7);
+      --card: var(--tg-theme-section-bg-color, var(--bg));
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 16px 14px;
+      padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    }
+
+    .header {
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 25px;
+      line-height: 1.2;
+      margin: 0 0 7px;
+      font-weight: 750;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--hint);
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 5px;
+      background: var(--secondary);
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 11px;
+      padding: 14px 10px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 17px;
+      min-height: 52px;
+    }
+
+    .tab.active {
+      background: var(--button);
+      color: var(--button-text);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 15px;
+    }
+
+    .section h2 {
+      font-size: 18px;
+      line-height: 1.3;
+      margin: 0 0 16px;
+      font-weight: 750;
+    }
+
+    .section-note {
+      font-size: 13px;
+      color: var(--hint);
+      margin: -7px 0 15px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+      min-width: 0;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .field-note {
+      display: block;
+      font-size: 12px;
+      color: var(--hint);
+      font-weight: 400;
+      margin-top: 3px;
+    }
+
+    input,
+    select {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      height: 52px;
+      padding: 0 13px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--secondary);
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--button);
+      box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--button) 15%, transparent);
+    }
+
+    select {
+      padding-right: 38px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 13px center;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input::-webkit-inner-spin-button,
+    input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .two-columns .field {
+      margin-bottom: 0;
+    }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 108px;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .item-row:first-child {
+      padding-top: 0;
+    }
+
+    .item-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .item-name {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .item-meta {
+      display: block;
+      font-size: 12px;
+      color: var(--hint);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .item-row input {
+      text-align: center;
+      height: 48px;
+      padding: 0 7px;
+    }
+
+    .summary {
+      background: var(--secondary);
+      border-radius: var(--radius);
+      padding: 17px;
+      margin-top: 15px;
+    }
+
+    .summary h2 {
+      font-size: 19px;
+      margin: 0 0 16px;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-row .name {
+      color: var(--hint);
+      font-size: 14px;
+      min-width: 0;
+    }
+
+    .summary-row .value {
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .summary-row:last-child {
+      border-bottom: 0;
+    }
+
+    .summary-row.total {
+      margin-top: 8px;
+      padding-top: 17px;
+      align-items: center;
+    }
+
+    .summary-row.total .name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .summary-row.total .value {
+      color: var(--button);
+      font-size: clamp(20px, 5vw, 27px);
+      font-weight: 800;
+    }
+
+    .summary-row.primary .value {
+      color: var(--button);
+      font-size: 20px;
+    }
+
+    .overall {
+      margin-top: 22px;
+      padding: 20px 17px;
+      border: 2px solid var(--button);
+      border-radius: 17px;
+      background: var(--secondary);
+    }
+
+    .overall h2 {
+      margin: 0 0 13px;
+      font-size: 21px;
+    }
+
+    .overall .grand-total {
+      margin-top: 13px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    .grand-total .caption {
+      color: var(--hint);
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .grand-total .amount {
+      font-size: clamp(27px, 8vw, 38px);
+      font-weight: 800;
+      color: var(--button);
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--hint);
+      font-size: 12px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 360px) {
+      .app {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .section {
+        padding: 13px;
+      }
+
+      .item-row {
+        grid-template-columns: minmax(0, 1fr) 88px;
+        gap: 8px;
+      }
+
+      .summary-row .value {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+
+    <header class="header">
+      <h1>Калькулятор плиточных работ</h1>
+      <p class="subtitle">
+        Расчёт стоимости укладки, резки и дополнительных работ
+      </p>
+    </header>
+
+    <nav class="tabs" aria-label="Разделы калькулятора">
+      <button
+        type="button"
+        class="tab active"
+        id="tab-floor"
+        data-tab="floor"
+        role="tab"
+        aria-selected="true"
+        aria-controls="floor"
+      >
+        Пол
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        id="tab-walls"
+        data-tab="walls"
+        role="tab"
+        aria-selected="false"
+        aria-controls="walls"
+      >
+        Стены
+      </button>
+    </nav>
+
+    <section
+      class="panel active"
+      id="floor"
+      role="tabpanel"
+      aria-labelledby="tab-floor"
+    ></section>
+
+    <section
+      class="panel"
+      id="walls"
+      role="tabpanel"
+      aria-labelledby="tab-walls"
+      hidden
+    ></section>
+
+    <section class="overall" aria-live="polite">
+      <h2>Общий итог</h2>
+
+      <div class="summary-row">
+        <span class="name">Площадь пола</span>
+        <span class="value" id="overall-floor-area">1 м²</span>
+      </div>
+
+      <div class="summary-row">
+        <span class="name">Площадь стен</span>
+        <span class="value" id="overall-walls-area">2 м²</span>
+      </div>
+
+      <div class="summary-row">
+        <span class="name">Суммарная площадь</span>
+        <span class="value" id="overall-area">3 м²</span>
+      </div>
+
+      <div class="summary-row">
+        <span class="name">Стоимость пола</span>
+        <span class="value" id="overall-floor-cost">0 ₽</span>
+      </div>
+
+      <div class="summary-row">
+        <span class="name">Стоимость стен</span>
+        <span class="value" id="overall-walls-cost">0 ₽</span>
+      </div>
+
+      <div class="grand-total">
+        <div class="caption">Общая стоимость работ</div>
+        <div class="amount" id="overall-total">0 ₽</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Все суммы рассчитаны в рублях.
+      Расчёт носит предварительный характер.
+    </footer>
+
+  </main>
+
+  <script>
+    "use strict";
+
+    // =========================================
+    // НАСТРОЙКИ КАЛЬКУЛЯТОРА
+    // =========================================
+
+    const CATEGORIES = [
+      {
+        id: "size",
+        title: "Размер плитки",
+        options: [
+          ["30 × 30 см", 0],
+          ["60 × 60 см", 10],
+          ["60–100 см / до 1 м", 20],
+          ["От 1 м", 50],
+          ["До 30 см", 20],
+          ["Мозаика", 200]
+        ]
+      },
+      {
+        id: "thickness",
+        title: "Толщина плитки",
+        options: [
+          ["До 8 мм", 0],
+          ["До 1 см", 5],
+          ["До 1,2 см", 10],
+          ["До 1,5 см", 15],
+          ["До 2 см", 20],
+          ["Более 2 см (договорная)", 0]
+        ]
+      },
+      {
+        id: "material",
+        title: "Материал плитки",
+        options: [
+          ["Керамика", 0],
+          ["Керамогранит", 10],
+          ["Клинкер", 20],
+          ["Стекло", 20],
+          ["Мрамор или гранит (договорная)", 0]
+        ]
+      },
+      {
+        id: "curvature",
+        title: "Кривизна плитки",
+        options: [
+          ["Нет", 0],
+          ["По швам", 20],
+          ["По высоте (СВП)", 20],
+          ["Калибровка (договорная)", 30]
+        ]
+      },
+      {
+        id: "glue",
+        title: "Слой клея",
+        options: [
+          ["Стандарт (гребёнка)", 0],
+          ["На слой до 2 см", 30],
+          ["На слой от 2 до 4 см", 50]
+        ]
+      },
+      {
+        id: "laying",
+        title: "Укладка",
+        options: [
+          ["Прямая", 0],
+          ["Со смещением", 10],
+          ["Диагональ", 20],
+          ["Ёлочка", 20]
+        ]
+      },
+      {
+        id: "cleanliness",
+        title: "Чистота (место резки плитки)",
+        options: [
+          ["В этом помещении", 0],
+          ["В соседнем помещении", 5],
+          ["На площадке и т. п.", 10]
+        ]
+      },
+      {
+        id: "height",
+        title: "Высота",
+        options: [
+          ["До 3 м", 0],
+          ["От 3 до 4 м", 50],
+          ["Выше 4 м", 70]
+        ]
+      },
+      {
+        id: "position",
+        title: "Расположение плитки",
+        options: [
+          ["Стены", 0],
+          ["Пол", 20],
+          ["Потолок", 100]
+        ]
+      }
+    ];
+
+    const CUTS = [
+      {
+        id: "roughDry",
+        title: "Рез черновой (сухорез)",
+        percent: 30,
+        unit: "м/п"
+      },
+      {
+        id: "roughWet",
+        title: "Рез черновой (болгарка, мокрорез)",
+        percent: 50,
+        unit: "м/п"
+      },
+      {
+        id: "figure",
+        title: "Рез фигурный (болгарка, мокрорез)",
+        percent: 70,
+        unit: "м/п"
+      },
+      {
+        id: "finish",
+        title: "Рез финишный (черепашка)",
+        percent: 100,
+        unit: "м/п"
+      },
+      {
+        id: "finishFigure",
+        title: "Рез финишный фигурный (черепашка)",
+        percent: 120,
+        unit: "м/п"
+      },
+      {
+        id: "angleFactory",
+        title: "Рез 45° финишный (заводской стык)",
+        percent: 150,
+        unit: "м/п"
+      },
+      {
+        id: "angleCut",
+        title: "Рез 45° финишный (резаный стык)",
+        percent: 170,
+        unit: "м/п"
+      },
+      {
+        id: "joinRough",
+        title: "Соединение двух резов (черновое)",
+        percent: 20,
+        unit: "шт"
+      },
+      {
+        id: "joinFinish",
+        title: "Соединение двух резов (финишное)",
+        percent: 30,
+        unit: "шт"
+      },
+      {
+        id: "joinAngle",
+        title: "Соединение двух резов (заусовка)",
+        percent: 40,
+        unit: "шт"
+      }
+    ];
+
+    const HOLES = [
+      {
+        id: "small",
+        title: "Отверстия до 2 см",
+        percent: 15,
+        unit: "шт"
+      },
+      {
+        id: "medium",
+        title: "Отверстия от 2 до 7 см",
+        percent: 25,
+        unit: "шт"
+      },
+      {
+        id: "large",
+        title: "Отверстия выше 7 см",
+        percent: 35,
+        unit: "шт"
+      }
+    ];
+
+    const PREPARATION = [
+      {
+        id: "primerBefore",
+        title: "Грунтовка до гидроизоляции",
+        percent: 3,
+        unit: "м²"
+      },
+      {
+        id: "waterproof",
+        title: "Гидроизоляция (2 слоя)",
+        percent: 25,
+        unit: "м²"
+      },
+      {
+        id: "primerAfter",
+        title: "Грунтовка после гидроизоляции",
+        percent: 3,
+        unit: "м²"
+      }
+    ];
+
+    const GROUT_PRICES = {
+      cement: {
+        "1.5": 20,
+        "2": 25,
+        "2.5": 30,
+        "3": 35
+      },
+      epoxy: {
+        "1.5": 100,
+        "2": 110,
+        "2.5": 120,
+        "3": 130
+      }
+    };
+
+    const SILICONE_PRICES = {
+      "1.5": 100,
+      "2": 120,
+      "2.5": 150,
+      "3": 170
+    };
+
+    const DEFAULTS = {
+      floor: {
+        basePrice: 800,
+        area: 1,
+        tilePrice: 0,
+        position: 1
+      },
+      walls: {
+        basePrice: 500,
+        area: 2,
+        tilePrice: 0,
+        position: 0
+      }
+    };
+
+    // =========================================
+    // ФОРМАТИРОВАНИЕ
+    // =========================================
+
+    const moneyFormatter = new Intl.NumberFormat("ru-RU", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    const numberFormatter = new Intl.NumberFormat("ru-RU", {
+      maximumFractionDigits: 3
+    });
+
+    function money(value) {
+      return moneyFormatter.format(
+        Number.isFinite(value) ? value : 0
+      ) + " ₽";
+    }
+
+    function formatNumber(value) {
+      return numberFormatter.format(
+        Number.isFinite(value) ? value : 0
+      );
+    }
+
+    function safeNumber(value) {
+      const number = Number(
+        String(value ?? "").replace(",", ".")
+      );
+
+      return Number.isFinite(number)
+        ? Math.max(0, number)
+        : 0;
+    }
+
+    function getNumber(section, name) {
+      const input = document.getElementById(
+        section + "-" + name
+      );
+
+      return input ? safeNumber(input.value) : 0;
+    }
+
+    function getSelect(section, name) {
+      const select = document.getElementById(
+        section + "-" + name
+      );
+
+      return select ? select.value : "";
+    }
+
+    function setText(id, value) {
+      const element = document.getElementById(id);
+
+      if (element) {
+        element.textContent = value;
+      }
+    }
+
+    // =========================================
+    // ГЕНЕРАЦИЯ ПОЛЕЙ
+    // =========================================
+
+    function createNumberField(
+      section,
+      id,
+      label,
+      value = 0,
+      note = ""
+    ) {
+      const inputId = section + "-" + id;
+
+      return `
+        <div class="field">
+          <label for="${inputId}">
+            ${label}
+            ${
+              note
+                ? `<span class="field-note">${note}</span>`
+                : ""
+            }
+          </label>
+          <input
+            type="number"
+            id="${inputId}"
+            name="${inputId}"
+            min="0"
+            step="any"
+            inputmode="decimal"
+            value="${value}"
+          >
+        </div>
+      `;
+    }
+
+    function createSelectField(
+      section,
+      id,
+      label,
+      options,
+      selectedIndex = 0
+    ) {
+      const inputId = section + "-" + id;
+
+      const optionsHTML = options.map((option, index) => {
+        const text = option[0];
+        const value = option[1];
+
+        return `
+          <option
+            value="${value}"
+            ${index === selectedIndex ? "selected" : ""}
+          >
+            ${text} (${value > 0 ? "+" : ""}${value}%)
+          </option>
+        `;
+      }).join("");
+
+      return `
+        <div class="field">
+          <label for="${inputId}">${label}</label>
+          <select id="${inputId}" name="${inputId}">
+            ${optionsHTML}
+          </select>
+        </div>
+      `;
+    }
+
+    function createQuantityRows(section, items, prefix) {
+      return items.map(item => {
+        const inputId = `${section}-${prefix}-${item.id}`;
+
+        return `
+          <div class="item-row">
+            <label class="item-name" for="${inputId}">
+              ${item.title}
+              <span class="item-meta">
+                ${item.percent}% · ${item.unit}
+              </span>
+            </label>
+
+            <input
+              type="number"
+              id="${inputId}"
+              name="${inputId}"
+              min="0"
+              step="any"
+              inputmode="decimal"
+              value="0"
+              aria-label="Количество: ${item.title}, ${item.unit}"
+            >
+          </div>
+        `;
+      }).join("");
+    }
+
+    function createSummary(section) {
+      return `
+        <div class="summary" aria-live="polite">
+          <h2>Результат расчёта</h2>
+
+          <div class="summary-row">
+            <span class="name">Сумма надбавок</span>
+            <span class="value" id="${section}-percent">
+              0%
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">
+              Надбавка за стоимость плитки, за м²
+            </span>
+            <span class="value" id="${section}-tile-extra">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row primary">
+            <span class="name">
+              Стоимость 1 м² со всеми надбавками
+            </span>
+            <span class="value" id="${section}-sqm-price">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">Укладка за весь объём</span>
+            <span class="value" id="${section}-laying-cost">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">Стоимость реза</span>
+            <span class="value" id="${section}-cuts-cost">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">Стоимость отверстий</span>
+            <span class="value" id="${section}-holes-cost">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">Стоимость затирки</span>
+            <span class="value" id="${section}-grout-cost">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">Стоимость силикона</span>
+            <span class="value" id="${section}-silicone-cost">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">
+              Затирка и силикон (всего)
+            </span>
+            <span class="value" id="${section}-grout-total">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">Стоимость подготовки</span>
+            <span class="value" id="${section}-prep-cost">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row total">
+            <span class="name">Итого за раздел</span>
+            <span class="value" id="${section}-total">
+              0 ₽
+            </span>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================
+    // СОЗДАНИЕ РАЗДЕЛОВ
+    // =========================================
+
+    function buildSection(section) {
+      const defaults = DEFAULTS[section];
+      const isFloor = section === "floor";
+
+      const categoryHTML = CATEGORIES.map(category => {
+        let options = category.options;
+
+        if (category.id === "size") {
+          options = options.map((option, index) => {
+            if (index === 2) {
+              return [
+                isFloor
+                  ? "От 60 до 100 см"
+                  : "До 1 м",
+                option[1]
+              ];
+            }
+
+            return option;
+          });
+        }
+
+        const selectedIndex =
+          category.id === "position"
+            ? defaults.position
+            : 0;
+
+        return createSelectField(
+          section,
+          category.id,
+          category.title,
+          options,
+          selectedIndex
+        );
+      }).join("");
+
+      const html = `
+        <div class="section">
+          <h2>1. Основные данные</h2>
+
+          ${createNumberField(
+            section,
+            "basePrice",
+            "Базовая цена, ₽/м²",
+            defaults.basePrice
+          )}
+
+          ${createNumberField(
+            section,
+            "area",
+            "Площадь, м²",
+            defaults.area
+          )}
+
+          ${createNumberField(
+            section,
+            "tilePrice",
+            "Стоимость плитки, ₽/м²",
+            defaults.tilePrice,
+            "Если цена выше 1000 ₽/м², добавляется 5% от цены плитки за каждый м²"
+          )}
+        </div>
+
+        <div class="section">
+          <h2>2. Надбавки за укладку</h2>
+          <p class="section-note">
+            Выберите по одному варианту в каждой категории.
+            Проценты суммируются от базовой цены.
+          </p>
+
+          ${categoryHTML}
+        </div>
+
+        <div class="section">
+          <h2>3. Рез плитки</h2>
+          <p class="section-note">
+            Укажите длину реза в погонных метрах
+            или количество соединений в штуках.
+            Цена рассчитывается от стоимости 1 м²
+            со всеми надбавками.
+          </p>
+
+          ${createQuantityRows(section, CUTS, "cut")}
+        </div>
+
+        <div class="section">
+          <h2>4. Отверстия</h2>
+          <p class="section-note">
+            Укажите количество отверстий каждого размера.
+          </p>
+
+          ${createQuantityRows(section, HOLES, "hole")}
+        </div>
+
+        <div class="section">
+          <h2>5. Затирка и силикон</h2>
+
+          <div class="field">
+            <label for="${section}-groutType">
+              Тип затирки
+            </label>
+
+            <select id="${section}-groutType">
+              <option value="cement">Цементная</option>
+              <option value="epoxy">Эпоксидная</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="${section}-jointWidth">
+              Ширина шва
+            </label>
+
+            <select id="${section}-jointWidth">
+              <option value="1.5">1,5 мм</option>
+              <option value="2">2 мм</option>
+              <option value="2.5">2,5 мм</option>
+              <option value="3">3 мм</option>
+            </select>
+          </div>
+
+          <div class="two-columns">
+            ${createNumberField(
+              section,
+              "groutLength",
+              "Длина затирки, м/п",
+              0
+            )}
+
+            ${createNumberField(
+              section,
+              "siliconeLength",
+              "Длина силикона, м/п",
+              0
+            )}
+          </div>
+
+          <div class="summary-row">
+            <span class="name">Затирка за м/п</span>
+            <span class="value" id="${section}-grout-rate">
+              0 ₽
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="name">Силикон за м/п</span>
+            <span class="value" id="${section}-silicone-rate">
+              0 ₽
+            </span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>6. Предварительная подготовка</h2>
+
+          <p class="section-note">
+            Укажите площадь каждой операции в м².
+            Стоимость рассчитывается от базовой цены
+            без надбавок.
+          </p>
+
+          ${createQuantityRows(
+            section,
+            PREPARATION,
+            "prep"
+          )}
+        </div>
+
+        ${createSummary(section)}
+      `;
+
+      document.getElementById(section).innerHTML = html;
+    }
+
+    buildSection("floor");
+    buildSection("walls");
+
+    // =========================================
+    // РАСЧЁТ КАТЕГОРИЙ
+    // =========================================
+
+    function calculatePercent(section) {
+      return CATEGORIES.reduce((sum, category) => {
+        const value = Number(
+          getSelect(section, category.id)
+        );
+
+        return sum + (Number.isFinite(value) ? value : 0);
+      }, 0);
+    }
+
+    // =========================================
+    // РАСЧЁТ РЕЗА, ОТВЕРСТИЙ, ПОДГОТОВКИ
+    // =========================================
+
+    function calculateItems(
+      section,
+      items,
+      prefix,
+      pricePerUnit
+    ) {
+      return items.reduce((total, item) => {
+        const quantity = getNumber(
+          section,
+          `${prefix}-${item.id}`
+        );
+
+        const unitPrice =
+          pricePerUnit * item.percent / 100;
+
+        return total + quantity * unitPrice;
+      }, 0);
+    }
+
+    // =========================================
+    // ОСНОВНОЙ РАСЧЁТ РАЗДЕЛА
+    // =========================================
+
+    function calculateSection(section) {
+      const basePrice = getNumber(
+        section,
+        "basePrice"
+      );
+
+      const area = getNumber(
+        section,
+        "area"
+      );
+
+      const tilePrice = getNumber(
+        section,
+        "tilePrice"
+      );
+
+      // Сумма процентных надбавок.
+      const totalPercent = calculatePercent(section);
+
+      // Дополнительная надбавка за дорогую плитку.
+      // Не включается в сумму процентов.
+      const tileExtra =
+        tilePrice > 1000
+          ? tilePrice * 0.05
+          : 0;
+
+      // Стоимость укладки одного квадратного метра.
+      const sqmPrice =
+        basePrice +
+        basePrice * totalPercent / 100 +
+        tileExtra;
+
+      // Стоимость укладки всей площади.
+      const layingCost = area * sqmPrice;
+
+      // Стоимость всех видов реза.
+      const cutsCost = calculateItems(
+        section,
+        CUTS,
+        "cut",
+        sqmPrice
+      );
+
+      // Стоимость всех отверстий.
+      const holesCost = calculateItems(
+        section,
+        HOLES,
+        "hole",
+        sqmPrice
+      );
+
+      // Затирка и силикон.
+      const groutType = getSelect(
+        section,
+        "groutType"
+      );
+
+      const jointWidth = getSelect(
+        section,
+        "jointWidth"
+      );
+
+      const groutLength = getNumber(
+        section,
+        "groutLength"
+      );
+
+      const siliconeLength = getNumber(
+        section,
+        "siliconeLength"
+      );
+
+      const groutRate =
+        GROUT_PRICES[groutType]?.[jointWidth] ?? 0;
+
+      const siliconeRate =
+        SILICONE_PRICES[jointWidth] ?? 0;
+
+      const groutCost =
+        groutLength * groutRate;
+
+      const siliconeCost =
+        siliconeLength * siliconeRate;
+
+      const groutTotal =
+        groutCost + siliconeCost;
+
+      // Предварительная подготовка.
+      // В отличие от реза и отверстий,
+      // используется именно базовая цена.
+      const prepCost = calculateItems(
+        section,
+        PREPARATION,
+        "prep",
+        basePrice
+      );
+
+      // Итог раздела.
+      const total =
+        layingCost +
+        cutsCost +
+        holesCost +
+        groutTotal +
+        prepCost;
+
+      // =====================================
+      // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+      // =====================================
+
+      setText(
+        `${section}-percent`,
+        `+${formatNumber(totalPercent)}%`
+      );
+
+      setText(
+        `${section}-tile-extra`,
+        money(tileExtra)
+      );
+
+      setText(
+        `${section}-sqm-price`,
+        money(sqmPrice)
+      );
+
+      setText(
+        `${section}-laying-cost`,
+        money(layingCost)
+      );
+
+      setText(
+        `${section}-cuts-cost`,
+        money(cutsCost)
+      );
+
+      setText(
+        `${section}-holes-cost`,
+        money(holesCost)
+      );
+
+      setText(
+        `${section}-grout-rate`,
+        money(groutRate)
+      );
+
+      setText(
+        `${section}-silicone-rate`,
+        money(siliconeRate)
+      );
+
+      setText(
+        `${section}-grout-cost`,
+        money(groutCost)
+      );
+
+      setText(
+        `${section}-silicone-cost`,
+        money(siliconeCost)
+      );
+
+      setText(
+        `${section}-grout-total`,
+        money(groutTotal)
+      );
+
+      setText(
+        `${section}-prep-cost`,
+        money(prepCost)
+      );
+
+      setText(
+        `${section}-total`,
+        money(total)
+      );
+
+      return {
+        area,
+        basePrice,
+        sqmPrice,
+        layingCost,
+        cutsCost,
+        holesCost,
+        groutTotal,
+        prepCost,
+        total
+      };
+    }
+
+    // =========================================
+    // ОБЩИЙ ИТОГ
+    // =========================================
+
+    function calculateAll() {
+      const floor = calculateSection("floor");
+      const walls = calculateSection("walls");
+
+      const totalArea =
+        floor.area + walls.area;
+
+      const totalCost =
+        floor.total + walls.total;
+
+      setText(
+        "overall-floor-area",
+        formatNumber(floor.area) + " м²"
+      );
+
+      setText(
+        "overall-walls-area",
+        formatNumber(walls.area) + " м²"
+      );
+
+      setText(
+        "overall-area",
+        formatNumber(totalArea) + " м²"
+      );
+
+      setText(
+        "overall-floor-cost",
+        money(floor.total)
+      );
+
+      setText(
+        "overall-walls-cost",
+        money(walls.total)
+      );
+
+      setText(
+        "overall-total",
+        money(totalCost)
+      );
+    }
+
+    // =========================================
+    // АВТОМАТИЧЕСКИЙ ПЕРЕСЧЁТ
+    // =========================================
+
+    document.querySelectorAll(
+      ".panel input, .panel select"
+    ).forEach(element => {
+      element.addEventListener("input", calculateAll);
+      element.addEventListener("change", calculateAll);
+    });
+
+    // =========================================
+    // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+    // =========================================
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab").forEach(tab => {
+        const isActive = tab.dataset.tab === tabName;
+
+        tab.classList.toggle("active", isActive);
+        tab.setAttribute(
+          "aria-selected",
+          String(isActive)
+        );
+      });
+
+      document.querySelectorAll(".panel").forEach(panel => {
+        const isActive = panel.id === tabName;
+
+        panel.classList.toggle("active", isActive);
+        panel.hidden = !isActive;
+      });
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        switchTab(tab.dataset.tab);
+
+        // Лёгкая тактильная отдача в Telegram.
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback
+            .selectionChanged();
+        }
+      });
+    });
+
+    // =========================================
+    // ПЕРВОНАЧАЛЬНЫЙ РАСЧЁТ
+    // =========================================
+
+    calculateAll();
+  </script>
+
+  <!-- Официальный Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      let tg = window.Telegram.WebApp;
+
+      tg.ready();
+      tg.expand();
+
+      try {
+        tg.setHeaderColor('secondary_bg_color');
+      } catch (error) {
+        // В обычном браузере или старой версии Telegram
+        // приложение продолжит работать.
+      }
+    }
+  </script>
+</body>
+</html>
