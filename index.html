@@ -22,7 +22,6 @@ HTML
 }
 
 *{box-sizing:border-box}
-
 html{scroll-behavior:smooth}
 
 body{
@@ -36,7 +35,6 @@ body{
 }
 
 button,input,select{font:inherit}
-
 button{cursor:pointer}
 
 .app{
@@ -359,12 +357,6 @@ select{
   font-weight:400;
 }
 
-.settings-subtitle{
-  color:var(--hint);
-  font-size:13px;
-  margin:0 0 12px;
-}
-
 .download-btn{
   display:block;
   width:100%;
@@ -571,15 +563,32 @@ footer{
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
 "use strict";
 
 /* ==========================================
-   СПРАВОЧНИКИ И НАСТРОЙКИ ПО УМОЛЧАНИЮ
+   TELEGRAM WEB APP
 ========================================== */
 
-const CATEGORIES = [
+const tg=window.Telegram?.WebApp??null;
+
+if(tg){
+  try{
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor("secondary_bg_color");
+  }catch(error){
+    console.warn("Telegram WebApp:",error);
+  }
+}
+
+/* ==========================================
+   СПРАВОЧНИКИ
+========================================== */
+
+const CATEGORIES=[
   {
     id:"size",
     title:"Размер плитки",
@@ -673,7 +682,7 @@ const CATEGORIES = [
   }
 ];
 
-const CUTS = [
+const CUTS=[
   {id:"roughDry",label:"Рез черновой (сухорез)",percent:30,unit:"м/п"},
   {id:"roughWet",label:"Рез черновой (болгарка, мокрорез)",percent:50,unit:"м/п"},
   {id:"figure",label:"Рез фигурный (болгарка, мокрорез)",percent:70,unit:"м/п"},
@@ -686,19 +695,18 @@ const CUTS = [
   {id:"joinAngle",label:"Соединение двух резов (заусовка)",percent:40,unit:"шт"}
 ];
 
-const HOLES = [
+const HOLES=[
   {id:"small",label:"До 2 см",percent:15,unit:"шт"},
   {id:"medium",label:"От 2 до 7 см",percent:25,unit:"шт"},
   {id:"large",label:"Выше 7 см",percent:35,unit:"шт"}
 ];
 
-// Пункт "Грунтовка после гидроизоляции" удалён.
-const PREPARATION = [
+const PREPARATION=[
   {id:"primerBefore",label:"Грунтовка до гидроизоляции",percent:3,unit:"м²"},
   {id:"waterproof",label:"Гидроизоляция (2 слоя)",percent:25,unit:"м²"}
 ];
 
-const DEFAULT_SETTINGS = {
+const DEFAULT_SETTINGS={
   basePrice:{floor:800,walls:500},
   tileThreshold:1000,
   tileExtraPercent:5,
@@ -715,6 +723,7 @@ const DEFAULT_SETTINGS = {
 
 CATEGORIES.forEach(category=>{
   DEFAULT_SETTINGS.categories[category.id]={};
+
   category.options.forEach(option=>{
     DEFAULT_SETTINGS.categories[category.id][option.id]=option.percent;
   });
@@ -731,6 +740,10 @@ HOLES.forEach(item=>{
 PREPARATION.forEach(item=>{
   DEFAULT_SETTINGS.preparation[item.id]=item.percent;
 });
+
+/* ==========================================
+   LOCAL STORAGE
+========================================== */
 
 const STORAGE_KEY="tile_calculator_settings_v2";
 const FORM_STORAGE_KEY="tile_calculator_form_v2";
@@ -753,6 +766,7 @@ function mergeSettings(target,source){
       mergeSettings(target[key],source[key]);
     }else{
       const number=Number(source[key]);
+
       if(Number.isFinite(number) && number>=0){
         target[key]=number;
       }
@@ -774,7 +788,7 @@ function writeStorage(key,value){
   try{
     localStorage.setItem(key,JSON.stringify(value));
   }catch(error){
-    console.warn("Не удалось сохранить данные:",error);
+    console.warn("Ошибка сохранения:",error);
   }
 }
 
@@ -784,6 +798,10 @@ let settings=mergeSettings(
 );
 
 let savedForm=readStorage(FORM_STORAGE_KEY)||{};
+
+/* ==========================================
+   ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+========================================== */
 
 const moneyFormat=new Intl.NumberFormat("ru-RU",{
   minimumFractionDigits:2,
@@ -838,7 +856,7 @@ function esc(value){
 }
 
 /* ==========================================
-   СОЗДАНИЕ НАСТРОЕК
+   НАСТРОЙКИ
 ========================================== */
 
 function settingRow(key,label,value,unit){
@@ -878,7 +896,7 @@ function buildSettings(){
     settingRow("basePrice.floor","Пол",settings.basePrice.floor,"₽/м²")+
     settingRow("basePrice.walls","Стены",settings.basePrice.walls,"₽/м²")+
     settingRow("tileThreshold","Порог цены плитки",settings.tileThreshold,"₽/м²")+
-    settingRow("tileExtraPercent","Надбавка за дорогую плитку",settings.tileExtraPercent,"% от цены плитки")
+    settingRow("tileExtraPercent","Надбавка за дорогую плитку",settings.tileExtraPercent,"%")
   );
 
   CATEGORIES.forEach(category=>{
@@ -969,7 +987,7 @@ function setSetting(path,value){
 buildSettings();
 
 /* ==========================================
-   СОЗДАНИЕ КАЛЬКУЛЯТОРА
+   ПОЛЯ КАЛЬКУЛЯТОРА
 ========================================== */
 
 function numberField(section,id,label,value){
@@ -1059,10 +1077,9 @@ function buildPanel(section){
   const base=settings.basePrice[section];
   const area=section==="floor"?1:2;
 
-  let html=`
+  const html=`
     <div class="section">
       <h2>1. Основные данные</h2>
-
       ${numberField(section,"basePrice","Базовая цена, ₽/м²",base)}
       ${numberField(section,"area","Площадь, м²",area)}
       ${numberField(section,"tilePrice","Стоимость плитки, ₽/м²",0)}
@@ -1072,7 +1089,6 @@ function buildPanel(section){
       <h2>2. Надбавки за укладку</h2>
       <p class="note">
         Выберите один вариант в каждой категории.
-        Проценты складываются.
       </p>
       ${CATEGORIES.map(c=>selectField(section,c)).join("")}
     </div>
@@ -1147,15 +1163,15 @@ function buildPanel(section){
 
   byId(section).innerHTML=html;
 
-  const position=byId(section+"-position");
-  position.value=section==="floor"?"floor":"wall";
+  byId(section+"-position").value=
+    section==="floor"?"floor":"wall";
 }
 
 buildPanel("floor");
 buildPanel("walls");
 
 /* ==========================================
-   ВОССТАНОВЛЕНИЕ ПОЛЕЙ
+   СОХРАНЕНИЕ ПОЛЕЙ
 ========================================== */
 
 function restoreForm(){
@@ -1192,13 +1208,14 @@ function saveForm(){
 restoreForm();
 
 /* ==========================================
-   ОБНОВЛЕНИЕ ПРОЦЕНТОВ В СПИСКАХ
+   ОБНОВЛЕНИЕ ПРОЦЕНТОВ
 ========================================== */
 
 function refreshRateLabels(){
   document.querySelectorAll("[data-category]").forEach(select=>{
     const categoryId=select.dataset.category;
     const category=CATEGORIES.find(c=>c.id===categoryId);
+
     if(!category) return;
 
     category.options.forEach((option,index)=>{
@@ -1213,12 +1230,14 @@ function refreshRateLabels(){
 
   document.querySelectorAll("[data-rate-label]").forEach(element=>{
     const [group,id]=element.dataset.rateLabel.split(".");
-    const item=[...CUTS,...HOLES,...PREPARATION]
-      .find(x=>x.id===id && (
-        (group==="cuts" && CUTS.includes(x)) ||
-        (group==="holes" && HOLES.includes(x)) ||
-        (group==="preparation" && PREPARATION.includes(x))
-      ));
+
+    const collection={
+      cuts:CUTS,
+      holes:HOLES,
+      preparation:PREPARATION
+    }[group];
+
+    const item=collection?.find(x=>x.id===id);
 
     if(item){
       element.textContent=
@@ -1427,9 +1446,7 @@ byId("settingsBody").addEventListener("input",event=>{
     const section=path.endsWith("floor")?"floor":"walls";
     const field=byId(`${section}-basePrice`);
 
-    if(field){
-      field.value=settings.basePrice[section];
-    }
+    if(field) field.value=settings.basePrice[section];
 
     saveForm();
   }
@@ -1452,8 +1469,8 @@ document.querySelectorAll(".tab").forEach(tab=>{
       panel.hidden=panel.id!==name;
     });
 
-    if(window.Telegram?.WebApp?.HapticFeedback){
-      window.Telegram.WebApp.HapticFeedback.selectionChanged();
+    if(tg?.HapticFeedback){
+      tg.HapticFeedback.selectionChanged();
     }
   });
 });
@@ -1462,7 +1479,7 @@ refreshRateLabels();
 calculateAll();
 
 /* ==========================================
-   ГЕНЕРАЦИЯ ПОЛНОЙ СМЕТЫ ДЛЯ PNG
+   ГЕНЕРАЦИЯ СМЕТЫ
 ========================================== */
 
 function exportTable(headers,rows){
@@ -1627,16 +1644,166 @@ function createExportHTML(results){
 }
 
 /* ==========================================
-   СКАЧИВАНИЕ PNG
+   УВЕДОМЛЕНИЯ
+========================================== */
+
+function showNotification(message){
+  try{
+    if(
+      tg &&
+      typeof tg.showAlert==="function" &&
+      tg.initData
+    ){
+      tg.showAlert(message);
+    }else{
+      window.alert(message);
+    }
+  }catch(error){
+    window.alert(message);
+  }
+}
+
+/* ==========================================
+   TELEGRAM DOWNLOAD FILE
+========================================== */
+
+/*
+  Telegram WebApp.downloadFile использует:
+  {
+    url: string,
+    file_name: string
+  }
+
+  Важно:
+  - Telegram может требовать HTTPS URL.
+  - data:image/png;base64 может не поддерживаться.
+  - Поддержка зависит от версии клиента.
+  - Метод асинхронный и использует callback.
+*/
+
+function telegramDownload(dataUrl,fileName){
+  return new Promise((resolve,reject)=>{
+    if(
+      !tg ||
+      typeof tg.downloadFile!=="function"
+    ){
+      reject(new Error("Telegram downloadFile недоступен"));
+      return;
+    }
+
+    let settled=false;
+    let timeoutId=null;
+
+    function finish(success,error){
+      if(settled) return;
+
+      settled=true;
+
+      if(timeoutId!==null){
+        clearTimeout(timeoutId);
+      }
+
+      if(success){
+        resolve(true);
+      }else{
+        reject(error||new Error("Telegram отклонил скачивание"));
+      }
+    }
+
+    try{
+      /*
+        Callback получает true, если пользователь
+        подтвердил загрузку, и false, если отклонил.
+
+        Само подтверждение не гарантирует, что файл
+        физически записан на устройство.
+      */
+
+      tg.downloadFile(
+        {
+          url:dataUrl,
+          file_name:fileName
+        },
+        function(accepted){
+          if(accepted===true){
+            finish(true);
+          }else{
+            finish(
+              false,
+              new Error("Скачивание не подтверждено")
+            );
+          }
+        }
+      );
+
+      // Защита от зависания, если клиент не вызывает callback.
+      timeoutId=setTimeout(()=>{
+        finish(
+          false,
+          new Error("Telegram не ответил на запрос скачивания")
+        );
+      },15000);
+
+    }catch(error){
+      finish(false,error);
+    }
+  });
+}
+
+/* ==========================================
+   FALLBACK ДЛЯ БРАУЗЕРА
+========================================== */
+
+async function browserDownload(blob,fileName){
+  if(!(blob instanceof Blob) || blob.size===0){
+    throw new Error("PNG-файл пустой");
+  }
+
+  const url=URL.createObjectURL(blob);
+
+  try{
+    const link=document.createElement("a");
+
+    link.href=url;
+    link.download=fileName;
+    link.style.display="none";
+
+    document.body.appendChild(link);
+
+    link.click();
+    link.remove();
+
+    /*
+      Браузер не сообщает, был ли файл действительно
+      сохранён. Поэтому это означает лишь, что запрос
+      на скачивание был отправлен.
+    */
+
+    return true;
+
+  }finally{
+    setTimeout(()=>{
+      URL.revokeObjectURL(url);
+    },60000);
+  }
+}
+
+/* ==========================================
+   ОСНОВНАЯ ФУНКЦИЯ СКАЧИВАНИЯ PNG
 ========================================== */
 
 async function downloadPNG(){
   const button=byId("downloadBtn");
   const status=byId("downloadStatus");
 
+  if(button.disabled) return;
+
   if(typeof html2canvas!=="function"){
-    status.textContent=
-      "Библиотека создания PNG не загрузилась. Проверьте интернет.";
+    const message=
+      "Библиотека создания PNG не загрузилась. Проверьте подключение к интернету.";
+
+    status.textContent=message;
+    showNotification(message);
     return;
   }
 
@@ -1647,8 +1814,10 @@ async function downloadPNG(){
   let exportRoot=null;
 
   try{
+    // 1. Получаем актуальные результаты.
     const results=calculateAll();
 
+    // 2. Создаём отдельную смету без кнопок и полей ввода.
     exportRoot=document.createElement("div");
     exportRoot.className="export-root";
     exportRoot.setAttribute("aria-hidden","true");
@@ -1656,10 +1825,17 @@ async function downloadPNG(){
 
     document.body.appendChild(exportRoot);
 
-    await document.fonts.ready;
+    if(document.fonts?.ready){
+      await document.fonts.ready;
+    }
 
     const sheet=exportRoot.querySelector(".export-sheet");
 
+    if(!sheet){
+      throw new Error("Не удалось создать макет сметы");
+    }
+
+    // 3. Создаём изображение.
     const canvas=await html2canvas(sheet,{
       backgroundColor:"#ffffff",
       scale:2,
@@ -1671,42 +1847,126 @@ async function downloadPNG(){
       scrollY:0
     });
 
-    const filename=
-      "smeta-plitka-"+new Date().toISOString().slice(0,10)+".png";
+    if(!canvas.width || !canvas.height){
+      throw new Error("Изображение имеет неверный размер");
+    }
 
+    // 4. Формируем корректное имя PNG-файла.
+    const date=new Date();
+
+    const dateString=[
+      date.getFullYear(),
+      String(date.getMonth()+1).padStart(2,"0"),
+      String(date.getDate()).padStart(2,"0")
+    ].join("-");
+
+    const fileName=`smeta-plitka-${dateString}.png`;
+
+    // 5. Получаем data URL для Telegram.
+    const dataUrl=canvas.toDataURL("image/png");
+
+    if(!dataUrl.startsWith("data:image/png;base64,")){
+      throw new Error("Не удалось получить PNG в формате base64");
+    }
+
+    // 6. Получаем Blob для обычного браузера.
     const blob=await new Promise((resolve,reject)=>{
       canvas.toBlob(result=>{
-        if(result) resolve(result);
-        else reject(new Error("Не удалось создать PNG"));
+        if(result && result.size>0){
+          resolve(result);
+        }else{
+          reject(new Error("Не удалось создать PNG Blob"));
+        }
       },"image/png");
     });
 
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement("a");
+    let telegramError=null;
+    let downloaded=false;
 
-    link.href=url;
-    link.download=filename;
-    link.style.display="none";
+    // 7. Пробуем официальный Telegram downloadFile.
+    if(tg && typeof tg.downloadFile==="function"){
+      status.textContent="Передаём PNG в Telegram...";
 
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+      try{
+        await telegramDownload(dataUrl,fileName);
 
-    // В некоторых Telegram WebView скачивание через
-    // ссылку может быть ограничено платформой.
-    status.textContent=
-      "Смета готова. Если файл не скачался, откройте приложение во внешнем браузере.";
+        downloaded=true;
 
-    setTimeout(()=>{
-      URL.revokeObjectURL(url);
-    },60000);
+        status.textContent=
+          "Запрос на скачивание принят Telegram.";
+
+      }catch(error){
+        telegramError=error;
+
+        console.warn(
+          "Telegram downloadFile не сработал:",
+          error
+        );
+      }
+    }
+
+    // 8. Если Telegram не сработал, используем fallback.
+    if(!downloaded){
+      status.textContent=
+        "Пробуем скачать файл через браузер...";
+
+      try{
+        await browserDownload(blob,fileName);
+
+        /*
+          В обычном браузере ссылка обычно запускает
+          скачивание. В Telegram WebView результат
+          не гарантируется.
+        */
+
+        if(tg?.initData){
+          status.textContent=
+            "Запрос на скачивание отправлен. Если файл не появился, откройте приложение во внешнем браузере.";
+
+          if(telegramError){
+            showNotification(
+              "Telegram не смог скачать PNG напрямую. " +
+              "Попытка обычного скачивания выполнена. " +
+              "Если файл не сохранился, откройте приложение во внешнем браузере."
+            );
+          }
+        }else{
+          status.textContent=
+            "Скачивание PNG запущено.";
+        }
+
+        downloaded=true;
+
+      }catch(browserError){
+        console.error(
+          "Ошибка браузерного скачивания:",
+          browserError
+        );
+
+        const message=
+          "Не удалось скачать PNG. " +
+          "Откройте приложение во внешнем браузере и повторите попытку.";
+
+        status.textContent=message;
+        showNotification(message);
+      }
+    }
 
   }catch(error){
-    console.error("Ошибка PNG:",error);
-    status.textContent=
-      "Не удалось создать изображение. Попробуйте ещё раз.";
+    console.error("Ошибка создания PNG:",error);
+
+    const message=
+      "Не удалось создать PNG-смету. " +
+      "Попробуйте ещё раз. Если ошибка повторяется, " +
+      "откройте приложение во внешнем браузере.";
+
+    status.textContent=message;
+    showNotification(message);
+
   }finally{
-    if(exportRoot) exportRoot.remove();
+    if(exportRoot){
+      exportRoot.remove();
+    }
 
     button.disabled=false;
     button.textContent="📥 Скачать смету в PNG";
@@ -1715,21 +1975,6 @@ async function downloadPNG(){
 
 byId("downloadBtn").addEventListener("click",downloadPNG);
 
-</script>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
-if(window.Telegram && window.Telegram.WebApp){
-  let tg=window.Telegram.WebApp;
-  tg.ready();
-  tg.expand();
-
-  try{
-    tg.setHeaderColor('secondary_bg_color');
-  }catch(error){
-    console.warn("Цвет заголовка недоступен:",error);
-  }
-}
 </script>
 
 </body>
