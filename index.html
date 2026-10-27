@@ -4386,6 +4386,30 @@ function initModule(key,cfg){
  restoreDraft();
 }
 initModule('elec',configs.elec);initModule('meters',configs.meters);
+// UX: автоматически очищаем нулевое значение при фокусе и восстанавливаем его при выходе из поля.
+// Делегирование работает и для динамически перерисовываемых списков и прайс-листов.
+const zeroClearSelector = [
+  'input[type="number"][data-qty]',
+  'input[type="number"][data-zone-field]',
+  'input[type="number"][data-price-group]',
+  'input[type="number"][data-price-field]',
+  'input[type="number"][data-price]'
+].join(',');
+
+document.addEventListener('focusin', event => {
+  const input = event.target.closest(zeroClearSelector);
+  if (input && input.value === '0') input.value = '';
+});
+
+document.addEventListener('focusout', event => {
+  const input = event.target.closest(zeroClearSelector);
+  if (!input || input.value !== '') return;
+  input.value = '0';
+  // Запускает существующие обработчики обновления состояния и пересчёта суммы.
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+});
+
 // Глобальная навигация
 function showModule(name) {
  const valid = ['menu', 'tile', 'elec', 'meters'];
