@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
-
 <title>Калькулятор плиточных работ</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -29,13 +28,9 @@
   --nav-height: 76px;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
@@ -48,18 +43,9 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-button, input, select, textarea {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .55; cursor: not-allowed; }
 
 button:focus-visible,
 input:focus-visible,
@@ -69,9 +55,7 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-[hidden] {
-  display: none !important;
-}
+[hidden] { display: none !important; }
 
 .app {
   max-width: 760px;
@@ -79,17 +63,9 @@ textarea:focus-visible {
   padding: 18px 14px calc(var(--nav-height) + 35px + env(safe-area-inset-bottom));
 }
 
-.page {
-  display: none;
-}
-
-.page.active {
-  display: block;
-}
-
-.page-header {
-  margin-bottom: 20px;
-}
+.page { display: none; }
+.page.active { display: block; }
+.page-header { margin-bottom: 20px; }
 
 .page-title {
   margin: 0 0 5px;
@@ -117,13 +93,8 @@ textarea:focus-visible {
   font-weight: 750;
 }
 
-.muted {
-  color: var(--hint);
-}
-
-.small {
-  font-size: 12px;
-}
+.muted { color: var(--hint); }
+.small { font-size: 12px; }
 
 .section-heading {
   display: flex;
@@ -138,13 +109,8 @@ textarea:focus-visible {
   font-size: 19px;
 }
 
-.field {
-  margin-bottom: 14px;
-}
-
-.field:last-child {
-  margin-bottom: 0;
-}
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
 
 .field label {
   display: block;
@@ -171,9 +137,7 @@ textarea:focus-visible {
 
 .field input,
 .field select,
-.search-input {
-  height: 50px;
-}
+.search-input { height: 50px; }
 
 .field textarea {
   min-height: 100px;
@@ -199,9 +163,7 @@ input::-webkit-outer-spin-button {
   margin: 0;
 }
 
-input[type="date"] {
-  color-scheme: dark;
-}
+input[type="date"] { color-scheme: dark; }
 
 .two-columns {
   display: grid;
@@ -209,9 +171,7 @@ input[type="date"] {
   gap: 12px;
 }
 
-.two-columns > .field {
-  margin-bottom: 0;
-}
+.two-columns > .field { margin-bottom: 0; }
 
 .btn {
   display: inline-flex;
@@ -239,9 +199,9 @@ input[type="date"] {
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, .1);
   color: var(--red);
-  border-color: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, .25);
 }
 
 .btn-large {
@@ -285,31 +245,60 @@ input[type="date"] {
   font-variant-numeric: tabular-nums;
 }
 
-.search-wrap {
-  margin-bottom: 16px;
-}
+.search-wrap { margin-bottom: 16px; }
 
 .estimate-card {
-  width: 100%;
-  display: block;
-  text-align: left;
+  position: relative;
   background: var(--card);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 15px;
-  padding: 16px;
   margin-bottom: 12px;
+  overflow: hidden;
 }
 
-.estimate-card:active {
-  border-color: var(--accent);
+.estimate-card-main {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  padding-right: 55px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.estimate-card-main:active {
+  background: rgba(148, 163, 184, .06);
+}
+
+.estimate-delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 39px;
+  height: 39px;
+  border: 1px solid rgba(239, 68, 68, .25);
+  border-radius: 10px;
+  background: rgba(239, 68, 68, .1);
+  color: var(--red);
+  font-size: 18px;
+}
+
+.estimate-delete-btn:active {
+  background: rgba(239, 68, 68, .22);
 }
 
 .estimate-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 11px;
 }
 
@@ -330,12 +319,12 @@ input[type="date"] {
 
 .status-badge.approved {
   color: var(--green);
-  background: rgba(34, 197, 94, 0.12);
+  background: rgba(34, 197, 94, .12);
 }
 
 .status-badge.draft {
   color: var(--orange);
-  background: rgba(245, 158, 11, 0.12);
+  background: rgba(245, 158, 11, .12);
 }
 
 .status-badge.completed {
@@ -391,9 +380,7 @@ input[type="date"] {
   margin-bottom: 10px;
 }
 
-.empty-state h3 {
-  margin: 0 0 8px;
-}
+.empty-state h3 { margin: 0 0 8px; }
 
 .empty-state p {
   margin: 0;
@@ -432,9 +419,7 @@ input[type="date"] {
   font-weight: 400;
 }
 
-.zone-body {
-  padding: 15px;
-}
+.zone-body { padding: 15px; }
 
 .zone-group {
   margin-top: 17px;
@@ -463,9 +448,7 @@ input[type="date"] {
   border-bottom: 1px solid var(--border);
 }
 
-.zone-number-row:last-child {
-  border-bottom: 0;
-}
+.zone-number-row:last-child { border-bottom: 0; }
 
 .zone-number-row label {
   font-size: 13px;
@@ -507,13 +490,8 @@ input[type="date"] {
   font-size: 13px;
 }
 
-.zone-summary-row span:first-child {
-  color: var(--hint);
-}
-
-.zone-summary-row strong {
-  text-align: right;
-}
+.zone-summary-row span:first-child { color: var(--hint); }
+.zone-summary-row strong { text-align: right; }
 
 .zone-total {
   display: flex;
@@ -540,9 +518,7 @@ input[type="date"] {
   margin-bottom: 15px;
 }
 
-.add-zone-actions .btn {
-  min-height: 52px;
-}
+.add-zone-actions .btn { min-height: 52px; }
 
 .estimate-summary {
   border: 2px solid var(--accent);
@@ -565,13 +541,8 @@ input[type="date"] {
   font-size: 14px;
 }
 
-.summary-line strong {
-  text-align: right;
-}
-
-.grand-total {
-  padding-top: 16px;
-}
+.summary-line strong { text-align: right; }
+.grand-total { padding-top: 16px; }
 
 .grand-total-label {
   color: var(--hint);
@@ -592,13 +563,8 @@ input[type="date"] {
   font-size: 13px;
 }
 
-.form-message.success {
-  color: var(--green);
-}
-
-.form-message.error {
-  color: var(--red);
-}
+.form-message.success { color: var(--green); }
+.form-message.error { color: var(--red); }
 
 .save-status {
   padding: 11px;
@@ -611,9 +577,7 @@ input[type="date"] {
   color: var(--green);
 }
 
-.save-status.error {
-  color: var(--red);
-}
+.save-status.error { color: var(--red); }
 
 .price-group-heading {
   display: flex;
@@ -637,9 +601,7 @@ input[type="date"] {
   font-size: 17px;
 }
 
-.price-group-body {
-  margin-top: 14px;
-}
+.price-group-body { margin-top: 14px; }
 
 .setting-row {
   display: grid;
@@ -650,9 +612,7 @@ input[type="date"] {
   border-bottom: 1px solid var(--border);
 }
 
-.setting-row:last-child {
-  border-bottom: 0;
-}
+.setting-row:last-child { border-bottom: 0; }
 
 .setting-label {
   font-size: 13px;
@@ -696,7 +656,7 @@ input[type="date"] {
   padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
   background: var(--secondary);
   border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, .15);
 }
 
 .nav-button {
@@ -733,9 +693,7 @@ input[type="date"] {
   white-space: nowrap;
 }
 
-.export-button {
-  margin-top: 11px;
-}
+.export-button { margin-top: 11px; }
 
 .export-note {
   margin: 10px 0 0;
@@ -758,16 +716,14 @@ input[type="date"] {
 .export-document {
   width: 800px;
   padding: 40px;
-  background: #ffffff;
+  background: #fff;
   color: #172033;
   font-family: Arial, sans-serif;
   font-size: 15px;
   line-height: 1.45;
 }
 
-.export-document * {
-  box-sizing: border-box;
-}
+.export-document * { box-sizing: border-box; }
 
 .export-header {
   border-bottom: 3px solid #2563eb;
@@ -808,9 +764,7 @@ input[type="date"] {
   color: #64748b;
 }
 
-.export-info-value {
-  font-weight: 700;
-}
+.export-info-value { font-weight: 700; }
 
 .export-notes {
   margin-bottom: 25px;
@@ -877,9 +831,7 @@ input[type="date"] {
   font-weight: 800;
 }
 
-.export-zone-total strong {
-  color: #2563eb;
-}
+.export-zone-total strong { color: #2563eb; }
 
 .export-grand-summary {
   padding: 24px;
@@ -915,13 +867,8 @@ input[type="date"] {
     padding-right: 10px;
   }
 
-  .card {
-    padding: 13px;
-  }
-
-  .zone-body {
-    padding: 12px;
-  }
+  .card { padding: 13px; }
+  .zone-body { padding: 12px; }
 
   .zone-number-row {
     grid-template-columns: minmax(0, 1fr) 83px;
@@ -931,15 +878,11 @@ input[type="date"] {
     grid-template-columns: minmax(0, 1fr) 85px;
   }
 
-  .page-title {
-    font-size: 24px;
-  }
+  .page-title { font-size: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  html { scroll-behavior: auto; }
 }
 </style>
 </head>
@@ -959,14 +902,12 @@ input[type="date"] {
       <h1 class="page-title" id="title-estimates">
         📁 Сметы
       </h1>
-
       <p class="page-subtitle">
         Статистика и сохранённые расчёты
       </p>
     </header>
 
     <div class="stats-grid">
-
       <div class="stat-card">
         <div class="stat-icon">📋</div>
         <div class="stat-label">Всего смет</div>
@@ -990,7 +931,6 @@ input[type="date"] {
         <div class="stat-label">Средний чек</div>
         <div class="stat-value" id="stat-average">0 ₽</div>
       </div>
-
     </div>
 
     <div class="search-wrap">
@@ -1005,7 +945,6 @@ input[type="date"] {
 
     <div class="section-heading">
       <h2>Мои сметы</h2>
-
       <button
         type="button"
         class="btn btn-primary"
@@ -1018,7 +957,7 @@ input[type="date"] {
     <div id="estimatesList"></div>
   </section>
 
-  <!-- НОВЫЙ РАСЧЁТ -->
+  <!-- КАЛЬКУЛЯТОР -->
 
   <section
     class="page"
@@ -1030,7 +969,6 @@ input[type="date"] {
       <h1 class="page-title" id="title-calculator">
         Новый расчёт
       </h1>
-
       <p class="page-subtitle" id="calculatorSubtitle">
         Создание сметы плиточных работ
       </p>
@@ -1039,15 +977,10 @@ input[type="date"] {
     <form id="estimateForm" novalidate>
 
       <section class="card">
-        <h2 class="card-title">
-          Информация об объекте
-        </h2>
+        <h2 class="card-title">Информация об объекте</h2>
 
         <div class="field">
-          <label for="estimateCustomer">
-            Заказчик
-          </label>
-
+          <label for="estimateCustomer">Заказчик</label>
           <input
             type="text"
             id="estimateCustomer"
@@ -1057,10 +990,7 @@ input[type="date"] {
         </div>
 
         <div class="field">
-          <label for="estimateAddress">
-            Адрес объекта
-          </label>
-
+          <label for="estimateAddress">Адрес объекта</label>
           <input
             type="text"
             id="estimateAddress"
@@ -1071,10 +1001,7 @@ input[type="date"] {
 
         <div class="two-columns">
           <div class="field">
-            <label for="estimateRoom">
-              Тип помещения
-            </label>
-
+            <label for="estimateRoom">Тип помещения</label>
             <input
               type="text"
               id="estimateRoom"
@@ -1084,22 +1011,13 @@ input[type="date"] {
           </div>
 
           <div class="field">
-            <label for="estimateDate">
-              Дата
-            </label>
-
-            <input
-              type="date"
-              id="estimateDate"
-            >
+            <label for="estimateDate">Дата</label>
+            <input type="date" id="estimateDate">
           </div>
         </div>
 
         <div class="field" style="margin-top:14px">
-          <label for="estimateNotes">
-            Заметки
-          </label>
-
+          <label for="estimateNotes">Заметки</label>
           <textarea
             id="estimateNotes"
             placeholder="Дополнительная информация..."
@@ -1109,13 +1027,7 @@ input[type="date"] {
 
       <div class="section-heading">
         <h2>Зоны работ</h2>
-
-        <span
-          class="muted small"
-          id="zonesCount"
-        >
-          0 зон
-        </span>
+        <span class="muted small" id="zonesCount">0 зон</span>
       </div>
 
       <div class="add-zone-actions">
@@ -1139,9 +1051,7 @@ input[type="date"] {
       <div id="zonesContainer"></div>
 
       <section class="estimate-summary">
-        <h2 class="card-title">
-          Итог по смете
-        </h2>
+        <h2 class="card-title">Итог по смете</h2>
 
         <div class="summary-line">
           <span>Количество зон</span>
@@ -1157,11 +1067,7 @@ input[type="date"] {
           <div class="grand-total-label">
             Итоговая стоимость
           </div>
-
-          <div
-            class="grand-total-value"
-            id="summaryPrice"
-          >
+          <div class="grand-total-value" id="summaryPrice">
             0 ₽
           </div>
         </div>
@@ -1169,22 +1075,12 @@ input[type="date"] {
 
       <section class="card">
         <div class="field">
-          <label for="estimateStatus">
-            Статус сметы
-          </label>
+          <label for="estimateStatus">Статус сметы</label>
 
           <select id="estimateStatus">
-            <option value="draft">
-              Черновик
-            </option>
-
-            <option value="approved">
-              Согласована
-            </option>
-
-            <option value="completed">
-              Выполнена
-            </option>
+            <option value="draft">Черновик</option>
+            <option value="approved">Согласована</option>
+            <option value="completed">Выполнена</option>
           </select>
         </div>
 
@@ -1204,10 +1100,7 @@ input[type="date"] {
           📥 Скачать смету в PNG
         </button>
 
-        <p
-          class="export-note"
-          id="exportNote"
-        >
+        <p class="export-note" id="exportNote">
           Смета будет сохранена как изображение.
         </p>
 
@@ -1234,7 +1127,6 @@ input[type="date"] {
       <h1 class="page-title" id="title-prices">
         Прайс-лист
       </h1>
-
       <p class="page-subtitle">
         Единые цены и проценты для всех зон работ
       </p>
@@ -1254,7 +1146,7 @@ input[type="date"] {
 
 </main>
 
-<!-- НИЖНЯЯ НАВИГАЦИЯ -->
+<!-- НАВИГАЦИЯ -->
 
 <nav class="bottom-nav" aria-label="Навигация">
 
@@ -1267,7 +1159,6 @@ input[type="date"] {
     <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
     </svg>
-
     <span class="nav-label">Сметы</span>
   </button>
 
@@ -1282,7 +1173,6 @@ input[type="date"] {
       <path d="M8 6h8v4H8z"/>
       <path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"/>
     </svg>
-
     <span class="nav-label">Новый расчёт</span>
   </button>
 
@@ -1297,16 +1187,12 @@ input[type="date"] {
       <circle cx="17" cy="17" r="2"/>
       <path d="M19 5 5 19"/>
     </svg>
-
     <span class="nav-label">Прайс-лист</span>
   </button>
 
 </nav>
 
-<div
-  id="exportWorkspace"
-  aria-hidden="true"
-></div>
+<div id="exportWorkspace" aria-hidden="true"></div>
 
 <script>
 "use strict";
@@ -1347,9 +1233,7 @@ function haptic() {
     if (isTelegramMiniApp()) {
       tg.HapticFeedback?.selectionChanged();
     }
-  } catch (error) {
-    // Необязательно.
-  }
+  } catch (error) {}
 }
 
 /* ==========================================
@@ -1389,7 +1273,7 @@ const numberFormatter = new Intl.NumberFormat("ru-RU", {
 });
 
 /* ==========================================
-   3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+   3. УТИЛИТЫ
 ========================================== */
 
 function byId(id) {
@@ -1446,11 +1330,7 @@ function readJSON(key, fallback) {
 
 function writeJSON(key, value) {
   try {
-    localStorage.setItem(
-      key,
-      JSON.stringify(value)
-    );
-
+    localStorage.setItem(key, JSON.stringify(value));
     return true;
   } catch (error) {
     console.error("Storage write:", key, error);
@@ -1496,9 +1376,7 @@ function uniqueId() {
 function setText(id, value) {
   const element = byId(id);
 
-  if (element) {
-    element.textContent = value;
-  }
+  if (element) element.textContent = value;
 }
 
 function showMessage(message, type = "success") {
@@ -1509,11 +1387,10 @@ function showMessage(message, type = "success") {
 }
 
 /* ==========================================
-   4. СХЕМА ЕДИНОГО ПРАЙС-ЛИСТА
+   4. PRICE_SCHEMA
 ========================================== */
 
 const PRICE_SCHEMA = [
-
   {
     id: "base",
     title: "Базовая ставка",
@@ -1527,7 +1404,6 @@ const PRICE_SCHEMA = [
       }
     ]
   },
-
   {
     id: "size",
     title: "Размер плитки",
@@ -1541,7 +1417,6 @@ const PRICE_SCHEMA = [
       {key: "mosaic", label: "Мозаика", value: 200}
     ]
   },
-
   {
     id: "thickness",
     title: "Толщина плитки",
@@ -1555,7 +1430,6 @@ const PRICE_SCHEMA = [
       {key: "over20mm", label: "Более 2 см (договорная)", value: 0}
     ]
   },
-
   {
     id: "material",
     title: "Материал плитки",
@@ -1568,7 +1442,6 @@ const PRICE_SCHEMA = [
       {key: "marble", label: "Мрамор", value: 0}
     ]
   },
-
   {
     id: "curvature",
     title: "Кривизна плитки",
@@ -1580,7 +1453,6 @@ const PRICE_SCHEMA = [
       {key: "calibration", label: "Калибровка", value: 30}
     ]
   },
-
   {
     id: "glue",
     title: "Слой клея",
@@ -1591,7 +1463,6 @@ const PRICE_SCHEMA = [
       {key: "from2to4cm", label: "От 2 до 4 см", value: 50}
     ]
   },
-
   {
     id: "laying",
     title: "Способ укладки",
@@ -1603,7 +1474,6 @@ const PRICE_SCHEMA = [
       {key: "herringbone", label: "Ёлочка", value: 20}
     ]
   },
-
   {
     id: "cleanliness",
     title: "Чистота / место резки",
@@ -1614,7 +1484,6 @@ const PRICE_SCHEMA = [
       {key: "outside", label: "На площадке", value: 10}
     ]
   },
-
   {
     id: "height",
     title: "Высота работ",
@@ -1625,7 +1494,6 @@ const PRICE_SCHEMA = [
       {key: "over4m", label: "Выше 4 м", value: 70}
     ]
   },
-
   {
     id: "position",
     title: "Расположение плитки",
@@ -1636,7 +1504,6 @@ const PRICE_SCHEMA = [
       {key: "ceiling", label: "Потолок", value: 100}
     ]
   },
-
   {
     id: "expensiveTile",
     title: "Дорогая плитка",
@@ -1649,7 +1516,6 @@ const PRICE_SCHEMA = [
       }
     ]
   },
-
   {
     id: "cuts",
     title: "Рез плитки и соединения",
@@ -1667,7 +1533,6 @@ const PRICE_SCHEMA = [
       {key: "joinAngle", label: "Соединение (заусовка)", value: 40, unit: "шт."}
     ]
   },
-
   {
     id: "holes",
     title: "Отверстия",
@@ -1678,7 +1543,6 @@ const PRICE_SCHEMA = [
       {key: "large", label: "Выше 7 см", value: 35}
     ]
   },
-
   {
     id: "groutCement",
     title: "Цементная затирка",
@@ -1691,7 +1555,6 @@ const PRICE_SCHEMA = [
       {key: "3", label: "Шов 3 мм", value: 35}
     ]
   },
-
   {
     id: "groutEpoxy",
     title: "Эпоксидная затирка",
@@ -1704,7 +1567,6 @@ const PRICE_SCHEMA = [
       {key: "3", label: "Шов 3 мм", value: 130}
     ]
   },
-
   {
     id: "silicone",
     title: "Силикон",
@@ -1717,7 +1579,6 @@ const PRICE_SCHEMA = [
       {key: "3", label: "Шов 3 мм", value: 170}
     ]
   },
-
   {
     id: "preparation",
     title: "Подготовка поверхности",
@@ -1735,11 +1596,6 @@ const SCHEMA_MAP = Object.fromEntries(
 
 /* ==========================================
    5. ЕДИНЫЙ ПРАЙС-ЛИСТ
-
-   Новая структура:
-   priceList.base.standard
-   priceList.size["60x60"]
-   priceList.position.floor
 ========================================== */
 
 function createDefaultPriceList() {
@@ -1764,26 +1620,14 @@ function loadPriceList() {
     return defaults;
   }
 
-  /*
-    Миграция старого формата:
-    priceList.floor.group.field
-
-    Если сохранён старый прайс, переносим
-    значения из floor в единый прайс.
-
-    Для новых данных используется
-    только плоская структура.
-  */
-
+  // Миграция старой структуры floor/wall.
   const isLegacy =
     saved.floor &&
     typeof saved.floor === "object" &&
     saved.wall &&
     typeof saved.wall === "object";
 
-  const source = isLegacy
-    ? saved.floor
-    : saved;
+  const source = isLegacy ? saved.floor : saved;
 
   PRICE_SCHEMA.forEach(group => {
     group.fields.forEach(field => {
@@ -1804,11 +1648,6 @@ function loadPriceList() {
       }
     });
   });
-
-  /*
-    После миграции сохраняем только
-    новую плоскую структуру.
-  */
 
   if (isLegacy) {
     writeJSON(PRICE_STORAGE_KEY, defaults);
@@ -1845,17 +1684,13 @@ function renderPriceList() {
 
   container.innerHTML = PRICE_SCHEMA.map(group => {
     const rows = group.fields.map(field => {
-      const value =
-        priceList[group.id][field.key];
+      const value = priceList[group.id][field.key];
 
       const unit = group.unit || (
-        group.id === "base"
-          ? "₽/м²"
-          : "%"
+        group.id === "base" ? "₽/м²" : "%"
       );
 
-      const inputId =
-        `price-${group.id}-${field.key}`;
+      const inputId = `price-${group.id}-${field.key}`;
 
       return `
         <div class="setting-row">
@@ -1864,7 +1699,6 @@ function renderPriceList() {
             for="${escapeHTML(inputId)}"
           >
             ${escapeHTML(field.label)}
-
             <span class="setting-unit">
               ${escapeHTML(unit)}
             </span>
@@ -1888,10 +1722,7 @@ function renderPriceList() {
     return `
       <section class="card">
         <div class="price-group-heading">
-          <div class="price-group-icon">
-            ${group.icon}
-          </div>
-
+          <div class="price-group-icon">${group.icon}</div>
           <h2>${escapeHTML(group.title)}</h2>
         </div>
 
@@ -1924,9 +1755,7 @@ byId("priceListContainer").addEventListener(
       return;
     }
 
-    if (input.value.trim() === "") {
-      return;
-    }
+    if (input.value.trim() === "") return;
 
     const value = Number(input.value);
 
@@ -1958,7 +1787,7 @@ byId("priceListContainer").addEventListener(
 );
 
 /* ==========================================
-   6. СТРУКТУРА ЗОНЫ
+   6. ЗОНЫ
 ========================================== */
 
 function createEmptyZone(type = "floor") {
@@ -1968,17 +1797,8 @@ function createEmptyZone(type = "floor") {
   const prep = {};
 
   ADDON_GROUPS.forEach(groupId => {
-    addons[groupId] =
-      SCHEMA_MAP[groupId].fields[0].key;
+    addons[groupId] = SCHEMA_MAP[groupId].fields[0].key;
   });
-
-  /*
-    Тип зоны определяет начальное
-    расположение плитки.
-
-    Процент всегда берётся из
-    единого прайс-листа.
-  */
 
   addons.position =
     type === "floor" ? "floor" : "wall";
@@ -1998,14 +1818,11 @@ function createEmptyZone(type = "floor") {
   return {
     id: uniqueId(),
     type,
-
     area: 0,
     tilePrice: 0,
-
     addons,
     cuts,
     holes,
-
     grout: {
       type: "cement",
       width: "1.5",
@@ -2013,9 +1830,7 @@ function createEmptyZone(type = "floor") {
       siliconeWidth: "1.5",
       siliconeLength: 0
     },
-
     prep,
-
     totalPrice: 0
   };
 }
@@ -2031,7 +1846,6 @@ function normalizeZone(source) {
   }
 
   zone.id = source.id ?? uniqueId();
-
   zone.area = num(source.area);
   zone.tilePrice = num(source.tilePrice);
 
@@ -2049,9 +1863,7 @@ function normalizeZone(source) {
 
   QUANTITY_GROUPS.forEach(groupId => {
     const targetKey =
-      groupId === "preparation"
-        ? "prep"
-        : groupId;
+      groupId === "preparation" ? "prep" : groupId;
 
     SCHEMA_MAP[groupId].fields.forEach(field => {
       zone[targetKey][field.key] =
@@ -2076,10 +1888,7 @@ function normalizeZone(source) {
   }
 
   zone.grout.length = num(grout.length);
-
-  zone.grout.siliconeLength =
-    num(grout.siliconeLength);
-
+  zone.grout.siliconeLength = num(grout.siliconeLength);
   zone.totalPrice = num(source.totalPrice);
 
   return zone;
@@ -2124,9 +1933,7 @@ function normalizeEstimate(source) {
     "completed"
   ];
 
-  estimate.status = validStatuses.includes(
-    source.status
-  )
+  estimate.status = validStatuses.includes(source.status)
     ? source.status
     : "draft";
 
@@ -2146,9 +1953,7 @@ function loadEstimates() {
     []
   );
 
-  if (!Array.isArray(saved)) {
-    return [];
-  }
+  if (!Array.isArray(saved)) return [];
 
   return saved
     .filter(item => item && typeof item === "object")
@@ -2174,14 +1979,11 @@ function persistDraft() {
 }
 
 /* ==========================================
-   8. РАСЧЁТ ЗОНЫ ПО ЕДИНОМУ ПРАЙСУ
+   8. РАСЧЁТ ЗОНЫ
 ========================================== */
 
 function calculateZone(zone) {
-  const basePrice = getPrice(
-    "base",
-    "standard"
-  );
+  const basePrice = getPrice("base", "standard");
 
   let totalPercent = 0;
 
@@ -2206,8 +2008,7 @@ function calculateZone(zone) {
     basePrice * totalPercent / 100 +
     tileExtra;
 
-  const layingCost =
-    zone.area * sqmPrice;
+  const layingCost = zone.area * sqmPrice;
 
   function calculateQuantityGroup(
     values,
@@ -2216,10 +2017,7 @@ function calculateZone(zone) {
   ) {
     return Object.entries(values).reduce(
       (total, [key, quantity]) => {
-        const percent = getPrice(
-          groupId,
-          key
-        );
+        const percent = getPrice(groupId, key);
 
         return total +
           num(quantity) * rateBase * percent / 100;
@@ -2295,7 +2093,7 @@ function calculateZone(zone) {
 }
 
 /* ==========================================
-   9. РАСЧЁТ ВСЕЙ СМЕТЫ
+   9. РАСЧЁТ СМЕТЫ
 ========================================== */
 
 function calculateEstimate() {
@@ -2314,21 +2112,9 @@ function calculateEstimate() {
   currentEstimate.totalArea = totalArea;
   currentEstimate.totalPrice = totalPrice;
 
-  setText(
-    "summaryZones",
-    currentEstimate.zones.length
-  );
-
-  setText(
-    "summaryArea",
-    fmt(totalArea) + " м²"
-  );
-
-  setText(
-    "summaryPrice",
-    money(totalPrice)
-  );
-
+  setText("summaryZones", currentEstimate.zones.length);
+  setText("summaryArea", fmt(totalArea) + " м²");
+  setText("summaryPrice", money(totalPrice));
   setText(
     "zonesCount",
     `${currentEstimate.zones.length} зон`
@@ -2336,10 +2122,7 @@ function calculateEstimate() {
 
   persistDraft();
 
-  return {
-    totalArea,
-    totalPrice
-  };
+  return { totalArea, totalPrice };
 }
 
 /* ==========================================
@@ -2351,10 +2134,7 @@ function addonSelectHTML(zone, groupId) {
   const selected = zone.addons[groupId];
 
   const options = group.fields.map(field => {
-    const percent = getPrice(
-      groupId,
-      field.key
-    );
+    const percent = getPrice(groupId, field.key);
 
     return `
       <option
@@ -2369,9 +2149,7 @@ function addonSelectHTML(zone, groupId) {
 
   return `
     <div class="field">
-      <label>
-        ${escapeHTML(group.title)}
-      </label>
+      <label>${escapeHTML(group.title)}</label>
 
       <select
         data-zone-field="addon"
@@ -2391,13 +2169,10 @@ function quantityFieldsHTML(zone, groupId) {
   const group = SCHEMA_MAP[groupId];
 
   const targetKey =
-    groupId === "preparation"
-      ? "prep"
-      : groupId;
+    groupId === "preparation" ? "prep" : groupId;
 
   return group.fields.map(field => {
-    const value =
-      zone[targetKey][field.key] ?? 0;
+    const value = zone[targetKey][field.key] ?? 0;
 
     const unit =
       groupId === "cuts"
@@ -2406,17 +2181,12 @@ function quantityFieldsHTML(zone, groupId) {
           ? "шт."
           : "м²";
 
-    const percent = getPrice(
-      groupId,
-      field.key
-    );
+    const percent = getPrice(groupId, field.key);
 
     return `
       <div class="zone-number-row">
-
         <label>
           ${escapeHTML(field.label)}
-
           <span class="setting-unit">
             ${fmt(percent)}% · ${unit}
           </span>
@@ -2427,14 +2197,11 @@ function quantityFieldsHTML(zone, groupId) {
           min="0"
           step="any"
           inputmode="decimal"
-
           data-zone-field="quantity"
           data-group="${escapeHTML(targetKey)}"
           data-key="${escapeHTML(field.key)}"
-
           value="${value}"
         >
-
       </div>
     `;
   }).join("");
@@ -2452,12 +2219,7 @@ function zoneHTML(zone, index) {
     groupId => addonSelectHTML(zone, groupId)
   ).join("");
 
-  const widthOptions = [
-    "1.5",
-    "2",
-    "2.5",
-    "3"
-  ];
+  const widthOptions = ["1.5", "2", "2.5", "3"];
 
   function widthSelect(fieldName, selected) {
     return `
@@ -2479,9 +2241,7 @@ function zoneHTML(zone, index) {
       class="zone-card"
       data-zone-id="${escapeHTML(zone.id)}"
     >
-
       <div class="zone-header">
-
         <div>
           <h3 class="zone-title">
             Зона ${index + 1} · ${title}
@@ -2503,64 +2263,50 @@ function zoneHTML(zone, index) {
         >
           🗑️
         </button>
-
       </div>
 
       <div class="zone-body">
-
         <div class="two-columns">
-
           <div class="field">
             <label>Площадь, м²</label>
-
             <input
               type="number"
               min="0"
               step="any"
               inputmode="decimal"
-
               data-zone-field="area"
-
               value="${zone.area}"
             >
           </div>
 
           <div class="field">
             <label>Цена плитки, ₽/м²</label>
-
             <input
               type="number"
               min="0"
               step="any"
               inputmode="decimal"
-
               data-zone-field="tilePrice"
-
               value="${zone.tilePrice}"
             >
           </div>
-
         </div>
 
         <div class="zone-group">
           <h4>Надбавки за укладку</h4>
-
           <p class="zone-group-description">
             Проценты берутся из единого Прайс-листа.
           </p>
-
           ${addonFields}
         </div>
 
         <div class="zone-group">
           <h4>Рез плитки и соединения</h4>
-
           ${quantityFieldsHTML(zone, "cuts")}
         </div>
 
         <div class="zone-group">
           <h4>Отверстия</h4>
-
           ${quantityFieldsHTML(zone, "holes")}
         </div>
 
@@ -2569,7 +2315,6 @@ function zoneHTML(zone, index) {
 
           <div class="field">
             <label>Тип затирки</label>
-
             <select data-zone-field="groutType">
               <option
                 value="cement"
@@ -2577,7 +2322,6 @@ function zoneHTML(zone, index) {
               >
                 Цементная
               </option>
-
               <option
                 value="epoxy"
                 ${zone.grout.type === "epoxy" ? "selected" : ""}
@@ -2588,31 +2332,22 @@ function zoneHTML(zone, index) {
           </div>
 
           <div class="two-columns">
-
             <div class="field">
               <label>Ширина шва</label>
-
-              ${widthSelect(
-                "groutWidth",
-                zone.grout.width
-              )}
+              ${widthSelect("groutWidth", zone.grout.width)}
             </div>
 
             <div class="field">
               <label>Длина, м/п</label>
-
               <input
                 type="number"
                 min="0"
                 step="any"
                 inputmode="decimal"
-
                 data-zone-field="groutLength"
-
                 value="${zone.grout.length}"
               >
             </div>
-
           </div>
         </div>
 
@@ -2620,10 +2355,8 @@ function zoneHTML(zone, index) {
           <h4>Силикон</h4>
 
           <div class="two-columns">
-
             <div class="field">
               <label>Ширина шва</label>
-
               ${widthSelect(
                 "siliconeWidth",
                 zone.grout.siliconeWidth
@@ -2632,37 +2365,27 @@ function zoneHTML(zone, index) {
 
             <div class="field">
               <label>Длина, м/п</label>
-
               <input
                 type="number"
                 min="0"
                 step="any"
                 inputmode="decimal"
-
                 data-zone-field="siliconeLength"
-
                 value="${zone.grout.siliconeLength}"
               >
             </div>
-
           </div>
         </div>
 
         <div class="zone-group">
           <h4>Подготовка поверхности</h4>
-
           <p class="zone-group-description">
             Стоимость от базовой ставки.
           </p>
-
-          ${quantityFieldsHTML(
-            zone,
-            "preparation"
-          )}
+          ${quantityFieldsHTML(zone, "preparation")}
         </div>
 
         <div class="zone-summary">
-
           <div class="zone-summary-row">
             <span>Сумма надбавок</span>
             <strong data-result="percent">0%</strong>
@@ -2707,11 +2430,8 @@ function zoneHTML(zone, index) {
             <span>Итого по зоне</span>
             <strong data-result="total">0 ₽</strong>
           </div>
-
         </div>
-
       </div>
-
     </article>
   `;
 }
@@ -2723,9 +2443,7 @@ function renderZones() {
     container.innerHTML = `
       <div class="empty-state" style="margin-bottom:16px">
         <div class="empty-icon">📐</div>
-
         <h3>Зон пока нет</h3>
-
         <p>
           Добавьте пол или стену,
           чтобы начать расчёт.
@@ -2733,10 +2451,9 @@ function renderZones() {
       </div>
     `;
   } else {
-    container.innerHTML =
-      currentEstimate.zones.map(
-        (zone, index) => zoneHTML(zone, index)
-      ).join("");
+    container.innerHTML = currentEstimate.zones.map(
+      (zone, index) => zoneHTML(zone, index)
+    ).join("");
   }
 
   calculateEstimate();
@@ -2744,9 +2461,7 @@ function renderZones() {
 
 function updateZoneSummary(zoneId, result) {
   const card = Array.from(
-    byId("zonesContainer").querySelectorAll(
-      "[data-zone-id]"
-    )
+    byId("zonesContainer").querySelectorAll("[data-zone-id]")
   ).find(
     element => element.dataset.zoneId === String(zoneId)
   );
@@ -2770,9 +2485,7 @@ function updateZoneSummary(zoneId, result) {
       `[data-result="${key}"]`
     );
 
-    if (element) {
-      element.textContent = value;
-    }
+    if (element) element.textContent = value;
   });
 }
 
@@ -2783,9 +2496,7 @@ function updateZoneSummary(zoneId, result) {
 function addZone(type) {
   if (!["floor", "wall"].includes(type)) return;
 
-  currentEstimate.zones.push(
-    createEmptyZone(type)
-  );
+  currentEstimate.zones.push(createEmptyZone(type));
 
   renderZones();
   showMessage("");
@@ -2816,7 +2527,7 @@ byId("addWallBtn").addEventListener(
 );
 
 /* ==========================================
-   14. ОБРАБОТКА ПОЛЕЙ ЗОН
+   14. ПОЛЯ ЗОН
 ========================================== */
 
 function handleZoneInput(event) {
@@ -2826,10 +2537,7 @@ function handleZoneInput(event) {
 
   if (!input) return;
 
-  const card = input.closest(
-    "[data-zone-id]"
-  );
-
+  const card = input.closest("[data-zone-id]");
   if (!card) return;
 
   const zone = currentEstimate.zones.find(
@@ -2842,7 +2550,6 @@ function handleZoneInput(event) {
   const value = input.value;
 
   switch (field) {
-
     case "area":
       zone.area = num(value);
       break;
@@ -2857,7 +2564,6 @@ function handleZoneInput(event) {
       if (ADDON_GROUPS.includes(group)) {
         zone.addons[group] = value;
       }
-
       break;
     }
 
@@ -2874,7 +2580,6 @@ function handleZoneInput(event) {
       ) {
         zone[group][key] = num(value);
       }
-
       break;
     }
 
@@ -2925,10 +2630,7 @@ byId("zonesContainer").addEventListener(
 
     if (!button) return;
 
-    const card = button.closest(
-      "[data-zone-id]"
-    );
-
+    const card = button.closest("[data-zone-id]");
     if (!card) return;
 
     deleteZone(card.dataset.zoneId);
@@ -2936,7 +2638,7 @@ byId("zonesContainer").addEventListener(
 );
 
 /* ==========================================
-   15. ДАННЫЕ ОБЪЕКТА
+   15. ФОРМА СМЕТЫ
 ========================================== */
 
 const ESTIMATE_FIELDS = {
@@ -2951,8 +2653,7 @@ const ESTIMATE_FIELDS = {
 function readEstimateForm() {
   Object.entries(ESTIMATE_FIELDS).forEach(
     ([elementId, property]) => {
-      currentEstimate[property] =
-        byId(elementId).value;
+      currentEstimate[property] = byId(elementId).value;
     }
   );
 }
@@ -3020,7 +2721,7 @@ byId("estimateForm").addEventListener(
 );
 
 /* ==========================================
-   16. СОХРАНЕНИЕ СМЕТ
+   16. СОХРАНЕНИЕ И ОТКРЫТИЕ СМЕТ
 ========================================== */
 
 function startNewEstimate() {
@@ -3028,7 +2729,6 @@ function startNewEstimate() {
 
   fillEstimateForm();
   renderZones();
-
   navigateTo("calculator");
 }
 
@@ -3037,11 +2737,7 @@ function saveEstimate() {
   calculateEstimate();
 
   if (!currentEstimate.customer.trim()) {
-    showMessage(
-      "Укажите имя заказчика.",
-      "error"
-    );
-
+    showMessage("Укажите имя заказчика.", "error");
     byId("estimateCustomer").focus();
     return;
   }
@@ -3051,7 +2747,6 @@ function saveEstimate() {
       "Добавьте хотя бы одну зону работ.",
       "error"
     );
-
     return;
   }
 
@@ -3091,7 +2786,6 @@ function saveEstimate() {
       "Не удалось сохранить смету.",
       "error"
     );
-
     return;
   }
 
@@ -3108,13 +2802,9 @@ function saveEstimate() {
 
   try {
     if (isTelegramMiniApp()) {
-      tg.HapticFeedback?.notificationOccurred(
-        "success"
-      );
+      tg.HapticFeedback?.notificationOccurred("success");
     }
-  } catch (error) {
-    // Необязательно.
-  }
+  } catch (error) {}
 }
 
 byId("estimateForm").addEventListener(
@@ -3132,20 +2822,61 @@ function openEstimate(id) {
 
   if (!estimate) return;
 
-  currentEstimate = normalizeEstimate(
-    clone(estimate)
-  );
+  currentEstimate = normalizeEstimate(clone(estimate));
 
   fillEstimateForm();
   renderZones();
-
   navigateTo("calculator");
-
   persistDraft();
 }
 
 /* ==========================================
-   17. DASHBOARD
+   17. УДАЛЕНИЕ СМЕТ
+========================================== */
+
+function deleteEstimate(id) {
+  const estimate = estimates.find(
+    item => String(item.id) === String(id)
+  );
+
+  if (!estimate) return false;
+
+  const confirmed = confirm("Удалить эту смету?");
+
+  if (!confirmed) return false;
+
+  const updatedEstimates = estimates.filter(
+    item => String(item.id) !== String(id)
+  );
+
+  const success = writeJSON(
+    ESTIMATES_STORAGE_KEY,
+    updatedEstimates
+  );
+
+  if (!success) {
+    alert("Не удалось удалить смету.");
+    return false;
+  }
+
+  estimates = updatedEstimates;
+
+  const deletingCurrentEstimate =
+    currentEstimate.id !== null &&
+    String(currentEstimate.id) === String(id);
+
+  if (deletingCurrentEstimate) {
+    startNewEstimate();
+  }
+
+  renderDashboard();
+  haptic();
+
+  return true;
+}
+
+/* ==========================================
+   18. СТАТИСТИКА
 ========================================== */
 
 function calculateDashboardStats() {
@@ -3164,11 +2895,6 @@ function calculateDashboardStats() {
       (sum, zone) => sum + num(zone.area),
       0
     );
-
-    /*
-      В сумму в работе и средний чек
-      входят согласованные и выполненные сметы.
-    */
 
     if (
       estimate.status === "approved" ||
@@ -3189,6 +2915,10 @@ function calculateDashboardStats() {
   };
 }
 
+/* ==========================================
+   19. КАРТОЧКА СМЕТЫ
+========================================== */
+
 function estimateCardHTML(estimate) {
   const statusMap = {
     draft: {
@@ -3208,53 +2938,72 @@ function estimateCardHTML(estimate) {
   const status =
     statusMap[estimate.status] || statusMap.draft;
 
+  const id = escapeHTML(estimate.id);
+
   return `
-    <button
-      type="button"
-      class="estimate-card"
-      data-open-estimate="${escapeHTML(estimate.id)}"
-    >
+    <article class="estimate-card">
 
-      <div class="estimate-top">
+      <button
+        type="button"
+        class="estimate-delete-btn"
+        data-delete-estimate="${id}"
+        aria-label="Удалить смету"
+        title="Удалить смету"
+      >
+        🗑️
+      </button>
 
-        <span class="estimate-date">
-          📅 ${escapeHTML(displayDate(estimate.date))}
-        </span>
-
-        <span class="status-badge ${status.className}">
-          ${status.label}
-        </span>
-
-      </div>
-
-      <div class="estimate-customer">
-        ${escapeHTML(
+      <button
+        type="button"
+        class="estimate-card-main"
+        data-open-estimate="${id}"
+        aria-label="Открыть смету ${escapeHTML(
           estimate.customer || "Без заказчика"
-        )}
-      </div>
+        )}"
+      >
 
-      <div class="estimate-address">
-        📍 ${escapeHTML(
-          estimate.address || "Адрес не указан"
-        )}
-      </div>
+        <div class="estimate-top">
+          <span class="estimate-date">
+            📅 ${escapeHTML(displayDate(estimate.date))}
+          </span>
 
-      <div class="estimate-bottom">
+          <span class="status-badge ${status.className}">
+            ${status.label}
+          </span>
+        </div>
 
-        <span class="estimate-area">
-          ${fmt(estimate.totalArea)} м²
-          · ${estimate.zones.length} зон
-        </span>
+        <div class="estimate-customer">
+          ${escapeHTML(
+            estimate.customer || "Без заказчика"
+          )}
+        </div>
 
-        <strong class="estimate-price">
-          ${money(estimate.totalPrice)}
-        </strong>
+        <div class="estimate-address">
+          📍 ${escapeHTML(
+            estimate.address || "Адрес не указан"
+          )}
+        </div>
 
-      </div>
+        <div class="estimate-bottom">
+          <span class="estimate-area">
+            ${fmt(estimate.totalArea)} м²
+            · ${estimate.zones.length} зон
+          </span>
 
-    </button>
+          <strong class="estimate-price">
+            ${money(estimate.totalPrice)}
+          </strong>
+        </div>
+
+      </button>
+
+    </article>
   `;
 }
+
+/* ==========================================
+   20. DASHBOARD
+========================================== */
 
 function renderDashboard() {
   const stats = calculateDashboardStats();
@@ -3306,7 +3055,6 @@ function renderDashboard() {
         </p>
       </div>
     `;
-
     return;
   }
 
@@ -3336,15 +3084,32 @@ byId("estimateSearch").addEventListener(
 byId("estimatesList").addEventListener(
   "click",
   event => {
-    const card = event.target.closest(
+    // Удаление обрабатываем первым.
+    const deleteButton = event.target.closest(
+      "[data-delete-estimate]"
+    );
+
+    if (deleteButton) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      deleteEstimate(
+        deleteButton.dataset.deleteEstimate
+      );
+
+      return;
+    }
+
+    // Открытие сметы только при клике по её содержимому.
+    const openButton = event.target.closest(
       "[data-open-estimate]"
     );
 
-    if (!card) return;
-
-    openEstimate(
-      card.dataset.openEstimate
-    );
+    if (openButton) {
+      openEstimate(
+        openButton.dataset.openEstimate
+      );
+    }
   }
 );
 
@@ -3354,7 +3119,7 @@ byId("dashboardNewBtn").addEventListener(
 );
 
 /* ==========================================
-   18. ЭКСПОРТ: ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+   21. ЭКСПОРТ: УТИЛИТЫ
 ========================================== */
 
 function getFieldLabel(groupId, fieldKey) {
@@ -3396,7 +3161,7 @@ function exportSection(title, rows) {
 }
 
 /* ==========================================
-   19. ЭКСПОРТ: HTML ОДНОЙ ЗОНЫ
+   22. ЭКСПОРТ: ЗОНА
 ========================================== */
 
 function exportZoneHTML(zone, index) {
@@ -3407,21 +3172,12 @@ function exportZoneHTML(zone, index) {
 
   const addonRows = ADDON_GROUPS.map(groupId => {
     const selected = zone.addons[groupId];
-
-    const percent = getPrice(
-      groupId,
-      selected
-    );
+    const percent = getPrice(groupId, selected);
 
     if (percent === 0) return "";
 
-    const groupLabel =
-      SCHEMA_MAP[groupId].title;
-
-    const optionLabel = getFieldLabel(
-      groupId,
-      selected
-    );
+    const groupLabel = SCHEMA_MAP[groupId].title;
+    const optionLabel = getFieldLabel(groupId, selected);
 
     return exportRow(
       `${groupLabel}: ${optionLabel}`,
@@ -3429,11 +3185,7 @@ function exportZoneHTML(zone, index) {
     );
   }).join("");
 
-  function exportQuantities(
-    values,
-    groupId,
-    unit
-  ) {
+  function exportQuantities(values, groupId, unit) {
     return Object.entries(values)
       .filter(([, quantity]) => num(quantity) > 0)
       .map(([key, quantity]) => {
@@ -3441,13 +3193,8 @@ function exportZoneHTML(zone, index) {
           item => item.key === key
         );
 
-        const currentUnit =
-          field?.unit || unit;
-
-        const percent = getPrice(
-          groupId,
-          key
-        );
+        const currentUnit = field?.unit || unit;
+        const percent = getPrice(groupId, key);
 
         return exportRow(
           getFieldLabel(groupId, key),
@@ -3516,10 +3263,7 @@ function exportZoneHTML(zone, index) {
         `${money(result.basePrice)} / м²`
       )}
 
-      ${exportSection(
-        "Надбавки",
-        addonRows
-      )}
+      ${exportSection("Надбавки", addonRows)}
 
       ${result.tileExtra > 0
         ? exportRow(
@@ -3533,39 +3277,17 @@ function exportZoneHTML(zone, index) {
         `${money(result.sqmPrice)} / м²`
       )}
 
-      ${exportSection(
-        "Резы и соединения",
-        cutsRows
-      )}
-
-      ${exportSection(
-        "Отверстия",
-        holesRows
-      )}
-
-      ${exportSection(
-        "Затирка",
-        groutRows
-      )}
-
-      ${exportSection(
-        "Силикон",
-        siliconeRows
-      )}
-
-      ${exportSection(
-        "Подготовка",
-        prepRows
-      )}
+      ${exportSection("Резы и соединения", cutsRows)}
+      ${exportSection("Отверстия", holesRows)}
+      ${exportSection("Затирка", groutRows)}
+      ${exportSection("Силикон", siliconeRows)}
+      ${exportSection("Подготовка", prepRows)}
 
       <div class="export-section-title">
         Стоимость работ
       </div>
 
-      ${exportRow(
-        "Укладка",
-        money(result.layingCost)
-      )}
+      ${exportRow("Укладка", money(result.layingCost))}
 
       ${result.cutsCost > 0
         ? exportRow("Резы", money(result.cutsCost))
@@ -3589,10 +3311,7 @@ function exportZoneHTML(zone, index) {
 
       <div class="export-zone-total">
         <span>Итого по зоне</span>
-
-        <strong>
-          ${money(result.total)}
-        </strong>
+        <strong>${money(result.total)}</strong>
       </div>
 
     </section>
@@ -3600,7 +3319,7 @@ function exportZoneHTML(zone, index) {
 }
 
 /* ==========================================
-   20. ЭКСПОРТ: ПОЛНЫЙ HTML ДОКУМЕНТА
+   23. ЭКСПОРТ: ДОКУМЕНТ
 ========================================== */
 
 function buildExportHTML(estimate) {
@@ -3621,7 +3340,6 @@ function buildExportHTML(estimate) {
     ? `
       <div class="export-notes">
         <strong>Заметки:</strong>
-
         ${escapeHTML(estimate.notes)}
       </div>
     `
@@ -3631,7 +3349,6 @@ function buildExportHTML(estimate) {
     <div class="export-document">
 
       <header class="export-header">
-
         <h1 class="export-title">
           СМЕТА НА ПЛИТОЧНЫЕ РАБОТЫ
         </h1>
@@ -3639,16 +3356,12 @@ function buildExportHTML(estimate) {
         <div class="export-subtitle">
           Расчёт стоимости работ
         </div>
-
       </header>
 
       <div class="export-info">
 
         <div class="export-info-item">
-          <span class="export-info-label">
-            Заказчик
-          </span>
-
+          <span class="export-info-label">Заказчик</span>
           <div class="export-info-value">
             ${escapeHTML(
               estimate.customer || "Не указан"
@@ -3657,20 +3370,14 @@ function buildExportHTML(estimate) {
         </div>
 
         <div class="export-info-item">
-          <span class="export-info-label">
-            Дата
-          </span>
-
+          <span class="export-info-label">Дата</span>
           <div class="export-info-value">
             ${escapeHTML(displayDate(estimate.date))}
           </div>
         </div>
 
         <div class="export-info-item">
-          <span class="export-info-label">
-            Адрес объекта
-          </span>
-
+          <span class="export-info-label">Адрес объекта</span>
           <div class="export-info-value">
             ${escapeHTML(
               estimate.address || "Не указан"
@@ -3679,10 +3386,7 @@ function buildExportHTML(estimate) {
         </div>
 
         <div class="export-info-item">
-          <span class="export-info-label">
-            Тип помещения
-          </span>
-
+          <span class="export-info-label">Тип помещения</span>
           <div class="export-info-value">
             ${escapeHTML(
               estimate.roomType || "Не указан"
@@ -3691,20 +3395,14 @@ function buildExportHTML(estimate) {
         </div>
 
         <div class="export-info-item">
-          <span class="export-info-label">
-            Статус
-          </span>
-
+          <span class="export-info-label">Статус</span>
           <div class="export-info-value">
             ${statusText}
           </div>
         </div>
 
         <div class="export-info-item">
-          <span class="export-info-label">
-            Количество зон
-          </span>
-
+          <span class="export-info-label">Количество зон</span>
           <div class="export-info-value">
             ${estimate.zones.length}
           </div>
@@ -3713,7 +3411,6 @@ function buildExportHTML(estimate) {
       </div>
 
       ${notesHTML}
-
       ${zonesHTML}
 
       <div class="export-grand-summary">
@@ -3728,7 +3425,10 @@ function buildExportHTML(estimate) {
           String(estimate.zones.length)
         )}
 
-        <div class="export-grand-label" style="margin-top:20px">
+        <div
+          class="export-grand-label"
+          style="margin-top:20px"
+        >
           ИТОГОВАЯ СТОИМОСТЬ РАБОТ
         </div>
 
@@ -3748,7 +3448,7 @@ function buildExportHTML(estimate) {
 }
 
 /* ==========================================
-   21. ЭКСПОРТ: ИМЯ ФАЙЛА
+   24. ИМЯ PNG
 ========================================== */
 
 function makeExportFilename(customer) {
@@ -3765,8 +3465,7 @@ function makeExportFilename(customer) {
 }
 
 /* ==========================================
-   22. ПЕРЕДАЧА СМЕТЫ И ЕДИНОГО ПРАЙСА
-       ИЗ TELEGRAM В БРАУЗЕР
+   25. ПЕРЕДАЧА ДАННЫХ В БРАУЗЕР
 ========================================== */
 
 function priceListChanges() {
@@ -3777,11 +3476,8 @@ function priceListChanges() {
     const groupChanges = {};
 
     group.fields.forEach(field => {
-      const current =
-        priceList[group.id][field.key];
-
-      const defaultValue =
-        defaults[group.id][field.key];
+      const current = priceList[group.id][field.key];
+      const defaultValue = defaults[group.id][field.key];
 
       if (current !== defaultValue) {
         groupChanges[field.key] = current;
@@ -3818,25 +3514,17 @@ function applyTransferredPrices(changes) {
     return;
   }
 
-  /*
-    Поддержка переноса из старой версии
-    с разделением floor / wall.
-  */
-
   const isLegacy =
     changes.floor &&
     typeof changes.floor === "object" &&
     changes.wall &&
     typeof changes.wall === "object";
 
-  const source = isLegacy
-    ? changes.floor
-    : changes;
+  const source = isLegacy ? changes.floor : changes;
 
   PRICE_SCHEMA.forEach(group => {
     group.fields.forEach(field => {
-      const value =
-        source?.[group.id]?.[field.key];
+      const value = source?.[group.id]?.[field.key];
 
       if (
         value === undefined ||
@@ -3848,12 +3536,8 @@ function applyTransferredPrices(changes) {
 
       const number = Number(value);
 
-      if (
-        Number.isFinite(number) &&
-        number >= 0
-      ) {
-        priceList[group.id][field.key] =
-          number;
+      if (Number.isFinite(number) && number >= 0) {
+        priceList[group.id][field.key] = number;
       }
     });
   });
@@ -3863,7 +3547,6 @@ function applyTransferredPrices(changes) {
 
 function restoreTransferredEstimate() {
   const url = new URL(window.location.href);
-
   const raw = url.searchParams.get("transfer");
 
   if (!raw) return false;
@@ -3879,19 +3562,13 @@ function restoreTransferredEstimate() {
       throw new Error("Неверный формат данных");
     }
 
-    applyTransferredPrices(
-      transferred.prices
-    );
+    applyTransferredPrices(transferred.prices);
 
     currentEstimate = normalizeEstimate(
       transferred.estimate
     );
 
-    writeJSON(
-      PAGE_STORAGE_KEY,
-      "calculator"
-    );
-
+    writeJSON(PAGE_STORAGE_KEY, "calculator");
     persistDraft();
 
     url.searchParams.delete("transfer");
@@ -3903,25 +3580,19 @@ function restoreTransferredEstimate() {
     );
 
     return true;
-
   } catch (error) {
-    console.error(
-      "Ошибка переноса сметы:",
-      error
-    );
-
+    console.error("Ошибка переноса сметы:", error);
     return false;
   }
 }
 
 /* ==========================================
-   23. TELEGRAM: ОТКРЫТИЕ БРАУЗЕРА
+   26. TELEGRAM: ВНЕШНИЙ БРАУЗЕР
 ========================================== */
 
 function openExportInBrowser() {
   readEstimateForm();
   calculateEstimate();
-
   persistDraft();
 
   let browserURL;
@@ -3933,7 +3604,6 @@ function openExportInBrowser() {
       "Не удалось подготовить ссылку.",
       "error"
     );
-
     return;
   }
 
@@ -3947,10 +3617,7 @@ function openExportInBrowser() {
         try_instant_view: false
       });
     } catch (error) {
-      console.error(
-        "Telegram openLink:",
-        error
-      );
+      console.error("Telegram openLink:", error);
 
       showMessage(
         "Не удалось открыть браузер. " +
@@ -3975,7 +3642,7 @@ function openExportInBrowser() {
 }
 
 /* ==========================================
-   24. БРАУЗЕР: СКАЧИВАНИЕ PNG
+   27. СКАЧИВАНИЕ PNG
 ========================================== */
 
 let exportInProgress = false;
@@ -3991,7 +3658,6 @@ async function downloadPNG() {
       "Добавьте хотя бы одну зону для экспорта.",
       "error"
     );
-
     return;
   }
 
@@ -4006,7 +3672,6 @@ async function downloadPNG() {
       "Проверьте интернет-соединение.",
       "error"
     );
-
     return;
   }
 
@@ -4014,7 +3679,6 @@ async function downloadPNG() {
   const workspace = byId("exportWorkspace");
 
   exportInProgress = true;
-
   button.disabled = true;
   button.textContent = "⏳ Создаём PNG...";
 
@@ -4026,30 +3690,24 @@ async function downloadPNG() {
   try {
     const estimate = clone(currentEstimate);
 
-    workspace.innerHTML = buildExportHTML(
-      estimate
-    );
+    workspace.innerHTML = buildExportHTML(estimate);
 
     const documentElement = workspace.querySelector(
       ".export-document"
     );
 
     if (!documentElement) {
-      throw new Error(
-        "Не удалось создать документ"
-      );
+      throw new Error("Не удалось создать документ");
     }
 
     const canvas = await html2canvas(
       documentElement,
       {
         backgroundColor: "#ffffff",
-
         scale: Math.min(
           2,
           window.devicePixelRatio || 1
         ),
-
         useCORS: true,
         logging: false,
         scrollX: 0,
@@ -4074,9 +3732,7 @@ async function downloadPNG() {
     );
 
     if (!canvas.width || !canvas.height) {
-      throw new Error(
-        "Получено пустое изображение"
-      );
+      throw new Error("Получено пустое изображение");
     }
 
     const filename = makeExportFilename(
@@ -4101,7 +3757,6 @@ async function downloadPNG() {
     );
 
     const objectURL = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
 
     link.href = objectURL;
@@ -4121,29 +3776,23 @@ async function downloadPNG() {
     );
 
   } catch (error) {
-    console.error(
-      "Ошибка экспорта PNG:",
-      error
-    );
+    console.error("Ошибка экспорта PNG:", error);
 
     showMessage(
-      "Не удалось создать PNG. " +
-      "Попробуйте ещё раз.",
+      "Не удалось создать PNG. Попробуйте ещё раз.",
       "error"
     );
 
   } finally {
     workspace.innerHTML = "";
-
     exportInProgress = false;
     button.disabled = false;
-
     updateExportButton();
   }
 }
 
 /* ==========================================
-   25. КНОПКА ЭКСПОРТА
+   28. КНОПКА ЭКСПОРТА
 ========================================== */
 
 function updateExportButton() {
@@ -4173,7 +3822,7 @@ byId("downloadPngBtn").addEventListener(
 );
 
 /* ==========================================
-   26. SPA НАВИГАЦИЯ
+   29. НАВИГАЦИЯ
 ========================================== */
 
 const VALID_PAGES = [
@@ -4187,65 +3836,53 @@ function navigateTo(pageName) {
     return;
   }
 
-  document.querySelectorAll(
-    ".page"
-  ).forEach(page => {
+  document.querySelectorAll(".page").forEach(page => {
     const active =
       page.id === `page-${pageName}`;
 
-    page.classList.toggle(
-      "active",
-      active
-    );
-
+    page.classList.toggle("active", active);
     page.hidden = !active;
   });
 
-  document.querySelectorAll(
-    ".nav-button"
-  ).forEach(button => {
-    const active =
-      button.dataset.page === pageName;
+  document.querySelectorAll(".nav-button").forEach(
+    button => {
+      const active =
+        button.dataset.page === pageName;
 
-    button.classList.toggle(
-      "active",
-      active
-    );
+      button.classList.toggle("active", active);
 
-    button.setAttribute(
-      "aria-current",
-      active ? "page" : "false"
-    );
-  });
-
-  writeJSON(
-    PAGE_STORAGE_KEY,
-    pageName
+      button.setAttribute(
+        "aria-current",
+        active ? "page" : "false"
+      );
+    }
   );
+
+  writeJSON(PAGE_STORAGE_KEY, pageName);
 
   if (pageName === "estimates") {
     renderDashboard();
   }
 
   if (pageName === "calculator") {
-    calculateEstimate();
+    // Обновляем подписи процентов после изменения прайса.
+    renderZones();
   }
 
   window.scrollTo(0, 0);
-
   haptic();
 }
 
-document.querySelectorAll(
-  ".nav-button"
-).forEach(button => {
-  button.addEventListener("click", () => {
-    navigateTo(button.dataset.page);
-  });
-});
+document.querySelectorAll(".nav-button").forEach(
+  button => {
+    button.addEventListener("click", () => {
+      navigateTo(button.dataset.page);
+    });
+  }
+);
 
 /* ==========================================
-   27. СИНХРОНИЗАЦИЯ LOCALSTORAGE
+   30. СИНХРОНИЗАЦИЯ LOCALSTORAGE
 ========================================== */
 
 window.addEventListener(
@@ -4253,32 +3890,28 @@ window.addEventListener(
   event => {
     if (event.key === PRICE_STORAGE_KEY) {
       priceList = loadPriceList();
-
       renderPriceList();
       renderZones();
     }
 
     if (event.key === ESTIMATES_STORAGE_KEY) {
       estimates = loadEstimates();
-
       renderDashboard();
     }
   }
 );
 
 /* ==========================================
-   28. ИНИЦИАЛИЗАЦИЯ
+   31. ИНИЦИАЛИЗАЦИЯ
 ========================================== */
 
 function initializeApp() {
   restoreTransferredEstimate();
 
   renderPriceList();
-
   fillEstimateForm();
   renderZones();
   renderDashboard();
-
   updateExportButton();
 
   const storedPage = readJSON(
@@ -4298,11 +3931,10 @@ function initializeApp() {
 initializeApp();
 
 /* ==========================================
-   29. ПУБЛИЧНЫЙ API
+   32. ПУБЛИЧНЫЙ API
 ========================================== */
 
 window.TileApp = {
-
   getPriceList() {
     return clone(priceList);
   },
@@ -4322,23 +3954,16 @@ window.TileApp = {
   },
 
   calculateEstimate,
-
+  calculateDashboardStats,
   saveEstimate,
-
   openEstimate,
-
+  deleteEstimate,
   startNewEstimate,
-
   addZone,
-
   navigateTo,
-
   refreshDashboard: renderDashboard,
-
   downloadPNG,
-
   isTelegramMiniApp
-
 };
 </script>
 
