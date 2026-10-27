@@ -4190,10 +4190,10 @@ const pointDefaults=[
  {group:'Подготовка и монтаж',name:'Выводы под люстры / освещение',unit:'точка',price:1500,category:'rough'},
  {group:'Подготовка и монтаж',name:'Установка подрозетников',unit:'шт.',price:450,category:'rough'},
  {group:'Подготовка и монтаж',name:'Финишная установка розеток',unit:'шт.',price:600,category:'finish'},
- {group:'Подготовка и монтаж',name:'Монтаж электрощита (договорная)',unit:'шт.',price:3000,isCustom:true,category:'extra'},
- {group:'Дополнительные работы',name:'Система безопасности для ванной',unit:'шт.',price:3000,isCustom:true,category:'extra'},
  {group:'Дополнительные работы',name:'Доплата за каждую розетку в ванной',unit:'шт.',price:500,category:'extra'},
- {group:'Дополнительные работы',name:'Непредвиденные и дополнительные работы',unit:'договорная',price:0,isCustom:true,category:'extra'}
+ {group:'Дополнительные работы',name:'Система безопасности для ванной',unit:'шт.',price:3000,isCustom:true,category:'extra'},
+ {group:'Дополнительные работы',name:'Непредвиденные и дополнительные работы',unit:'договорная',price:0,isCustom:true,category:'extra'},
+ {group:'Монтаж щитов',name:'Монтаж электрощита (договорная)',unit:'шт.',price:3000,isCustom:true,category:'extra'}
 ];
 const meterDefaults=[
  {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 20×40',unit:'м',price:160},
@@ -4284,7 +4284,7 @@ function initModule(key,cfg){
   if(key==='elec'){
    const summary=host.parentElement.querySelector('.estimate-summary');
    if(summary){
-    summary.innerHTML=`<div class="field" style="margin-top:15px;"><label>Логистика</label><select id="elec-logistics" data-logistics><option value="none" ${state.draft?.logistics==='none'||!state.draft?.logistics?'selected':''}>Без логистики</option><option value="15" ${state.draft?.logistics==='15'?'selected':''}>Логистика (+15% от работ)</option></select></div><div class="summary-line"><span>Черновой монтаж</span><strong id="sum-rough">0 ₽</strong></div><div class="summary-line"><span>Чистовая установка</span><strong id="sum-finish">0 ₽</strong></div><div class="summary-line"><span>Логистика и материалы</span><strong id="sum-logistics">0 ₽</strong></div><div class="summary-line"><span>Дополнительные работы</span><strong id="sum-extra">0 ₽</strong></div><div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="elec-total">0 ₽</div></div>`;
+    summary.innerHTML=`<div class="field" style="margin-top:15px;"><label>Логистика</label><select id="elec-logistics" data-logistics><option value="none" ${state.draft?.logistics==='none'||!state.draft?.logistics?'selected':''}>Без логистики</option><option value="15" ${state.draft?.logistics==='15'?'selected':''}>Логистика (+15% от работ)</option></select></div><div class="summary-line"><span>Количество позиций</span><strong id="elec-summary-count">0</strong></div><div class="summary-line"><span>Общий объём</span><strong id="elec-summary-volume">0</strong></div><div class="summary-line"><span>Черновой монтаж</span><strong id="sum-rough">0 ₽</strong></div><div class="summary-line"><span>Чистовая установка</span><strong id="sum-finish">0 ₽</strong></div><div class="summary-line"><span>Логистика и материалы</span><strong id="sum-logistics">0 ₽</strong></div><div class="summary-line"><span>Дополнительные работы</span><strong id="sum-extra">0 ₽</strong></div><div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="elec-total">0 ₽</div></div>`;
     summary.querySelector('[data-logistics]').addEventListener('change',event=>{state.draft={...(state.draft||{}),logistics:event.target.value};saveDraft();calc()});
    }
   }
@@ -4299,7 +4299,7 @@ function initModule(key,cfg){
     const isCustom=key==='elec'&&x.isCustom===true;
     const unitText=isCustom?'':`<span class="setting-unit">${esc(x.unit)}</span>`;
     const hint=isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:'';
-    return `${heading}<div class="setting-row"><label for="${prefix}-price-${i}">${esc(x.name)}${unitText}${hint}${key==='elec'?`<span class="setting-unit">${esc(pointDescriptions[i]||'')}</span>`:''}</label><input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`
+    return `${heading}<div class="setting-row"><label for="${prefix}-price-${i}">${esc(x.name)}${unitText}${hint}${key==='elec'&&!isCustom?`<span class="setting-unit">${esc(pointDescriptions[i]||'')}</span>`:''}</label><input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`
   }).join('');
   if(key==='elec') host.insertAdjacentHTML('beforeend',`<div class="card" style="margin-top:15px;"><h2 class="card-title">Примечания</h2><div class="muted small" style="line-height:1.6;">• Материалы (провода, коробки, защита): ≈80% от стоимости работ.<br>Пример для квартиры 40 м²:<br>- 200 м провода 3×1.5 мм².<br>- 200 м провода 3×2.5 мм².<br><br>• Непредвиденные расходы: по факту.</div></div>`);
  }
