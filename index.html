@@ -1,15 +1,14 @@
 
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#0f172a" name="theme-color"/>
 <title>Калькулятор работ — плитка и электрика</title>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <style>
 :root {
   color-scheme: dark;
@@ -949,438 +948,269 @@ input[type="date"] { color-scheme: dark; }
   z-index: 101;
 }
 .app-container[hidden] { display: none !important; }
+/* Unified electrical layout matching the tile app. */
+#elec-app .electrical-work-row, #meters-app .electrical-work-row {
+  grid-template-columns: minmax(0,1fr) 90px;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.electrical-work-row label { min-width:0; overflow-wrap:anywhere; }
+.electrical-work-row .setting-unit { display:block; margin-top:4px; }
+.electrical-line-total { grid-column:1 / -1; text-align:right; color:var(--green); }
+#elec-app .setting-row label, #meters-app .setting-row label { min-width:0; overflow-wrap:anywhere; }
+#elec-app .setting-unit, #meters-app .setting-unit { display:block; margin-top:5px; line-height:1.35; }
+#elec-app .estimate-card, #meters-app .estimate-card { margin-bottom:14px; }
+#elec-app .module-actions, #meters-app .module-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:16px; }
+#elec-app .module-estimate-head, #meters-app .module-estimate-head { display:flex; justify-content:space-between; gap:12px; }
+#elec-app .module-estimate-meta, #meters-app .module-estimate-meta { color:var(--hint); font-size:12px; margin:9px 0; }
+#elec-app .module-estimate-actions, #meters-app .module-estimate-actions { display:flex; flex-wrap:wrap; gap:8px; }
+#elec-app .module-estimate-total, #meters-app .module-estimate-total { color:var(--green); font-weight:800; }
 </style>
 </head>
-
 <body>
-
 <!-- ГЛАВНОЕ МЕНЮ -->
-<section id="page-menu" class="menu-screen">
-  <div class="menu-inner">
-    <div class="menu-brand">🛠️</div>
-    <h1>Калькулятор работ</h1>
-    <p class="menu-subtitle">Выберите раздел для расчёта</p>
-    <button class="menu-button" data-open-module="tile"><span class="menu-icon">🧱</span><span><b>Плитка</b><small>Расчёт плиточных работ</small></span><span class="menu-arrow">›</span></button>
-    <button class="menu-button" data-open-module="elec"><span class="menu-icon">⚡</span><span><b>Электрика по точкам</b><small>Расчёт по количеству точек</small></span><span class="menu-arrow">›</span></button>
-    <button class="menu-button" data-open-module="meters"><span class="menu-icon">📏</span><span><b>Электрика метраж</b><small>Кабель, штробы, короба и щиты</small></span><span class="menu-arrow">›</span></button>
-  </div>
+<section class="menu-screen" id="page-menu">
+<div class="menu-inner">
+<div class="menu-brand">🛠️</div>
+<h1>Калькулятор работ</h1>
+<p class="menu-subtitle">Выберите раздел для расчёта</p>
+<button class="menu-button" data-open-module="tile"><span class="menu-icon">🧱</span><span><b>Плитка</b><small>Расчёт плиточных работ</small></span><span class="menu-arrow">›</span></button>
+<button class="menu-button" data-open-module="elec"><span class="menu-icon">⚡</span><span><b>Электрика по точкам</b><small>Расчёт по количеству точек</small></span><span class="menu-arrow">›</span></button>
+<button class="menu-button" data-open-module="meters"><span class="menu-icon">📏</span><span><b>Электрика метраж</b><small>Кабель, штробы, короба и щиты</small></span><span class="menu-arrow">›</span></button>
+</div>
 </section>
-
-<div id="tile-app" class="app-container" hidden>
+<div class="app-container" hidden="" id="tile-app">
 <main class="app">
-
-  <!-- СМЕТЫ -->
-
-  <section
-    class="page active"
-    id="tile-page-estimates"
-    aria-labelledby="title-estimates"
-  >
-    <header class="page-header">
-      <button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button>
-      <h1 class="page-title" id="title-estimates">
+<!-- СМЕТЫ -->
+<section aria-labelledby="title-estimates" class="page active" id="tile-page-estimates">
+<header class="page-header">
+<button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button>
+<h1 class="page-title" id="title-estimates">
         📁 Сметы
       </h1>
-      <p class="page-subtitle">
+<p class="page-subtitle">
         Статистика и сохранённые расчёты
       </p>
-    </header>
-
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">📋</div>
-        <div class="stat-label">Всего смет</div>
-        <div class="stat-value" id="stat-count">0</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">💰</div>
-        <div class="stat-label">Сумма в работе</div>
-        <div class="stat-value" id="stat-approved">0 ₽</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">📐</div>
-        <div class="stat-label">Общий объём</div>
-        <div class="stat-value" id="stat-area">0 м²</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-label">Средний чек</div>
-        <div class="stat-value" id="stat-average">0 ₽</div>
-      </div>
-    </div>
-
-    <div class="search-wrap">
-      <input
-        type="search"
-        class="search-input"
-        id="estimateSearch"
-        placeholder="🔎 Поиск по заказчику или адресу"
-        aria-label="Поиск смет"
-      >
-    </div>
-
-    <div class="section-heading">
-      <h2>Мои сметы</h2>
-      <button
-        type="button"
-        class="btn btn-primary"
-        id="dashboardNewBtn"
-      >
+</header>
+<div class="stats-grid">
+<div class="stat-card">
+<div class="stat-icon">📋</div>
+<div class="stat-label">Всего смет</div>
+<div class="stat-value" id="stat-count">0</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">💰</div>
+<div class="stat-label">Сумма в работе</div>
+<div class="stat-value" id="stat-approved">0 ₽</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">📐</div>
+<div class="stat-label">Общий объём</div>
+<div class="stat-value" id="stat-area">0 м²</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">📊</div>
+<div class="stat-label">Средний чек</div>
+<div class="stat-value" id="stat-average">0 ₽</div>
+</div>
+</div>
+<div class="search-wrap">
+<input aria-label="Поиск смет" class="search-input" id="estimateSearch" placeholder="🔎 Поиск по заказчику или адресу" type="search"/>
+</div>
+<div class="section-heading">
+<h2>Мои сметы</h2>
+<button class="btn btn-primary" id="dashboardNewBtn" type="button">
         + Создать
       </button>
-    </div>
-
-    <div id="estimatesList"></div>
-  </section>
-
-  <!-- КАЛЬКУЛЯТОР -->
-
-  <section
-    class="page"
-    id="tile-page-calculator"
-    aria-labelledby="title-calculator"
-    hidden
-  >
-    <header class="page-header">
-      <h1 class="page-title" id="title-calculator">
+</div>
+<div id="estimatesList"></div>
+</section>
+<!-- КАЛЬКУЛЯТОР -->
+<section aria-labelledby="title-calculator" class="page" hidden="" id="tile-page-calculator">
+<header class="page-header">
+<h1 class="page-title" id="title-calculator">
         Новый расчёт
       </h1>
-      <p class="page-subtitle" id="calculatorSubtitle">
+<p class="page-subtitle" id="calculatorSubtitle">
         Создание сметы плиточных работ
       </p>
-    </header>
-
-    <form id="estimateForm" novalidate>
-
-      <section class="card">
-        <h2 class="card-title">Информация об объекте</h2>
-
-        <div class="field">
-          <label for="estimateCustomer">Заказчик</label>
-          <input
-            type="text"
-            id="estimateCustomer"
-            placeholder="Имя заказчика"
-            autocomplete="off"
-          >
-        </div>
-
-        <div class="field">
-          <label for="estimateAddress">Адрес объекта</label>
-          <input
-            type="text"
-            id="estimateAddress"
-            placeholder="Адрес выполнения работ"
-            autocomplete="off"
-          >
-        </div>
-
-        <div class="two-columns">
-          <div class="field">
-            <label for="estimateRoom">Тип помещения</label>
-            <input
-              type="text"
-              id="estimateRoom"
-              placeholder="Ванная"
-              autocomplete="off"
-            >
-          </div>
-
-          <div class="field">
-            <label for="estimateDate">Дата</label>
-            <input type="date" id="estimateDate">
-          </div>
-        </div>
-
-        <div class="field" style="margin-top:14px">
-          <label for="estimateNotes">Заметки</label>
-          <textarea
-            id="estimateNotes"
-            placeholder="Дополнительная информация..."
-          ></textarea>
-        </div>
-      </section>
-
-      <div class="section-heading">
-        <h2>Зоны работ</h2>
-        <span class="muted small" id="zonesCount">0 зон</span>
-      </div>
-
-      <div class="add-zone-actions">
-        <button
-          type="button"
-          class="btn btn-primary"
-          id="addFloorBtn"
-        >
+</header>
+<form id="estimateForm" novalidate="">
+<section class="card">
+<h2 class="card-title">Информация об объекте</h2>
+<div class="field">
+<label for="estimateCustomer">Заказчик</label>
+<input autocomplete="off" id="estimateCustomer" placeholder="Имя заказчика" type="text"/>
+</div>
+<div class="field">
+<label for="estimateAddress">Адрес объекта</label>
+<input autocomplete="off" id="estimateAddress" placeholder="Адрес выполнения работ" type="text"/>
+</div>
+<div class="two-columns">
+<div class="field">
+<label for="estimateRoom">Тип помещения</label>
+<input autocomplete="off" id="estimateRoom" placeholder="Ванная" type="text"/>
+</div>
+<div class="field">
+<label for="estimateDate">Дата</label>
+<input id="estimateDate" type="date"/>
+</div>
+</div>
+<div class="field" style="margin-top:14px">
+<label for="estimateNotes">Заметки</label>
+<textarea id="estimateNotes" placeholder="Дополнительная информация..."></textarea>
+</div>
+</section>
+<div class="section-heading">
+<h2>Зоны работ</h2>
+<span class="muted small" id="zonesCount">0 зон</span>
+</div>
+<div class="add-zone-actions">
+<button class="btn btn-primary" id="addFloorBtn" type="button">
           + Пол
         </button>
-
-        <button
-          type="button"
-          class="btn btn-secondary"
-          id="addWallBtn"
-        >
+<button class="btn btn-secondary" id="addWallBtn" type="button">
           + Стена
         </button>
-      </div>
-
-      <div id="zonesContainer"></div>
-
-      <section class="estimate-summary">
-        <h2 class="card-title">Итог по смете</h2>
-
-        <div class="summary-line">
-          <span>Количество зон</span>
-          <strong id="summaryZones">0</strong>
-        </div>
-
-        <div class="summary-line">
-          <span>Общий объём</span>
-          <strong id="summaryArea">0 м²</strong>
-        </div>
-
-        <div class="grand-total">
-          <div class="grand-total-label">
+</div>
+<div id="zonesContainer"></div>
+<section class="estimate-summary">
+<h2 class="card-title">Итог по смете</h2>
+<div class="summary-line">
+<span>Количество зон</span>
+<strong id="summaryZones">0</strong>
+</div>
+<div class="summary-line">
+<span>Общий объём</span>
+<strong id="summaryArea">0 м²</strong>
+</div>
+<div class="grand-total">
+<div class="grand-total-label">
             Итоговая стоимость
           </div>
-          <div class="grand-total-value" id="summaryPrice">
+<div class="grand-total-value" id="summaryPrice">
             0 ₽
           </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="field">
-          <label for="estimateStatus">Статус сметы</label>
-
-          <select id="estimateStatus">
-            <option value="draft">Черновик</option>
-            <option value="approved">Согласована</option>
-            <option value="completed">Выполнена</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          class="btn btn-primary btn-large"
-          id="saveEstimateBtn"
-        >
+</div>
+</section>
+<section class="card">
+<div class="field">
+<label for="estimateStatus">Статус сметы</label>
+<select id="estimateStatus">
+<option value="draft">Черновик</option>
+<option value="approved">Согласована</option>
+<option value="completed">Выполнена</option>
+</select>
+</div>
+<button class="btn btn-primary btn-large" id="saveEstimateBtn" type="submit">
           💾 Сохранить смету
         </button>
-
-        <button
-          type="button"
-          class="btn btn-secondary btn-large export-button"
-          id="downloadPngBtn"
-        >
+<button class="btn btn-secondary btn-large export-button" id="downloadPngBtn" type="button">
           📥 Скачать смету в PNG
         </button>
-
-        <p class="export-note" id="exportNote">
+<p class="export-note" id="exportNote">
           Смета будет сохранена как изображение.
         </p>
-
-        <div
-          class="form-message"
-          id="estimateMessage"
-          role="status"
-          aria-live="polite"
-        ></div>
-      </section>
-
-    </form>
-  </section>
-
-  <!-- ЕДИНЫЙ ПРАЙС-ЛИСТ -->
-
-  <section
-    class="page"
-    id="tile-page-prices"
-    aria-labelledby="title-prices"
-    hidden
-  >
-    <header class="page-header">
-      <h1 class="page-title" id="title-prices">
+<div aria-live="polite" class="form-message" id="estimateMessage" role="status"></div>
+</section>
+</form>
+</section>
+<!-- ЕДИНЫЙ ПРАЙС-ЛИСТ -->
+<section aria-labelledby="title-prices" class="page" hidden="" id="tile-page-prices">
+<header class="page-header">
+<h1 class="page-title" id="title-prices">
         Прайс-лист
       </h1>
-      <p class="page-subtitle">
+<p class="page-subtitle">
         Единые цены и проценты для всех зон работ
       </p>
-    </header>
-
-    <div
-      class="save-status"
-      id="saveStatus"
-      role="status"
-      aria-live="polite"
-    >
+</header>
+<div aria-live="polite" class="save-status" id="saveStatus" role="status">
       ✓ Настройки сохраняются автоматически
     </div>
-
-    <button type="button" class="btn btn-secondary btn-large" id="downloadPricePngBtn" style="width:100%; margin-bottom:16px;">
+<button class="btn btn-secondary btn-large" id="downloadPricePngBtn" style="width:100%; margin-bottom:16px;" type="button">
       📸 Скачать прайс в PNG
     </button>
-    <div id="priceListContainer"></div>
-  </section>
-
+<div id="priceListContainer"></div>
+</section>
 </main>
-
 <!-- НАВИГАЦИЯ -->
-
-<nav class="bottom-nav" aria-label="Навигация">
-
-  <button
-    type="button"
-    class="nav-button active"
-    data-page="estimates"
-    aria-current="page"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-    </svg>
-    <span class="nav-label">Сметы</span>
-  </button>
-
-  <button
-    type="button"
-    class="nav-button"
-    data-page="calculator"
-    aria-current="false"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="5" y="2" width="14" height="20" rx="2"/>
-      <path d="M8 6h8v4H8z"/>
-      <path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"/>
-    </svg>
-    <span class="nav-label">Новый расчёт</span>
-  </button>
-
-  <button
-    type="button"
-    class="nav-button"
-    data-page="prices"
-    aria-current="false"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="7" cy="7" r="2"/>
-      <circle cx="17" cy="17" r="2"/>
-      <path d="M19 5 5 19"/>
-    </svg>
-    <span class="nav-label">Прайс-лист</span>
-  </button>
-
+<nav aria-label="Навигация" class="bottom-nav">
+<button aria-current="page" class="nav-button active" data-page="estimates" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+</svg>
+<span class="nav-label">Сметы</span>
+</button>
+<button aria-current="false" class="nav-button" data-page="calculator" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<rect height="20" rx="2" width="14" x="5" y="2"></rect>
+<path d="M8 6h8v4H8z"></path>
+<path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"></path>
+</svg>
+<span class="nav-label">Новый расчёт</span>
+</button>
+<button aria-current="false" class="nav-button" data-page="prices" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<circle cx="7" cy="7" r="2"></circle>
+<circle cx="17" cy="17" r="2"></circle>
+<path d="M19 5 5 19"></path>
+</svg>
+<span class="nav-label">Прайс-лист</span>
+</button>
 </nav>
-
-<div id="exportWorkspace" aria-hidden="true"></div>
+<div aria-hidden="true" id="exportWorkspace"></div>
 </div><!-- /tile-app -->
-
 <!-- ЭЛЕКТРИКА: ПО ТОЧКАМ -->
-<section id="elec-app" class="electrical-app app-container" hidden>
-  
-  <section class="module-panel" id="elec-page-estimates" data-elec-panel="estimates"><header class="page-header"><button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика по точкам · сохранённые расчёты</p></header><div class="card"><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-elec-new>+ Создать</button></div><div id="elec-estimates-list"></div></div></section>
-  <section class="module-panel" id="elec-page-calc" data-elec-panel="calc" hidden><header class="page-header"><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика по точкам</p></header><div class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="elec-customer">Заказчик / объект</label><input id="elec-customer" placeholder="Имя или адрес"></div></div><div class="card"><h2 class="card-title">Перечень работ</h2><div id="elec-work-list"></div><div class="module-total">Итого: <strong id="elec-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-elec-tab="estimates">Отмена</button><button class="btn btn-primary" id="elec-save">Сохранить смету</button><button class="btn btn-secondary" id="elec-export">PNG / Поделиться</button></div></div></section>
-  <section class="module-panel" id="elec-page-prices" data-elec-panel="prices" hidden><header class="page-header"><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика по точкам</p></header><div class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><button class="btn btn-primary" id="elec-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="elec-reset-prices">Сбросить цены</button></div></section>
-
-<nav class="bottom-nav" aria-label="Навигация: Электрика по точкам">
-
-  <button
-    type="button"
-    class="nav-button active"
-    data-elec-tab="estimates"
-    aria-current="page"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-    </svg>
-    <span class="nav-label">Сметы</span>
-  </button>
-
-  <button
-    type="button"
-    class="nav-button"
-    data-elec-tab="calc"
-    aria-current="false"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="5" y="2" width="14" height="20" rx="2"/>
-      <path d="M8 6h8v4H8z"/>
-      <path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"/>
-    </svg>
-    <span class="nav-label">Новый расчёт</span>
-  </button>
-
-  <button
-    type="button"
-    class="nav-button"
-    data-elec-tab="prices"
-    aria-current="false"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="7" cy="7" r="2"/>
-      <circle cx="17" cy="17" r="2"/>
-      <path d="M19 5 5 19"/>
-    </svg>
-    <span class="nav-label">Прайс-лист</span>
-  </button>
-
-</nav>
-</section><!-- /elec-app -->
-
+<div class="app-container" hidden="" id="elec-app"><main class="app"><section class="page active" data-elec-panel="estimates" id="elec-page-estimates"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика по точкам · сохранённые расчёты</p></header><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-elec-new="" type="button">+ Создать</button></div><div id="elec-estimates-list"></div></section><section class="page" data-elec-panel="calc" hidden="" id="elec-page-calc"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика по точкам</p></header><section class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="elec-customer">Заказчик / объект</label><input id="elec-customer" placeholder="Имя или адрес"/></div></section><section class="card"><h2 class="card-title">Перечень работ</h2><div id="elec-work-list"></div><div class="estimate-summary"><div class="summary-line"><span>Итого по смете</span><strong id="elec-total">0 ₽</strong></div></div><div class="module-actions"><button class="btn btn-secondary" data-elec-tab="estimates" type="button">Отмена</button><button class="btn btn-primary" id="elec-save" type="button">💾 Сохранить смету</button><button class="btn btn-secondary" id="elec-export" type="button">📥 PNG / Поделиться</button></div></section></section><section class="page" data-elec-panel="prices" hidden="" id="elec-page-prices"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика по точкам</p></header><section class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><div class="module-actions"><button class="btn btn-primary" id="elec-save-prices" type="button">Сохранить цены</button><button class="btn btn-secondary" id="elec-reset-prices" type="button">Сбросить цены</button></div></section></section></main><nav aria-label="Навигация: Электрика по точкам" class="bottom-nav">
+<button aria-current="page" class="nav-button active" data-elec-tab="estimates" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+</svg>
+<span class="nav-label">Сметы</span>
+</button>
+<button aria-current="false" class="nav-button" data-elec-tab="calc" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<rect height="20" rx="2" width="14" x="5" y="2"></rect>
+<path d="M8 6h8v4H8z"></path>
+<path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"></path>
+</svg>
+<span class="nav-label">Новый расчёт</span>
+</button>
+<button aria-current="false" class="nav-button" data-elec-tab="prices" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<circle cx="7" cy="7" r="2"></circle>
+<circle cx="17" cy="17" r="2"></circle>
+<path d="M19 5 5 19"></path>
+</svg>
+<span class="nav-label">Прайс-лист</span>
+</button>
+</nav></div><!-- /elec-app -->
 <!-- ЭЛЕКТРИКА: МЕТРАЖ -->
-<section id="meters-app" class="electrical-app app-container" hidden>
-  
-  <section class="module-panel" id="meters-page-estimates" data-meters-panel="estimates"><header class="page-header"><button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика метраж · сохранённые расчёты</p></header><div class="card"><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-meters-new>+ Создать</button></div><div id="meters-estimates-list"></div></div></section>
-  <section class="module-panel" id="meters-page-calc" data-meters-panel="calc" hidden><header class="page-header"><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика метраж</p></header><div class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"></div></div><div class="card"><h2 class="card-title">Перечень работ</h2><div id="meters-work-list"></div><div class="module-total">Итого: <strong id="meters-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-meters-tab="estimates">Отмена</button><button class="btn btn-primary" id="meters-save">Сохранить смету</button><button class="btn btn-secondary" id="meters-export">PNG / Поделиться</button></div></div></section>
-  <section class="module-panel" id="meters-page-prices" data-meters-panel="prices" hidden><header class="page-header"><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика метраж</p></header><div class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><button class="btn btn-primary" id="meters-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="meters-reset-prices">Сбросить цены</button></div></section>
-
-<nav class="bottom-nav" aria-label="Навигация: Электрика метраж">
-
-  <button
-    type="button"
-    class="nav-button active"
-    data-meters-tab="estimates"
-    aria-current="page"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-    </svg>
-    <span class="nav-label">Сметы</span>
-  </button>
-
-  <button
-    type="button"
-    class="nav-button"
-    data-meters-tab="calc"
-    aria-current="false"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="5" y="2" width="14" height="20" rx="2"/>
-      <path d="M8 6h8v4H8z"/>
-      <path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"/>
-    </svg>
-    <span class="nav-label">Новый расчёт</span>
-  </button>
-
-  <button
-    type="button"
-    class="nav-button"
-    data-meters-tab="prices"
-    aria-current="false"
-  >
-    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="7" cy="7" r="2"/>
-      <circle cx="17" cy="17" r="2"/>
-      <path d="M19 5 5 19"/>
-    </svg>
-    <span class="nav-label">Прайс-лист</span>
-  </button>
-
-</nav>
-</section><!-- /meters-app -->
-
+<div class="app-container" hidden="" id="meters-app"><main class="app"><section class="page active" data-meters-panel="estimates" id="meters-page-estimates"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика метраж · сохранённые расчёты</p></header><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-meters-new="" type="button">+ Создать</button></div><div id="meters-estimates-list"></div></section><section class="page" data-meters-panel="calc" hidden="" id="meters-page-calc"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика метраж</p></header><section class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"/></div></section><section class="card"><h2 class="card-title">Перечень работ</h2><div id="meters-work-list"></div><div class="estimate-summary"><div class="summary-line"><span>Итого по смете</span><strong id="meters-total">0 ₽</strong></div></div><div class="module-actions"><button class="btn btn-secondary" data-meters-tab="estimates" type="button">Отмена</button><button class="btn btn-primary" id="meters-save" type="button">💾 Сохранить смету</button><button class="btn btn-secondary" id="meters-export" type="button">📥 PNG / Поделиться</button></div></section></section><section class="page" data-meters-panel="prices" hidden="" id="meters-page-prices"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика метраж</p></header><section class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><div class="module-actions"><button class="btn btn-primary" id="meters-save-prices" type="button">Сохранить цены</button><button class="btn btn-secondary" id="meters-reset-prices" type="button">Сбросить цены</button></div></section></section></main><nav aria-label="Навигация: Электрика метраж" class="bottom-nav">
+<button aria-current="page" class="nav-button active" data-meters-tab="estimates" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+</svg>
+<span class="nav-label">Сметы</span>
+</button>
+<button aria-current="false" class="nav-button" data-meters-tab="calc" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<rect height="20" rx="2" width="14" x="5" y="2"></rect>
+<path d="M8 6h8v4H8z"></path>
+<path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"></path>
+</svg>
+<span class="nav-label">Новый расчёт</span>
+</button>
+<button aria-current="false" class="nav-button" data-meters-tab="prices" type="button">
+<svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
+<circle cx="7" cy="7" r="2"></circle>
+<circle cx="17" cy="17" r="2"></circle>
+<path d="M19 5 5 19"></path>
+</svg>
+<span class="nav-label">Прайс-лист</span>
+</button>
+</nav></div><!-- /meters-app -->
 <script>
 "use strict";
 
@@ -4148,7 +3978,7 @@ function navigateTo(pageName) {
 
   document.querySelectorAll("#tile-app .page").forEach(page => {
     const active =
-      page.id === `page-${pageName}`;
+      page.id === `tile-page-${pageName}`;
 
     page.classList.toggle("active", active);
     page.hidden = !active;
@@ -4335,10 +4165,52 @@ function initModule(key,cfg){
  function saveDraft(){write(prefix+'_draft',state.draft)}
  function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
  function calc(){const sum=getLines().reduce((a,x)=>a+x.price*x.qty,0);document.getElementById(cfg.total).textContent=money(sum);state.draft={customer:document.getElementById(cfg.customer).value,quantities:getLines().map(x=>x.qty),editingId:state.editingId};saveDraft();return sum}
- function renderWork(){const host=document.getElementById(cfg.list);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-work-row"><label for="${prefix}-qty-${i}">${esc(x.name)}<br><span class="muted small">${esc(x.unit)} · ${money(x.price)}</span></label><input type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${Number(state.draft?.quantities?.[i])||0}" aria-label="Количество: ${esc(x.name)}"><div class="work-price" id="${prefix}-line-${i}">${money((Number(state.draft?.quantities?.[i])||0)*x.price)}</div></div>`}).join('');host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{const q=Math.max(0,Number(inp.value)||0);document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent=money(q*state.priceList[Number(inp.dataset.qty)].price);calc()}));calc()}
- function renderPrices(){const host=document.getElementById(cfg.prices);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-price-row"><label>${esc(x.name)}<br><span class="muted small">${esc(x.unit)}</span>${key==='elec'?`<span class="small muted">${esc(pointDescriptions[i])}</span>`:''}</label><input type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`}).join('')}
- function renderEstimates(){const host=document.getElementById(cfg.estimates);if(!state.estimates.length){host.innerHTML='<div class="module-empty">Пока нет сохранённых смет.<br>Нажмите «Создать», чтобы начать.</div>';return}host.innerHTML=state.estimates.slice().reverse().map(e=>`<div class="module-estimate"><div class="module-estimate-head"><div class="module-estimate-name">${esc(e.customer||'Без названия')}</div><div class="module-estimate-total">${money(e.total)}</div></div><div class="module-estimate-meta">${esc(e.date||'')} · ${e.lines.filter(x=>x.qty>0).length} позиций</div><div class="module-estimate-actions"><button class="btn btn-secondary" data-edit="${esc(e.id)}">Открыть</button><button class="btn btn-secondary" data-share="${esc(e.id)}">PNG / Поделиться</button><button class="btn btn-danger" data-delete="${esc(e.id)}">Удалить</button></div></div>`).join('');host.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEstimate(b.dataset.edit));host.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('Удалить эту смету?')){state.estimates=state.estimates.filter(e=>e.id!==b.dataset.delete);write(prefix+'_estimates',state.estimates);renderEstimates()}});host.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>exportEstimate(state.estimates.find(e=>e.id===b.dataset.share)))}
- function switchTab(tab){document.querySelectorAll(`#${cfg.app} [${cfg.panels}]`).forEach(el=>el.hidden=el.getAttribute(cfg.panels)!==tab);document.querySelectorAll(`#${cfg.app} [${cfg.tabs}]`).forEach(el=>(el.classList.toggle('active',el.getAttribute(cfg.tabs)===tab),el.setAttribute('aria-current',el.getAttribute(cfg.tabs)===tab?'page':'false')));if(tab==='estimates')renderEstimates();if(tab==='prices')renderPrices();window.scrollTo(0,0)}
+ function renderWork(){
+  const host=document.getElementById(cfg.list);let last='';
+  host.innerHTML=state.priceList.map((x,i)=>{
+    let heading='';
+    if(x.group!==last){last=x.group;heading=`<h3 class="card-title" style="margin-top:18px">${esc(last)}</h3>`}
+    return `${heading}<div class="zone-number-row electrical-work-row"><label for="${prefix}-qty-${i}">${esc(x.name)}<span class="setting-unit">${esc(x.unit)} · ${money(x.price)}</span></label><input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${Number(state.draft?.quantities?.[i])||0}" aria-label="Количество: ${esc(x.name)}"><strong class="electrical-line-total" id="${prefix}-line-${i}">${money((Number(state.draft?.quantities?.[i])||0)*x.price)}</strong></div>`
+  }).join('');
+  host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{
+    const q=Math.max(0,Number(inp.value)||0);
+    document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent=money(q*state.priceList[Number(inp.dataset.qty)].price);
+    calc();
+  }));
+  calc();
+ }
+ function renderPrices(){
+  const host=document.getElementById(cfg.prices);let last='';
+  host.innerHTML=state.priceList.map((x,i)=>{
+    let heading='';
+    if(x.group!==last){last=x.group;heading=`<h3 class="card-title" style="margin-top:18px">${esc(last)}</h3>`}
+    return `${heading}<div class="setting-row"><label for="${prefix}-price-${i}">${esc(x.name)}<span class="setting-unit">${esc(x.unit)}</span>${key==='elec'?`<span class="setting-unit">${esc(pointDescriptions[i])}</span>`:''}</label><input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`
+  }).join('');
+ }
+ function renderEstimates(){
+  const host=document.getElementById(cfg.estimates);
+  if(!state.estimates.length){host.innerHTML='<div class="card"><p class="muted">Пока нет сохранённых смет. Нажмите «Создать», чтобы начать.</p></div>';return}
+  host.innerHTML=state.estimates.slice().reverse().map(e=>`<article class="estimate-card"><div class="module-estimate-head"><div class="module-estimate-name">${esc(e.customer||'Без названия')}</div><div class="module-estimate-total">${money(e.total)}</div></div><div class="module-estimate-meta">${esc(e.date||'')} · ${e.lines.filter(x=>x.qty>0).length} позиций</div><div class="module-estimate-actions"><button class="btn btn-secondary" data-edit="${esc(e.id)}">Открыть</button><button class="btn btn-secondary" data-share="${esc(e.id)}">PNG / Поделиться</button><button class="btn btn-danger" data-delete="${esc(e.id)}">Удалить</button></div></article>`).join('');
+  host.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEstimate(b.dataset.edit));
+  host.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('Удалить эту смету?')){state.estimates=state.estimates.filter(e=>e.id!==b.dataset.delete);write(prefix+'_estimates',state.estimates);renderEstimates()}});
+  host.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>exportEstimate(state.estimates.find(e=>e.id===b.dataset.share)));
+ }
+ function switchTab(tab){
+  const root=document.getElementById(cfg.app);
+  root.querySelectorAll('main.app > section.page').forEach(page=>{
+    const active=page.getAttribute(cfg.panels)===tab;
+    page.classList.toggle('active',active);
+    page.hidden=!active;
+  });
+  root.querySelectorAll('.bottom-nav .nav-button').forEach(button=>{
+    const active=button.getAttribute(cfg.tabs)===tab;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-current',active?'page':'false');
+  });
+  if(tab==='estimates')renderEstimates();
+  if(tab==='prices')renderPrices();
+  window.scrollTo(0,0);
+ }
  function newEstimate(){state.editingId=null;state.draft={customer:'',quantities:cfg.defaults.map(()=>0)};document.getElementById(cfg.customer).value='';renderWork();switchTab('calc');document.getElementById(cfg.customer).focus()}
  function openEstimate(id){const e=state.estimates.find(x=>x.id===id);if(!e)return;state.editingId=e.id;state.draft={customer:e.customer,quantities:state.priceList.map((_,i)=>e.lines.find(x=>x.index===i)?.qty||0)};document.getElementById(cfg.customer).value=e.customer||'';renderWork();switchTab('calc')}
  function saveEstimate(){const lines=getLines();const total=lines.reduce((a,x)=>a+x.qty*x.price,0);const old=state.estimates.find(x=>x.id===state.editingId);const e={id:state.editingId||('e'+Date.now()+Math.random().toString(16).slice(2,6)),customer:document.getElementById(cfg.customer).value.trim()||'Без названия',date:old?.date||new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines,total};if(old)state.estimates=state.estimates.map(x=>x.id===old.id?e:x);else state.estimates.push(e);write(prefix+'_estimates',state.estimates);state.editingId=e.id;renderEstimates();switchTab('estimates');}
@@ -4380,20 +4252,16 @@ showModule('menu');
 })();
 
 </script>
-
-
-
 <!-- Модальное окно подтверждения удаления сметы -->
-<div id="deleteModal" class="delete-modal" hidden aria-hidden="true">
-  <div class="delete-modal-backdrop" data-delete-modal-cancel></div>
-  <div class="delete-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
-    <h2 id="deleteModalTitle">Удалить эту смету?</h2>
-    <div class="delete-modal-actions">
-      <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Отмена</button>
-      <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Удалить</button>
-    </div>
-  </div>
+<div aria-hidden="true" class="delete-modal" hidden="" id="deleteModal">
+<div class="delete-modal-backdrop" data-delete-modal-cancel=""></div>
+<div aria-labelledby="deleteModalTitle" aria-modal="true" class="delete-modal-dialog" role="dialog">
+<h2 id="deleteModalTitle">Удалить эту смету?</h2>
+<div class="delete-modal-actions">
+<button class="btn btn-secondary" id="cancelDeleteBtn" type="button">Отмена</button>
+<button class="btn btn-danger" id="confirmDeleteBtn" type="button">Удалить</button>
 </div>
-
+</div>
+</div>
 </body>
 </html>
