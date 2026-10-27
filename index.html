@@ -5,7 +5,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
+
 <title>Калькулятор плиточных работ</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
 /* ==========================================
@@ -46,6 +50,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+
   background: var(--bg);
   color: var(--text);
 
@@ -636,7 +641,7 @@ input[type="date"] {
 }
 
 /* ==========================================
-   7. ОБЩИЙ ИТОГ СМЕТЫ
+   7. ОБЩИЙ ИТОГ
 ========================================== */
 
 .estimate-summary {
@@ -899,7 +904,224 @@ input[type="date"] {
 }
 
 /* ==========================================
-   10. АДАПТИВНОСТЬ
+   10. ЭКСПОРТ PNG
+========================================== */
+
+.export-button {
+  margin-top: 11px;
+}
+
+.export-button:disabled {
+  opacity: 0.65;
+}
+
+.export-note {
+  margin: 10px 0 0;
+  color: var(--hint);
+  font-size: 12px;
+  text-align: center;
+}
+
+/*
+  Экспортный документ создаётся отдельно
+  от интерфейса приложения.
+
+  Это позволяет не менять реальные input,
+  не скрывать навигацию и не нарушать работу
+  калькулятора во время экспорта.
+*/
+
+#exportWorkspace {
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  width: 800px;
+
+  z-index: -1000;
+  pointer-events: none;
+
+  opacity: 0;
+  overflow: visible;
+}
+
+.export-document {
+  width: 800px;
+  padding: 40px;
+
+  background: #ffffff;
+  color: #172033;
+
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.export-document * {
+  box-sizing: border-box;
+}
+
+.export-header {
+  border-bottom: 3px solid #2563eb;
+  padding-bottom: 22px;
+  margin-bottom: 24px;
+}
+
+.export-title {
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 800;
+  color: #172033;
+}
+
+.export-subtitle {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.export-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+
+  margin-bottom: 25px;
+}
+
+.export-info-item {
+  background: #f1f5f9;
+  padding: 13px;
+  border-radius: 9px;
+
+  overflow-wrap: anywhere;
+}
+
+.export-info-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.export-info-value {
+  font-weight: 700;
+}
+
+.export-notes {
+  margin-bottom: 25px;
+  padding: 14px;
+
+  background: #f8fafc;
+  border-left: 4px solid #2563eb;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.export-zone {
+  margin-bottom: 25px;
+  padding: 20px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+
+  break-inside: avoid;
+}
+
+.export-zone-title {
+  margin: 0 0 15px;
+  padding-bottom: 10px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  font-size: 20px;
+  font-weight: 800;
+  color: #172033;
+}
+
+.export-section-title {
+  margin: 17px 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #334155;
+}
+
+.export-row {
+  display: flex;
+  justify-content: space-between;
+
+  gap: 15px;
+  padding: 6px 0;
+
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.export-row-label {
+  flex: 1;
+  min-width: 0;
+  color: #475569;
+  overflow-wrap: anywhere;
+}
+
+.export-row-value {
+  flex-shrink: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.export-zone-total {
+  display: flex;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-top: 17px;
+  padding-top: 15px;
+
+  border-top: 2px solid #2563eb;
+
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.export-zone-total strong {
+  color: #2563eb;
+}
+
+.export-grand-summary {
+  padding: 24px;
+
+  border-radius: 14px;
+  background: #eff6ff;
+
+  border: 2px solid #2563eb;
+}
+
+.export-grand-label {
+  font-size: 15px;
+  color: #475569;
+}
+
+.export-grand-value {
+  margin-top: 10px;
+
+  font-size: 34px;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+
+.export-footer {
+  margin-top: 25px;
+  padding-top: 15px;
+
+  border-top: 1px solid #cbd5e1;
+
+  color: #64748b;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ==========================================
+   11. АДАПТИВНОСТЬ
 ========================================== */
 
 @media (max-width: 360px) {
@@ -1195,6 +1417,23 @@ input[type="date"] {
           💾 Сохранить смету
         </button>
 
+        <!-- НОВАЯ КНОПКА PNG -->
+
+        <button
+          type="button"
+          class="btn btn-secondary btn-large export-button"
+          id="downloadPngBtn"
+        >
+          📥 Скачать смету в PNG
+        </button>
+
+        <p
+          class="export-note"
+          id="exportNote"
+        >
+          Смета будет сохранена как изображение.
+        </p>
+
         <div
           class="form-message"
           id="estimateMessage"
@@ -1315,7 +1554,12 @@ input[type="date"] {
 
 </nav>
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- ВРЕМЕННЫЙ КОНТЕЙНЕР ДЛЯ PNG -->
+
+<div
+  id="exportWorkspace"
+  aria-hidden="true"
+></div>
 
 <script>
 "use strict";
@@ -1326,11 +1570,36 @@ input[type="date"] {
 
 const tg = window.Telegram?.WebApp ?? null;
 
+const APP_BROWSER_URL =
+  "https://savinvasya.github.io/Tile-calculator1/?v=3";
+
+/*
+  Telegram SDK загружается и в обычном браузере.
+
+  Поэтому одного window.Telegram.WebApp
+  недостаточно для определения Mini App.
+
+  initData присутствует при реальном запуске
+  через Telegram.
+*/
+
+function isTelegramMiniApp() {
+  return Boolean(
+    tg &&
+    typeof tg.openLink === "function" &&
+    typeof tg.initData === "string" &&
+    tg.initData.length > 0
+  );
+}
+
 if (tg) {
   try {
     tg.ready();
     tg.expand();
-    tg.setHeaderColor?.("secondary_bg_color");
+
+    if (isTelegramMiniApp()) {
+      tg.setHeaderColor?.("secondary_bg_color");
+    }
   } catch (error) {
     console.warn("Telegram:", error);
   }
@@ -1338,9 +1607,11 @@ if (tg) {
 
 function haptic() {
   try {
-    tg?.HapticFeedback?.selectionChanged();
+    if (isTelegramMiniApp()) {
+      tg.HapticFeedback?.selectionChanged();
+    }
   } catch (error) {
-    // Необязательная функция.
+    // Необязательно.
   }
 }
 
@@ -1505,12 +1776,6 @@ function showMessage(message, type = "success") {
 
 /* ==========================================
    4. СХЕМА ПРАЙС-ЛИСТА
-
-   Совместима с Частью 1.
-
-   priceList.floor.base.standard
-   priceList.wall.size["60x60"]
-   priceList.floor.cuts.dry
 ========================================== */
 
 const PRICE_SCHEMA = [
@@ -1736,7 +2001,7 @@ const SCHEMA_MAP = Object.fromEntries(
 );
 
 /* ==========================================
-   5. ПРАЙС-ЛИСТ: ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ
+   5. ПРАЙС-ЛИСТ
 ========================================== */
 
 function createDefaultPriceList() {
@@ -1823,10 +2088,6 @@ function savePriceList() {
 
   return success;
 }
-
-/* ==========================================
-   6. ОТРИСОВКА ПРАЙС-ЛИСТА
-========================================== */
 
 function renderPriceList() {
   const container = byId("priceListContainer");
@@ -1949,12 +2210,6 @@ byId("priceListContainer").addEventListener(
     priceList[activePriceType][group][field] = value;
 
     savePriceList();
-
-    /*
-      При изменении прайса пересчитываем
-      открытую смету с новыми ставками.
-    */
-
     calculateEstimate();
   }
 );
@@ -1968,13 +2223,11 @@ byId("priceListContainer").addEventListener(
 
     if (!input) return;
 
-    const value = getPrice(
+    input.value = getPrice(
       activePriceType,
       input.dataset.priceGroup,
       input.dataset.priceField
     );
-
-    input.value = value;
   }
 );
 
@@ -1988,7 +2241,7 @@ document.querySelectorAll(
 });
 
 /* ==========================================
-   7. СТРУКТУРА ЗОНЫ
+   6. СТРУКТУРА ЗОНЫ
 ========================================== */
 
 function createEmptyZone(type = "floor") {
@@ -1998,17 +2251,9 @@ function createEmptyZone(type = "floor") {
   const prep = {};
 
   ADDON_GROUPS.forEach(groupId => {
-    const group = SCHEMA_MAP[groupId];
-
-    const defaultOption = group.fields[0];
-
-    addons[groupId] = defaultOption.key;
+    addons[groupId] =
+      SCHEMA_MAP[groupId].fields[0].key;
   });
-
-  /*
-    Для расположения выбираем соответствующий
-    тип зоны.
-  */
 
   addons.position =
     type === "floor" ? "floor" : "wall";
@@ -2049,10 +2294,6 @@ function createEmptyZone(type = "floor") {
     totalPrice: 0
   };
 }
-
-/* ==========================================
-   8. НОРМАЛИЗАЦИЯ ЗОНЫ
-========================================== */
 
 function normalizeZone(source) {
   const type =
@@ -2120,7 +2361,7 @@ function normalizeZone(source) {
 }
 
 /* ==========================================
-   9. СОСТОЯНИЕ ТЕКУЩЕЙ СМЕТЫ
+   7. СОСТОЯНИЕ СМЕТ
 ========================================== */
 
 function createEmptyEstimate() {
@@ -2193,14 +2434,6 @@ let currentEstimate = savedDraft
   ? normalizeEstimate(savedDraft)
   : createEmptyEstimate();
 
-/* ==========================================
-   10. СОХРАНЕНИЕ ЧЕРНОВИКА ФОРМЫ
-
-   Черновик текущего редактора сохраняется
-   автоматически, даже до нажатия
-   "Сохранить смету".
-========================================== */
-
 function persistDraft() {
   return writeJSON(
     DRAFT_STORAGE_KEY,
@@ -2209,7 +2442,7 @@ function persistDraft() {
 }
 
 /* ==========================================
-   11. РАСЧЁТ ОТДЕЛЬНОЙ ЗОНЫ
+   8. РАСЧЁТ ЗОНЫ
 ========================================== */
 
 function calculateZone(zone) {
@@ -2224,23 +2457,12 @@ function calculateZone(zone) {
   let totalPercent = 0;
 
   ADDON_GROUPS.forEach(groupId => {
-    const optionKey = zone.addons[groupId];
-
     totalPercent += getPrice(
       type,
       groupId,
-      optionKey
+      zone.addons[groupId]
     );
   });
-
-  /*
-    Надбавки за укладку рассчитываются
-    от базовой ставки.
-
-    Надбавка за дорогую плитку:
-    процент от стоимости самой плитки,
-    если она дороже 1000 ₽/м².
-  */
 
   const tileExtraPercent = getPrice(
     type,
@@ -2259,11 +2481,6 @@ function calculateZone(zone) {
 
   const layingCost =
     zone.area * sqmPrice;
-
-  /*
-    Резы и отверстия:
-    процент от рассчитанной цены 1 м².
-  */
 
   function calculateQuantityGroup(
     values,
@@ -2297,20 +2514,11 @@ function calculateZone(zone) {
     sqmPrice
   );
 
-  /*
-    Подготовка считается от базовой ставки,
-    без надбавок за сложность укладки.
-  */
-
   const prepCost = calculateQuantityGroup(
     zone.prep,
     "preparation",
     basePrice
   );
-
-  /*
-    Затирка.
-  */
 
   const groutGroup =
     zone.grout.type === "epoxy"
@@ -2325,10 +2533,6 @@ function calculateZone(zone) {
 
   const groutCost =
     zone.grout.length * groutRate;
-
-  /*
-    Силикон.
-  */
 
   const siliconeRate = getPrice(
     type,
@@ -2367,7 +2571,7 @@ function calculateZone(zone) {
 }
 
 /* ==========================================
-   12. РАСЧЁТ ВСЕЙ СМЕТЫ
+   9. РАСЧЁТ ВСЕЙ СМЕТЫ
 ========================================== */
 
 function calculateEstimate() {
@@ -2415,7 +2619,7 @@ function calculateEstimate() {
 }
 
 /* ==========================================
-   13. СОЗДАНИЕ SELECT НАДБАВОК
+   10. SELECT НАДБАВОК
 ========================================== */
 
 function addonSelectHTML(zone, groupId) {
@@ -2457,7 +2661,7 @@ function addonSelectHTML(zone, groupId) {
 }
 
 /* ==========================================
-   14. СОЗДАНИЕ ЧИСЛОВЫХ ПОЛЕЙ
+   11. ЧИСЛОВЫЕ ПОЛЯ
 ========================================== */
 
 function quantityFieldsHTML(zone, groupId) {
@@ -2515,7 +2719,7 @@ function quantityFieldsHTML(zone, groupId) {
 }
 
 /* ==========================================
-   15. ШАБЛОН HTML ЗОНЫ
+   12. HTML ЗОНЫ
 ========================================== */
 
 function zoneHTML(zone, index) {
@@ -2582,8 +2786,6 @@ function zoneHTML(zone, index) {
 
       <div class="zone-body">
 
-        <!-- ОСНОВНЫЕ ДАННЫЕ -->
-
         <div class="two-columns">
 
           <div class="field">
@@ -2618,20 +2820,15 @@ function zoneHTML(zone, index) {
 
         </div>
 
-        <!-- НАДБАВКИ -->
-
         <div class="zone-group">
           <h4>Надбавки за укладку</h4>
 
           <p class="zone-group-description">
-            Проценты берутся из Прайс-листа
-            для выбранного типа зоны.
+            Проценты берутся из Прайс-листа.
           </p>
 
           ${addonFields}
         </div>
-
-        <!-- РЕЗЫ -->
 
         <div class="zone-group">
           <h4>Рез плитки и соединения</h4>
@@ -2639,15 +2836,11 @@ function zoneHTML(zone, index) {
           ${quantityFieldsHTML(zone, "cuts")}
         </div>
 
-        <!-- ОТВЕРСТИЯ -->
-
         <div class="zone-group">
           <h4>Отверстия</h4>
 
           ${quantityFieldsHTML(zone, "holes")}
         </div>
-
-        <!-- ЗАТИРКА -->
 
         <div class="zone-group">
           <h4>Затирка</h4>
@@ -2701,8 +2894,6 @@ function zoneHTML(zone, index) {
           </div>
         </div>
 
-        <!-- СИЛИКОН -->
-
         <div class="zone-group">
           <h4>Силикон</h4>
 
@@ -2735,14 +2926,11 @@ function zoneHTML(zone, index) {
           </div>
         </div>
 
-        <!-- ПОДГОТОВКА -->
-
         <div class="zone-group">
           <h4>Подготовка поверхности</h4>
 
           <p class="zone-group-description">
-            Стоимость рассчитывается
-            от базовой ставки.
+            Стоимость от базовой ставки.
           </p>
 
           ${quantityFieldsHTML(
@@ -2750,8 +2938,6 @@ function zoneHTML(zone, index) {
             "preparation"
           )}
         </div>
-
-        <!-- ИТОГ ЗОНЫ -->
 
         <div class="zone-summary">
 
@@ -2808,10 +2994,6 @@ function zoneHTML(zone, index) {
   `;
 }
 
-/* ==========================================
-   16. ОТРИСОВКА ВСЕХ ЗОН
-========================================== */
-
 function renderZones() {
   const container = byId("zonesContainer");
 
@@ -2838,19 +3020,14 @@ function renderZones() {
   calculateEstimate();
 }
 
-/* ==========================================
-   17. ОБНОВЛЕНИЕ РЕЗУЛЬТАТОВ ЗОНЫ
-
-   Обновляем только текст итогов,
-   не перерисовывая инпуты.
-========================================== */
-
 function updateZoneSummary(zoneId, result) {
   const card = Array.from(
     byId("zonesContainer").querySelectorAll(
       "[data-zone-id]"
     )
-  ).find(element => element.dataset.zoneId === String(zoneId));
+  ).find(
+    element => element.dataset.zoneId === String(zoneId)
+  );
 
   if (!card) return;
 
@@ -2878,7 +3055,7 @@ function updateZoneSummary(zoneId, result) {
 }
 
 /* ==========================================
-   18. ДОБАВЛЕНИЕ ЗОН
+   13. ДОБАВЛЕНИЕ И УДАЛЕНИЕ ЗОН
 ========================================== */
 
 function addZone(type) {
@@ -2889,9 +3066,20 @@ function addZone(type) {
   );
 
   renderZones();
-
   showMessage("");
+  haptic();
+}
 
+function deleteZone(zoneId) {
+  const index = currentEstimate.zones.findIndex(
+    zone => String(zone.id) === String(zoneId)
+  );
+
+  if (index === -1) return;
+
+  currentEstimate.zones.splice(index, 1);
+
+  renderZones();
   haptic();
 }
 
@@ -2906,28 +3094,7 @@ byId("addWallBtn").addEventListener(
 );
 
 /* ==========================================
-   19. УДАЛЕНИЕ ЗОН
-========================================== */
-
-function deleteZone(zoneId) {
-  const index = currentEstimate.zones.findIndex(
-    zone => String(zone.id) === String(zoneId)
-  );
-
-  if (index === -1) return;
-
-  currentEstimate.zones.splice(index, 1);
-
-  renderZones();
-
-  haptic();
-}
-
-/* ==========================================
-   20. ОБРАБОТКА ПОЛЕЙ ЗОН
-
-   Делегирование событий:
-   один обработчик для любого числа зон.
+   14. ОБРАБОТКА ПОЛЕЙ ЗОН
 ========================================== */
 
 function handleZoneInput(event) {
@@ -3047,7 +3214,7 @@ byId("zonesContainer").addEventListener(
 );
 
 /* ==========================================
-   21. ДАННЫЕ ОБЪЕКТА
+   15. ДАННЫЕ ОБЪЕКТА
 ========================================== */
 
 const ESTIMATE_FIELDS = {
@@ -3131,7 +3298,7 @@ byId("estimateForm").addEventListener(
 );
 
 /* ==========================================
-   22. НОВАЯ СМЕТА
+   16. СОХРАНЕНИЕ СМЕТ
 ========================================== */
 
 function startNewEstimate() {
@@ -3142,10 +3309,6 @@ function startNewEstimate() {
 
   navigateTo("calculator");
 }
-
-/* ==========================================
-   23. СОХРАНЕНИЕ СМЕТЫ
-========================================== */
 
 function saveEstimate() {
   readEstimateForm();
@@ -3169,11 +3332,6 @@ function saveEstimate() {
 
     return;
   }
-
-  /*
-    ID новой сметы — timestamp.
-    При редактировании ID не меняется.
-  */
 
   if (currentEstimate.id === null) {
     let id = Date.now();
@@ -3208,7 +3366,7 @@ function saveEstimate() {
 
   if (!success) {
     showMessage(
-      "Не удалось сохранить смету. Проверьте память устройства.",
+      "Не удалось сохранить смету.",
       "error"
     );
 
@@ -3217,13 +3375,7 @@ function saveEstimate() {
 
   estimates = updatedEstimates;
 
-  /*
-    После сохранения текущая смета остаётся
-    открытой для редактирования.
-  */
-
   persistDraft();
-
   fillEstimateForm();
   renderDashboard();
 
@@ -3233,9 +3385,11 @@ function saveEstimate() {
   );
 
   try {
-    tg?.HapticFeedback?.notificationOccurred(
-      "success"
-    );
+    if (isTelegramMiniApp()) {
+      tg.HapticFeedback?.notificationOccurred(
+        "success"
+      );
+    }
   } catch (error) {
     // Необязательно.
   }
@@ -3248,10 +3402,6 @@ byId("estimateForm").addEventListener(
     saveEstimate();
   }
 );
-
-/* ==========================================
-   24. ОТКРЫТИЕ СМЕТЫ ДЛЯ РЕДАКТИРОВАНИЯ
-========================================== */
 
 function openEstimate(id) {
   const estimate = estimates.find(
@@ -3273,7 +3423,7 @@ function openEstimate(id) {
 }
 
 /* ==========================================
-   25. DASHBOARD: СТАТИСТИКА
+   17. DASHBOARD
 ========================================== */
 
 function calculateDashboardStats() {
@@ -3284,57 +3434,34 @@ function calculateDashboardStats() {
   let totalArea = 0;
 
   estimates.forEach(estimate => {
-    /*
-      Пересчитываем сохранённые зоны
-      по актуальному Прайс-листу.
-    */
-
     const zones = Array.isArray(estimate.zones)
       ? estimate.zones
       : [];
 
-    const area = zones.reduce(
+    totalArea += zones.reduce(
       (sum, zone) => sum + num(zone.area),
       0
     );
 
-    totalArea += area;
-
     if (estimate.status === "approved") {
       approvedCount++;
-
       approvedSum += num(estimate.totalPrice);
     }
   });
 
-  const average = approvedCount > 0
-    ? approvedSum / approvedCount
-    : 0;
-
   return {
     count,
     approvedSum,
-    approvedCount,
     totalArea,
-    average
+    average: approvedCount
+      ? approvedSum / approvedCount
+      : 0
   };
 }
-
-/* ==========================================
-   26. DASHBOARD: КАРТОЧКА СМЕТЫ
-========================================== */
 
 function estimateCardHTML(estimate) {
   const approved =
     estimate.status === "approved";
-
-  const statusText = approved
-    ? "Согласована"
-    : "Черновик";
-
-  const statusClass = approved
-    ? "approved"
-    : "draft";
 
   return `
     <button
@@ -3349,8 +3476,8 @@ function estimateCardHTML(estimate) {
           📅 ${escapeHTML(displayDate(estimate.date))}
         </span>
 
-        <span class="status-badge ${statusClass}">
-          ${statusText}
+        <span class="status-badge ${approved ? "approved" : "draft"}">
+          ${approved ? "Согласована" : "Черновик"}
         </span>
 
       </div>
@@ -3384,32 +3511,13 @@ function estimateCardHTML(estimate) {
   `;
 }
 
-/* ==========================================
-   27. DASHBOARD: ОТРИСОВКА
-========================================== */
-
 function renderDashboard() {
   const stats = calculateDashboardStats();
 
-  setText(
-    "stat-count",
-    stats.count
-  );
-
-  setText(
-    "stat-approved",
-    money(stats.approvedSum)
-  );
-
-  setText(
-    "stat-area",
-    fmt(stats.totalArea) + " м²"
-  );
-
-  setText(
-    "stat-average",
-    money(stats.average)
-  );
+  setText("stat-count", stats.count);
+  setText("stat-approved", money(stats.approvedSum));
+  setText("stat-area", fmt(stats.totalArea) + " м²");
+  setText("stat-average", money(stats.average));
 
   const query = byId("estimateSearch")
     .value
@@ -3449,7 +3557,7 @@ function renderDashboard() {
         <p>
           ${query
             ? "Попробуйте другой запрос."
-            : "Создайте первую смету, чтобы она появилась здесь."}
+            : "Создайте первую смету."}
         </p>
       </div>
     `;
@@ -3501,7 +3609,873 @@ byId("dashboardNewBtn").addEventListener(
 );
 
 /* ==========================================
-   28. SPA НАВИГАЦИЯ
+   18. ЭКСПОРТ: ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+========================================== */
+
+function getFieldLabel(groupId, fieldKey) {
+  const group = SCHEMA_MAP[groupId];
+
+  if (!group) return fieldKey;
+
+  const field = group.fields.find(
+    item => item.key === fieldKey
+  );
+
+  return field?.label ?? fieldKey;
+}
+
+function exportRow(label, value) {
+  return `
+    <div class="export-row">
+      <span class="export-row-label">
+        ${escapeHTML(label)}
+      </span>
+
+      <span class="export-row-value">
+        ${escapeHTML(value)}
+      </span>
+    </div>
+  `;
+}
+
+function exportSection(title, rows) {
+  if (!rows) return "";
+
+  return `
+    <div class="export-section-title">
+      ${escapeHTML(title)}
+    </div>
+
+    ${rows}
+  `;
+}
+
+/* ==========================================
+   19. ЭКСПОРТ: HTML ОДНОЙ ЗОНЫ
+========================================== */
+
+function exportZoneHTML(zone, index) {
+  const result = calculateZone(zone);
+
+  const zoneTitle =
+    zone.type === "floor" ? "Пол" : "Стена";
+
+  const addonRows = ADDON_GROUPS.map(groupId => {
+    const selected = zone.addons[groupId];
+
+    const percent = getPrice(
+      zone.type,
+      groupId,
+      selected
+    );
+
+    /*
+      В документе показываем только
+      реально выбранные надбавки.
+    */
+
+    if (percent === 0) return "";
+
+    const groupLabel =
+      SCHEMA_MAP[groupId].title;
+
+    const optionLabel = getFieldLabel(
+      groupId,
+      selected
+    );
+
+    return exportRow(
+      `${groupLabel}: ${optionLabel}`,
+      `+${fmt(percent)}%`
+    );
+  }).join("");
+
+  function exportQuantities(
+    values,
+    groupId,
+    unit
+  ) {
+    return Object.entries(values)
+      .filter(([, quantity]) => num(quantity) > 0)
+      .map(([key, quantity]) => {
+        const field = SCHEMA_MAP[groupId].fields.find(
+          item => item.key === key
+        );
+
+        const currentUnit =
+          field?.unit || unit;
+
+        const percent = getPrice(
+          zone.type,
+          groupId,
+          key
+        );
+
+        return exportRow(
+          getFieldLabel(groupId, key),
+          `${fmt(quantity)} ${currentUnit} · ${fmt(percent)}%`
+        );
+      })
+      .join("");
+  }
+
+  const cutsRows = exportQuantities(
+    zone.cuts,
+    "cuts",
+    "м/п"
+  );
+
+  const holesRows = exportQuantities(
+    zone.holes,
+    "holes",
+    "шт."
+  );
+
+  const prepRows = exportQuantities(
+    zone.prep,
+    "preparation",
+    "м²"
+  );
+
+  const groutType =
+    zone.grout.type === "epoxy"
+      ? "Эпоксидная"
+      : "Цементная";
+
+  const groutRows = zone.grout.length > 0
+    ? exportRow(
+        `${groutType}, шов ${zone.grout.width.replace(".", ",")} мм`,
+        `${fmt(zone.grout.length)} м/п × ${money(result.groutRate)}`
+      )
+    : "";
+
+  const siliconeRows = zone.grout.siliconeLength > 0
+    ? exportRow(
+        `Шов ${zone.grout.siliconeWidth.replace(".", ",")} мм`,
+        `${fmt(zone.grout.siliconeLength)} м/п × ${money(result.siliconeRate)}`
+      )
+    : "";
+
+  return `
+    <section class="export-zone">
+
+      <h2 class="export-zone-title">
+        Зона ${index + 1} · ${zoneTitle}
+      </h2>
+
+      ${exportRow(
+        "Площадь",
+        `${fmt(zone.area)} м²`
+      )}
+
+      ${exportRow(
+        "Цена плитки",
+        `${money(zone.tilePrice)} / м²`
+      )}
+
+      ${exportRow(
+        "Базовая ставка",
+        `${money(result.basePrice)} / м²`
+      )}
+
+      ${exportSection(
+        "Надбавки",
+        addonRows
+      )}
+
+      ${result.tileExtra > 0
+        ? exportRow(
+            "Надбавка за дорогую плитку",
+            `${money(result.tileExtra)} / м²`
+          )
+        : ""}
+
+      ${exportRow(
+        "Итоговая ставка укладки",
+        `${money(result.sqmPrice)} / м²`
+      )}
+
+      ${exportSection(
+        "Резы и соединения",
+        cutsRows
+      )}
+
+      ${exportSection(
+        "Отверстия",
+        holesRows
+      )}
+
+      ${exportSection(
+        "Затирка",
+        groutRows
+      )}
+
+      ${exportSection(
+        "Силикон",
+        siliconeRows
+      )}
+
+      ${exportSection(
+        "Подготовка",
+        prepRows
+      )}
+
+      <div class="export-section-title">
+        Стоимость работ
+      </div>
+
+      ${exportRow(
+        "Укладка",
+        money(result.layingCost)
+      )}
+
+      ${result.cutsCost > 0
+        ? exportRow("Резы", money(result.cutsCost))
+        : ""}
+
+      ${result.holesCost > 0
+        ? exportRow("Отверстия", money(result.holesCost))
+        : ""}
+
+      ${result.groutCost > 0
+        ? exportRow("Затирка", money(result.groutCost))
+        : ""}
+
+      ${result.siliconeCost > 0
+        ? exportRow("Силикон", money(result.siliconeCost))
+        : ""}
+
+      ${result.prepCost > 0
+        ? exportRow("Подготовка", money(result.prepCost))
+        : ""}
+
+      <div class="export-zone-total">
+        <span>Итого по зоне</span>
+
+        <strong>
+          ${money(result.total)}
+        </strong>
+      </div>
+
+    </section>
+  `;
+}
+
+/* ==========================================
+   20. ЭКСПОРТ: ПОЛНЫЙ HTML ДОКУМЕНТА
+========================================== */
+
+function buildExportHTML(estimate) {
+  const statusText =
+    estimate.status === "approved"
+      ? "Согласована"
+      : "Черновик";
+
+  const zonesHTML = estimate.zones.map(
+    (zone, index) => exportZoneHTML(zone, index)
+  ).join("");
+
+  const notesHTML = estimate.notes.trim()
+    ? `
+      <div class="export-notes">
+        <strong>Заметки:</strong>
+
+        ${escapeHTML(estimate.notes)}
+      </div>
+    `
+    : "";
+
+  return `
+    <div class="export-document">
+
+      <header class="export-header">
+
+        <h1 class="export-title">
+          СМЕТА НА ПЛИТОЧНЫЕ РАБОТЫ
+        </h1>
+
+        <div class="export-subtitle">
+          Расчёт стоимости работ
+        </div>
+
+      </header>
+
+      <div class="export-info">
+
+        <div class="export-info-item">
+          <span class="export-info-label">
+            Заказчик
+          </span>
+
+          <div class="export-info-value">
+            ${escapeHTML(
+              estimate.customer || "Не указан"
+            )}
+          </div>
+        </div>
+
+        <div class="export-info-item">
+          <span class="export-info-label">
+            Дата
+          </span>
+
+          <div class="export-info-value">
+            ${escapeHTML(displayDate(estimate.date))}
+          </div>
+        </div>
+
+        <div class="export-info-item">
+          <span class="export-info-label">
+            Адрес объекта
+          </span>
+
+          <div class="export-info-value">
+            ${escapeHTML(
+              estimate.address || "Не указан"
+            )}
+          </div>
+        </div>
+
+        <div class="export-info-item">
+          <span class="export-info-label">
+            Тип помещения
+          </span>
+
+          <div class="export-info-value">
+            ${escapeHTML(
+              estimate.roomType || "Не указан"
+            )}
+          </div>
+        </div>
+
+        <div class="export-info-item">
+          <span class="export-info-label">
+            Статус
+          </span>
+
+          <div class="export-info-value">
+            ${statusText}
+          </div>
+        </div>
+
+        <div class="export-info-item">
+          <span class="export-info-label">
+            Количество зон
+          </span>
+
+          <div class="export-info-value">
+            ${estimate.zones.length}
+          </div>
+        </div>
+
+      </div>
+
+      ${notesHTML}
+
+      ${zonesHTML}
+
+      <div class="export-grand-summary">
+
+        ${exportRow(
+          "Общий объём",
+          `${fmt(estimate.totalArea)} м²`
+        )}
+
+        ${exportRow(
+          "Количество зон",
+          String(estimate.zones.length)
+        )}
+
+        <div class="export-grand-label" style="margin-top:20px">
+          ИТОГОВАЯ СТОИМОСТЬ РАБОТ
+        </div>
+
+        <div class="export-grand-value">
+          ${money(estimate.totalPrice)}
+        </div>
+
+      </div>
+
+      <footer class="export-footer">
+        Смета сформирована автоматически.
+        Стоимость указана в рублях.
+      </footer>
+
+    </div>
+  `;
+}
+
+/* ==========================================
+   21. ЭКСПОРТ: ИМЯ ФАЙЛА
+========================================== */
+
+function makeExportFilename(customer) {
+  const safeName = String(
+    customer || "Без_имени"
+  )
+    .trim()
+    .replace(/\s+/g, "_")
+    .replace(/[\\/:*?"<>|]/g, "")
+    .replace(/[\u0000-\u001F]/g, "")
+    .slice(0, 80);
+
+  return `Смета_${safeName || "Без_имени"}.png`;
+}
+
+/* ==========================================
+   22. ПЕРЕДАЧА СМЕТЫ ИЗ TELEGRAM В БРАУЗЕР
+
+   В Telegram и внешнем браузере разные
+   хранилища localStorage.
+
+   Поэтому передаём текущую смету и
+   изменённые настройки в URL.
+
+   Это позволяет скачать именно тот расчёт,
+   который пользователь только что заполнил.
+========================================== */
+
+function priceListChanges() {
+  const defaults = createDefaultPriceList();
+
+  const changes = {
+    floor: {},
+    wall: {}
+  };
+
+  PRICE_TYPES.forEach(type => {
+    PRICE_SCHEMA.forEach(group => {
+      const groupChanges = {};
+
+      group.fields.forEach(field => {
+        const current =
+          priceList[type][group.id][field.key];
+
+        const defaultValue =
+          defaults[type][group.id][field.key];
+
+        if (current !== defaultValue) {
+          groupChanges[field.key] = current;
+        }
+      });
+
+      if (Object.keys(groupChanges).length) {
+        changes[type][group.id] = groupChanges;
+      }
+    });
+  });
+
+  return changes;
+}
+
+function buildBrowserExportURL() {
+  const url = new URL(APP_BROWSER_URL);
+
+  const transferData = {
+    version: 3,
+    estimate: currentEstimate,
+    prices: priceListChanges()
+  };
+
+  url.searchParams.set(
+    "transfer",
+    JSON.stringify(transferData)
+  );
+
+  return url.toString();
+}
+
+function applyTransferredPrices(changes) {
+  if (!changes || typeof changes !== "object") {
+    return;
+  }
+
+  PRICE_TYPES.forEach(type => {
+    PRICE_SCHEMA.forEach(group => {
+      group.fields.forEach(field => {
+        const value =
+          changes?.[type]?.[group.id]?.[field.key];
+
+        if (
+          value === undefined ||
+          value === null ||
+          value === ""
+        ) {
+          return;
+        }
+
+        const number = Number(value);
+
+        if (
+          Number.isFinite(number) &&
+          number >= 0
+        ) {
+          priceList[type][group.id][field.key] =
+            number;
+        }
+      });
+    });
+  });
+
+  savePriceList();
+}
+
+function restoreTransferredEstimate() {
+  const url = new URL(window.location.href);
+
+  const raw = url.searchParams.get("transfer");
+
+  if (!raw) return false;
+
+  try {
+    const transferred = JSON.parse(raw);
+
+    if (
+      !transferred ||
+      transferred.version !== 3 ||
+      !transferred.estimate
+    ) {
+      throw new Error("Неверный формат данных");
+    }
+
+    applyTransferredPrices(
+      transferred.prices
+    );
+
+    currentEstimate = normalizeEstimate(
+      transferred.estimate
+    );
+
+    /*
+      В браузере открываем вкладку расчёта.
+    */
+
+    writeJSON(
+      PAGE_STORAGE_KEY,
+      "calculator"
+    );
+
+    persistDraft();
+
+    /*
+      Удаляем длинные параметры из адресной
+      строки после успешного переноса.
+    */
+
+    url.searchParams.delete("transfer");
+
+    history.replaceState(
+      null,
+      "",
+      url.pathname + url.search + url.hash
+    );
+
+    return true;
+
+  } catch (error) {
+    console.error(
+      "Ошибка переноса сметы:",
+      error
+    );
+
+    return false;
+  }
+}
+
+/* ==========================================
+   23. TELEGRAM: ОТКРЫТИЕ БРАУЗЕРА
+========================================== */
+
+function openExportInBrowser() {
+  readEstimateForm();
+  calculateEstimate();
+
+  persistDraft();
+
+  let browserURL;
+
+  try {
+    browserURL = buildBrowserExportURL();
+  } catch (error) {
+    showMessage(
+      "Не удалось подготовить ссылку.",
+      "error"
+    );
+
+    return;
+  }
+
+  /*
+    Сначала предупреждаем пользователя.
+
+    После подтверждения открываем ссылку
+    через Telegram WebApp.openLink().
+  */
+
+  const message =
+    "Чтобы сохранить картинку, приложение откроется в браузере. " +
+    "Ваш текущий расчёт будет перенесён автоматически.";
+
+  const open = () => {
+    try {
+      tg.openLink(browserURL, {
+        try_instant_view: false
+      });
+    } catch (error) {
+      console.error(
+        "Telegram openLink:",
+        error
+      );
+
+      showMessage(
+        "Не удалось открыть браузер. " +
+        "Попробуйте открыть приложение по ссылке: " +
+        APP_BROWSER_URL,
+        "error"
+      );
+    }
+  };
+
+  if (typeof tg.showAlert === "function") {
+    try {
+      tg.showAlert(message, open);
+    } catch (error) {
+      alert(message);
+      open();
+    }
+  } else {
+    alert(message);
+    open();
+  }
+}
+
+/* ==========================================
+   24. БРАУЗЕР: СКАЧИВАНИЕ PNG
+========================================== */
+
+let exportInProgress = false;
+
+async function downloadPNG() {
+  if (exportInProgress) return;
+
+  readEstimateForm();
+  calculateEstimate();
+
+  if (!currentEstimate.zones.length) {
+    showMessage(
+      "Добавьте хотя бы одну зону для экспорта.",
+      "error"
+    );
+
+    return;
+  }
+
+  if (isTelegramMiniApp()) {
+    openExportInBrowser();
+    return;
+  }
+
+  if (typeof html2canvas !== "function") {
+    showMessage(
+      "Библиотека экспорта не загрузилась. " +
+      "Проверьте интернет-соединение.",
+      "error"
+    );
+
+    return;
+  }
+
+  const button = byId("downloadPngBtn");
+  const workspace = byId("exportWorkspace");
+
+  exportInProgress = true;
+
+  button.disabled = true;
+  button.textContent = "⏳ Создаём PNG...";
+
+  showMessage(
+    "Подготавливаем изображение...",
+    "success"
+  );
+
+  try {
+    /*
+      Создаём отдельный HTML-документ.
+
+      Все значения уже представлены текстом:
+      никаких input, select или кнопок.
+    */
+
+    const estimate = clone(currentEstimate);
+
+    workspace.innerHTML = buildExportHTML(
+      estimate
+    );
+
+    const documentElement = workspace.querySelector(
+      ".export-document"
+    );
+
+    if (!documentElement) {
+      throw new Error(
+        "Не удалось создать документ"
+      );
+    }
+
+    /*
+      Делаем снимок клонированного документа.
+
+      onclone позволяет временно показать
+      рабочую область только в копии DOM,
+      используемой html2canvas.
+
+      Исходный интерфейс остаётся неизменным.
+    */
+
+    const canvas = await html2canvas(
+      documentElement,
+      {
+        backgroundColor: "#ffffff",
+
+        scale: Math.min(
+          2,
+          window.devicePixelRatio || 1
+        ),
+
+        useCORS: true,
+
+        logging: false,
+
+        scrollX: 0,
+        scrollY: 0,
+
+        windowWidth: 900,
+
+        onclone: clonedDocument => {
+          const clonedWorkspace =
+            clonedDocument.getElementById(
+              "exportWorkspace"
+            );
+
+          if (clonedWorkspace) {
+            clonedWorkspace.style.opacity = "1";
+            clonedWorkspace.style.zIndex = "1";
+            clonedWorkspace.style.left = "0";
+            clonedWorkspace.style.top = "0";
+            clonedWorkspace.style.position = "absolute";
+          }
+        }
+      }
+    );
+
+    if (!canvas.width || !canvas.height) {
+      throw new Error(
+        "Получено пустое изображение"
+      );
+    }
+
+    const filename = makeExportFilename(
+      estimate.customer
+    );
+
+    /*
+      Скачивание через Blob и временную ссылку.
+    */
+
+    const blob = await new Promise(
+      (resolve, reject) => {
+        canvas.toBlob(
+          result => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(
+                new Error("Не удалось создать PNG")
+              );
+            }
+          },
+          "image/png"
+        );
+      }
+    );
+
+    const objectURL = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = objectURL;
+    link.download = filename;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    setTimeout(() => {
+      URL.revokeObjectURL(objectURL);
+    }, 60000);
+
+    showMessage(
+      "✓ PNG подготовлен. Проверьте загрузки браузера.",
+      "success"
+    );
+
+  } catch (error) {
+    console.error(
+      "Ошибка экспорта PNG:",
+      error
+    );
+
+    showMessage(
+      "Не удалось создать PNG. " +
+      "Попробуйте ещё раз.",
+      "error"
+    );
+
+  } finally {
+    workspace.innerHTML = "";
+
+    exportInProgress = false;
+
+    button.disabled = false;
+
+    updateExportButton();
+  }
+}
+
+/* ==========================================
+   25. КНОПКА ЭКСПОРТА
+========================================== */
+
+function updateExportButton() {
+  const button = byId("downloadPngBtn");
+  const note = byId("exportNote");
+
+  if (isTelegramMiniApp()) {
+    button.textContent =
+      "🌐 Скачать PNG (открыть в браузере)";
+
+    note.textContent =
+      "Текущая смета будет перенесена " +
+      "во внешний браузер для скачивания.";
+  } else {
+    button.textContent =
+      "📥 Скачать смету в PNG";
+
+    note.textContent =
+      "Готовая смета будет сохранена " +
+      "как PNG-изображение.";
+  }
+}
+
+byId("downloadPngBtn").addEventListener(
+  "click",
+  downloadPNG
+);
+
+/* ==========================================
+   26. SPA НАВИГАЦИЯ
 ========================================== */
 
 const VALID_PAGES = [
@@ -3573,10 +4547,7 @@ document.querySelectorAll(
 });
 
 /* ==========================================
-   29. ОБНОВЛЕНИЕ ПРАЙСА ПРИ ВОЗВРАТЕ
-
-   Если priceList был изменён в другой
-   вкладке браузера, обновляем данные.
+   27. СИНХРОНИЗАЦИЯ LOCALSTORAGE
 ========================================== */
 
 window.addEventListener(
@@ -3598,15 +4569,24 @@ window.addEventListener(
 );
 
 /* ==========================================
-   30. ИНИЦИАЛИЗАЦИЯ
+   28. ИНИЦИАЛИЗАЦИЯ
 ========================================== */
 
 function initializeApp() {
+  /*
+    Восстанавливаем данные, переданные
+    из Telegram во внешний браузер.
+  */
+
+  restoreTransferredEstimate();
+
   switchPriceType(activePriceType);
 
   fillEstimateForm();
   renderZones();
   renderDashboard();
+
+  updateExportButton();
 
   const storedPage = readJSON(
     PAGE_STORAGE_KEY,
@@ -3625,11 +4605,7 @@ function initializeApp() {
 initializeApp();
 
 /* ==========================================
-   31. ПУБЛИЧНЫЙ API
-
-   Для будущих частей приложения:
-   экспорт PNG, удаление смет,
-   дублирование, PDF и т.д.
+   29. ПУБЛИЧНЫЙ API
 ========================================== */
 
 window.TileApp = {
@@ -3660,7 +4636,11 @@ window.TileApp = {
 
   navigateTo,
 
-  refreshDashboard: renderDashboard
+  refreshDashboard: renderDashboard,
+
+  downloadPNG,
+
+  isTelegramMiniApp
 
 };
 </script>
