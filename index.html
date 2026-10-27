@@ -3002,12 +3002,10 @@ function deleteEstimate(id) {
   return true;
 }
 
-let pendingDeleteEstimateId = null;
-let deleteTarget = null;
+let pendingDeleteAction = null;
 
-function showDeleteModal(id, target = "tile") {
-  pendingDeleteEstimateId = String(id);
-  deleteTarget = target;
+function showDeleteModal(action) {
+  pendingDeleteAction = action;
   const modal = byId("deleteModal");
   if (!modal) return;
   modal.hidden = false;
@@ -3021,8 +3019,7 @@ function hideDeleteModal() {
     modal.hidden = true;
     modal.setAttribute("aria-hidden", "true");
   }
-  pendingDeleteEstimateId = null;
-  deleteTarget = null;
+  pendingDeleteAction = null;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -3031,22 +3028,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target.matches("[data-delete-modal-cancel]")) hideDeleteModal();
   });
   byId("confirmDeleteBtn")?.addEventListener("click", () => {
-    const id = pendingDeleteEstimateId;
-    const target = deleteTarget;
-
-    if (id !== null && target === "tile") {
-      deleteEstimate(id);
-    } else if (id !== null && (target === "elec" || target === "meters")) {
-      const state = states[target];
-      if (state) {
-        state.estimates = state.estimates.filter(
-          estimate => String(estimate.id) !== String(id)
-        );
-        write(target + "_estimates", state.estimates);
-        state.renderEstimates?.();
-      }
-    }
-
+    const action = pendingDeleteAction;
+    if (typeof action === "function") action();
     hideDeleteModal();
   });
 });
@@ -3269,10 +3252,7 @@ byId("estimatesList").addEventListener(
       event.stopPropagation();
       event.preventDefault();
 
-      showDeleteModal(
-        deleteButton.dataset.deleteEstimate,
-        "tile"
-      );
+      showDeleteModal(() => deleteEstimate(deleteButton.dataset.deleteEstimate));
 
       return;
     }
@@ -4360,7 +4340,12 @@ function initModule(key,cfg){
   }).join('');
   host.querySelectorAll('[data-open-estimate]').forEach(b=>b.addEventListener('click',()=>openEstimate(b.dataset.openEstimate)));
   host.querySelectorAll('[data-delete-estimate]').forEach(b=>b.addEventListener('click',()=>{
-    showDeleteModal(b.dataset.deleteEstimate, key);
+    showDeleteModal(() => {
+      const id = b.dataset.deleteEstimate;
+      state.estimates = state.estimates.filter(e => String(e.id) !== String(id));
+      write(prefix + '_estimates', state.estimates);
+      renderEstimates();
+    });
   }));
  }
  state.renderEstimates = renderEstimates;
