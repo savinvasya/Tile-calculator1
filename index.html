@@ -3022,14 +3022,16 @@ function hideDeleteModal() {
   pendingDeleteEstimateId = null;
 }
 
-byId("cancelDeleteBtn")?.addEventListener("click", hideDeleteModal);
-byId("deleteModal")?.addEventListener("click", event => {
-  if (event.target.matches("[data-delete-modal-cancel]")) hideDeleteModal();
-});
-byId("confirmDeleteBtn")?.addEventListener("click", () => {
-  const id = pendingDeleteEstimateId;
-  if (id !== null) deleteEstimate(id);
-  hideDeleteModal();
+document.addEventListener("DOMContentLoaded", () => {
+  byId("cancelDeleteBtn")?.addEventListener("click", hideDeleteModal);
+  byId("deleteModal")?.addEventListener("click", event => {
+    if (event.target.matches("[data-delete-modal-cancel]")) hideDeleteModal();
+  });
+  byId("confirmDeleteBtn")?.addEventListener("click", () => {
+    const id = pendingDeleteEstimateId;
+    if (id !== null) deleteEstimate(id);
+    hideDeleteModal();
+  });
 });
 
 /* ==========================================
