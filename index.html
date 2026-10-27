@@ -4190,10 +4190,10 @@ const pointDefaults=[
  {group:'Подготовка и монтаж',name:'Выводы под люстры / освещение',unit:'точка',price:1500,category:'rough'},
  {group:'Подготовка и монтаж',name:'Установка подрозетников',unit:'шт.',price:450,category:'rough'},
  {group:'Подготовка и монтаж',name:'Финишная установка розеток',unit:'шт.',price:600,category:'finish'},
- {group:'Дополнительные работы',name:'Доплата за каждую розетку в ванной',unit:'шт.',price:500,category:'extra'},
+ {group:'Дополнительные работы',name:'Монтаж электрощита (договорная)',unit:'шт.',price:3000,isCustom:true,category:'extra'},
  {group:'Дополнительные работы',name:'Система безопасности для ванной',unit:'шт.',price:3000,isCustom:true,category:'extra'},
- {group:'Дополнительные работы',name:'Непредвиденные и дополнительные работы',unit:'договорная',price:0,isCustom:true,category:'extra'},
- {group:'Монтаж щитов',name:'Монтаж электрощита (договорная)',unit:'шт.',price:3000,isCustom:true,category:'extra'}
+ {group:'Дополнительные работы',name:'Доплата за каждую розетку в ванной',unit:'шт.',price:500,category:'extra'},
+ {group:'Дополнительные работы',name:'Непредвиденные и дополнительные работы',unit:'договорная',price:0,isCustom:true,category:'extra'}
 ];
 const meterDefaults=[
  {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 20×40',unit:'м',price:160},
@@ -4237,22 +4237,26 @@ function initModule(key,cfg){
  if(!Array.isArray(state.priceList)||state.priceList.length!==cfg.defaults.length) state.priceList=cfg.defaults.map(x=>({...x}));
  else state.priceList=state.priceList.map((item,i)=>({...cfg.defaults[i],...item,category:cfg.defaults[i].category,isCustom:cfg.defaults[i].isCustom||false}));
  function saveDraft(){write(prefix+'_draft',state.draft)}
- function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,category:item.category,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
+ function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,category:item.category,isCustom:key==='elec'&&item.isCustom===true,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
  function updateElectricalSummary(){
   const lines=getLines();
   const active=lines.filter(x=>x.qty>0);
   const volume=active.reduce((sum,x)=>sum+x.qty,0);
-  document.getElementById(prefix+'-summary-count').textContent=String(active.length);
-  document.getElementById(prefix+'-summary-volume').textContent=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(volume);
+  const countEl=document.getElementById(prefix+'-summary-count');
+  if(countEl)countEl.textContent=String(active.length);
+  const volumeEl=document.getElementById(prefix+'-summary-volume');
+  if(volumeEl)volumeEl.textContent=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(volume);
  }
  function calc(){
   const lines=getLines();
-  let sum=lines.reduce((a,x)=>a+x.price*x.qty,0);
+  const lineTotal=x=>x.isCustom?x.qty:x.price*x.qty;
+  let sum=lines.reduce((a,x)=>a+lineTotal(x),0);
   if(key==='elec'){
-   const roughSum=lines.filter(x=>x.category==='rough').reduce((a,x)=>a+x.price*x.qty,0);
-   const finishSum=lines.filter(x=>x.category==='finish').reduce((a,x)=>a+x.price*x.qty,0);
-   const extraSum=lines.filter(x=>x.category==='extra').reduce((a,x)=>a+x.price*x.qty,0);
-   const baseSum=roughSum+finishSum+extraSum;
+   const allWorkSum=lines.reduce((a,x)=>a+lineTotal(x),0);
+   const finishSum=lines.filter(x=>x.category==='finish').reduce((a,x)=>a+lineTotal(x),0);
+   const roughSum=allWorkSum-finishSum;
+   const extraSum=lines.filter(x=>x.category==='extra').reduce((a,x)=>a+lineTotal(x),0);
+   const baseSum=allWorkSum;
    const logisticsSum=(state.draft?.logistics==='15')?baseSum*0.15:0;
    sum=baseSum+logisticsSum;
    const setText=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=money(value)};
@@ -4274,18 +4278,21 @@ function initModule(key,cfg){
     const isCustom=key==='elec'&&x.isCustom===true;
     const mainPrice=isCustom?'':`<span class="setting-unit">${money(x.price)} / ${esc(x.unit)}</span>`;
     const hint=isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:'';
-    return `${heading}<div class="zone-number-row electrical-work-row"><label for="${prefix}-qty-${i}"><span class="electrical-work-title">${esc(x.name)}</span>${mainPrice}${hint}<span class="electrical-line-total" id="${prefix}-line-${i}">Сумма: ${money(quantity*x.price)}</span></label><input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${quantity}" aria-label="Количество: ${esc(x.name)}"></div>`
+    return `${heading}<div class="zone-number-row electrical-work-row"><label for="${prefix}-qty-${i}"><span class="electrical-work-title">${esc(x.name)}</span>${mainPrice}${hint}<span class="electrical-line-total" id="${prefix}-line-${i}">Сумма: ${money(isCustom?quantity:quantity*x.price)}</span></label><input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${quantity}" aria-label="Количество: ${esc(x.name)}"></div>`
   }).join('');
   host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{
     const q=Math.max(0,Number(inp.value)||0);
-    document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent='Сумма: '+money(q*state.priceList[Number(inp.dataset.qty)].price);
+    document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent='Сумма: '+money((key==='elec'&&state.priceList[Number(inp.dataset.qty)].isCustom===true)?q:q*state.priceList[Number(inp.dataset.qty)].price);
     calc();
   }));
   if(key==='elec'){
    const summary=host.parentElement.querySelector('.estimate-summary');
    if(summary){
-    summary.innerHTML=`<div class="field" style="margin-top:15px;"><label>Логистика</label><select id="elec-logistics" data-logistics><option value="none" ${state.draft?.logistics==='none'||!state.draft?.logistics?'selected':''}>Без логистики</option><option value="15" ${state.draft?.logistics==='15'?'selected':''}>Логистика (+15% от работ)</option></select></div><div class="summary-line"><span>Количество позиций</span><strong id="elec-summary-count">0</strong></div><div class="summary-line"><span>Общий объём</span><strong id="elec-summary-volume">0</strong></div><div class="summary-line"><span>Черновой монтаж</span><strong id="sum-rough">0 ₽</strong></div><div class="summary-line"><span>Чистовая установка</span><strong id="sum-finish">0 ₽</strong></div><div class="summary-line"><span>Логистика и материалы</span><strong id="sum-logistics">0 ₽</strong></div><div class="summary-line"><span>Дополнительные работы</span><strong id="sum-extra">0 ₽</strong></div><div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="elec-total">0 ₽</div></div>`;
-    summary.querySelector('[data-logistics]').addEventListener('change',event=>{state.draft={...(state.draft||{}),logistics:event.target.value};saveDraft();calc()});
+    host.parentElement.querySelectorAll('[data-logistics]').forEach(el=>el.closest('.field')?.remove());
+    const logisticsHTML=`<div class="field" style="margin-top:15px;"><label>Логистика</label><select id="elec-logistics" data-logistics><option value="none" ${state.draft?.logistics==='none'||!state.draft?.logistics?'selected':''}>Без логистики</option><option value="15" ${state.draft?.logistics==='15'?'selected':''}>Логистика (+15% от работ)</option></select></div>`;
+    summary.insertAdjacentHTML('beforebegin',logisticsHTML);
+    summary.innerHTML=`<div class="summary-line"><span>Количество позиций</span><strong id="elec-summary-count">0</strong></div><div class="summary-line"><span>Черновой монтаж</span><strong id="sum-rough">0 ₽</strong></div><div class="summary-line"><span>Чистовая установка</span><strong id="sum-finish">0 ₽</strong></div><div class="summary-line"><span>Логистика и материалы</span><strong id="sum-logistics">0 ₽</strong></div><div class="summary-line"><span>Дополнительные работы</span><strong id="sum-extra">0 ₽</strong></div><div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="elec-total">0 ₽</div></div>`;
+    host.parentElement.querySelector('[data-logistics]').addEventListener('change',event=>{state.draft={...(state.draft||{}),logistics:event.target.value};saveDraft();calc()});
    }
   }
   calc();
