@@ -3003,9 +3003,11 @@ function deleteEstimate(id) {
 }
 
 let pendingDeleteEstimateId = null;
+let deleteTarget = null;
 
-function showDeleteModal(id) {
+function showDeleteModal(id, target = "tile") {
   pendingDeleteEstimateId = String(id);
+  deleteTarget = target;
   const modal = byId("deleteModal");
   if (!modal) return;
   modal.hidden = false;
@@ -3020,6 +3022,7 @@ function hideDeleteModal() {
     modal.setAttribute("aria-hidden", "true");
   }
   pendingDeleteEstimateId = null;
+  deleteTarget = null;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -3029,7 +3032,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   byId("confirmDeleteBtn")?.addEventListener("click", () => {
     const id = pendingDeleteEstimateId;
-    if (id !== null) deleteEstimate(id);
+    const target = deleteTarget;
+
+    if (id !== null && target === "tile") {
+      deleteEstimate(id);
+    } else if (id !== null && (target === "elec" || target === "meters")) {
+      const state = states[target];
+      if (state) {
+        state.estimates = state.estimates.filter(
+          estimate => String(estimate.id) !== String(id)
+        );
+        write(target + "_estimates", state.estimates);
+        state.renderEstimates?.();
+      }
+    }
+
     hideDeleteModal();
   });
 });
@@ -3253,7 +3270,8 @@ byId("estimatesList").addEventListener(
       event.preventDefault();
 
       showDeleteModal(
-        deleteButton.dataset.deleteEstimate
+        deleteButton.dataset.deleteEstimate,
+        "tile"
       );
 
       return;
@@ -4342,13 +4360,10 @@ function initModule(key,cfg){
   }).join('');
   host.querySelectorAll('[data-open-estimate]').forEach(b=>b.addEventListener('click',()=>openEstimate(b.dataset.openEstimate)));
   host.querySelectorAll('[data-delete-estimate]').forEach(b=>b.addEventListener('click',()=>{
-    if(confirm('Удалить эту смету?')){
-      state.estimates=state.estimates.filter(e=>String(e.id)!==b.dataset.deleteEstimate);
-      write(prefix+'_estimates',state.estimates);
-      renderEstimates();
-    }
+    showDeleteModal(b.dataset.deleteEstimate, key);
   }));
  }
+ state.renderEstimates = renderEstimates;
  function switchTab(tab){
   const root=document.getElementById(cfg.app);
   root.querySelectorAll('main.app > section.page').forEach(page=>{
