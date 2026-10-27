@@ -1223,7 +1223,7 @@ input[type="date"] { color-scheme: dark; }
 <div class="summary-line"><span>Общий объём</span><strong id="elec-summary-volume">0</strong></div>
 <div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="elec-total">0 ₽</div></div>
 </section>
-<div class="electrical-calc-actions"><button class="btn btn-primary btn-large" id="elec-save" type="button">💾 Сохранить смету</button><button class="btn btn-secondary btn-large" id="elec-export" type="button">📥 Скачать смету в PNG</button></div></section></section><section class="page" data-elec-panel="prices" hidden="" id="elec-page-prices"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика по точкам</p></header><section class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><div class="module-actions"><button class="btn btn-primary" id="elec-save-prices" type="button">Сохранить цены</button><button class="btn btn-secondary" id="elec-reset-prices" type="button">Сбросить цены</button></div></section></section></main><nav aria-label="Навигация: Электрика по точкам" class="bottom-nav">
+<div class="electrical-calc-actions"><button class="btn btn-primary btn-large" id="elec-save" type="button">💾 Сохранить смету</button><button class="btn btn-secondary btn-large" id="elec-export" type="button">📥 Скачать смету в PNG</button></div></section></section><section class="page" data-elec-panel="prices" hidden="" id="elec-page-prices"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика по точкам</p></header><section class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><div class="module-actions"><button class="btn btn-primary" id="elec-save-prices" type="button" style="flex: 1;">Сохранить цены</button><button class="btn btn-secondary" id="elec-download-prices-png" type="button" style="flex: 1;">📸 Сохранить в PNG</button></div></section></section></main><nav aria-label="Навигация: Электрика по точкам" class="bottom-nav">
 <button aria-current="page" class="nav-button active" data-elec-tab="estimates" type="button">
 <svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
 <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -1259,7 +1259,7 @@ input[type="date"] { color-scheme: dark; }
 <div class="summary-line"><span>Общий объём</span><strong id="meters-summary-volume">0</strong></div>
 <div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="meters-total">0 ₽</div></div>
 </section>
-<div class="electrical-calc-actions"><button class="btn btn-primary btn-large" id="meters-save" type="button">💾 Сохранить смету</button><button class="btn btn-secondary btn-large" id="meters-export" type="button">📥 Скачать смету в PNG</button></div></section></section><section class="page" data-meters-panel="prices" hidden="" id="meters-page-prices"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика метраж</p></header><section class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><div class="module-actions"><button class="btn btn-primary" id="meters-save-prices" type="button">Сохранить цены</button><button class="btn btn-secondary" id="meters-reset-prices" type="button">Сбросить цены</button></div></section></section></main><nav aria-label="Навигация: Электрика метраж" class="bottom-nav">
+<div class="electrical-calc-actions"><button class="btn btn-primary btn-large" id="meters-save" type="button">💾 Сохранить смету</button><button class="btn btn-secondary btn-large" id="meters-export" type="button">📥 Скачать смету в PNG</button></div></section></section><section class="page" data-meters-panel="prices" hidden="" id="meters-page-prices"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика метраж</p></header><section class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><div class="module-actions"><button class="btn btn-primary" id="meters-save-prices" type="button" style="flex: 1;">Сохранить цены</button><button class="btn btn-secondary" id="meters-download-prices-png" type="button" style="flex: 1;">📸 Сохранить в PNG</button></div></section></section></main><nav aria-label="Навигация: Электрика метраж" class="bottom-nav">
 <button aria-current="page" class="nav-button active" data-meters-tab="estimates" type="button">
 <svg aria-hidden="true" class="nav-icon" viewbox="0 0 24 24">
 <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -4224,12 +4224,47 @@ const meterDefaults=[
  ].map(x=>({group:'5. Прочие работы (шт.)',name:x[0],unit:'шт.',price:x[1]}))
 ];
 const configs={
- elec:{prefix:'elec',defaults:pointDefaults,app:'elec-app',tabs:'data-elec-tab',panels:'data-elec-panel',list:'elec-work-list',prices:'elec-price-list',estimates:'elec-estimates-list',customer:'elec-customer',total:'elec-total',save:'elec-save',export:'elec-export',new:'[data-elec-new]',savePrices:'elec-save-prices',resetPrices:'elec-reset-prices'},
- meters:{prefix:'meters',defaults:meterDefaults,app:'meters-app',tabs:'data-meters-tab',panels:'data-meters-panel',list:'meters-work-list',prices:'meters-price-list',estimates:'meters-estimates-list',customer:'meters-customer',total:'meters-total',save:'meters-save',export:'meters-export',new:'[data-meters-new]',savePrices:'meters-save-prices',resetPrices:'meters-reset-prices'}
+ elec:{prefix:'elec',defaults:pointDefaults,app:'elec-app',tabs:'data-elec-tab',panels:'data-elec-panel',list:'elec-work-list',prices:'elec-price-list',estimates:'elec-estimates-list',customer:'elec-customer',total:'elec-total',save:'elec-save',export:'elec-export',new:'[data-elec-new]',savePrices:'elec-save-prices'},
+ meters:{prefix:'meters',defaults:meterDefaults,app:'meters-app',tabs:'data-meters-tab',panels:'data-meters-panel',list:'meters-work-list',prices:'meters-price-list',estimates:'meters-estimates-list',customer:'meters-customer',total:'meters-total',save:'meters-save',export:'meters-export',new:'[data-meters-new]',savePrices:'meters-save-prices'}
 };
 const states={};
 function read(key, fallback){try{const v=localStorage.getItem(key);return v===null?fallback:JSON.parse(v)}catch(e){return fallback}}
 function write(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch(e){alert('Не удалось сохранить данные. Проверьте память устройства.')}}
+
+async function downloadModulePriceListPNG(containerId, fileName) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    alert('Не удалось найти прайс-лист.');
+    return;
+  }
+  if (typeof window.html2canvas !== 'function') {
+    alert('Не удалось создать PNG: библиотека html2canvas недоступна.');
+    return;
+  }
+  try {
+    const canvas = await html2canvas(container, { backgroundColor: '#ffffff', scale: 2 });
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(result => result ? resolve(result) : reject(new Error('Не удалось создать PNG')), 'image/png');
+    });
+    const file = new File([blob], fileName, { type: 'image/png' });
+    if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+      await navigator.share({ files: [file], title: 'Прайс-лист' });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  } catch (error) {
+    if (error && error.name === 'AbortError') return;
+    alert('Не удалось создать или отправить PNG. Попробуйте ещё раз.');
+  }
+}
+
 function initModule(key,cfg){
  const prefix=cfg.prefix;
  const state={priceList:read(prefix+'_priceList',cfg.defaults.map(x=>({...x}))),estimates:read(prefix+'_estimates',[]),draft:read(prefix+'_draft',null),editingId:null};states[key]=state;
@@ -4383,7 +4418,8 @@ function initModule(key,cfg){
  });
  document.getElementById(prefix+'-search').addEventListener('input',renderEstimates);
   moduleRoot.querySelector(cfg.new).addEventListener('click',newEstimate);document.getElementById(cfg.save).addEventListener('click',saveEstimate);document.getElementById(cfg.export).addEventListener('click',()=>{const sum=calc();const e={id:state.editingId||'draft',customer:document.getElementById(cfg.customer).value.trim()||'Черновик',date:new Date().toLocaleDateString('ru-RU'),lines:getLines(),total:sum};exportEstimate(e)});
- document.getElementById(cfg.savePrices).addEventListener('click',()=>{document.querySelectorAll(`#${cfg.app} [data-price]`).forEach(inp=>{state.priceList[Number(inp.dataset.price)].price=Math.max(0,Number(inp.value)||0)});write(prefix+'_priceList',state.priceList);renderPrices();renderWork();alert('Цены сохранены.')});document.getElementById(cfg.resetPrices).addEventListener('click',()=>{if(confirm('Вернуть цены по умолчанию?')){state.priceList=cfg.defaults.map(x=>({...x}));write(prefix+'_priceList',state.priceList);renderPrices();renderWork()}});
+ document.getElementById(cfg.savePrices).addEventListener('click',()=>{document.querySelectorAll(`#${cfg.app} [data-price]`).forEach(inp=>{state.priceList[Number(inp.dataset.price)].price=Math.max(0,Number(inp.value)||0)});write(prefix+'_priceList',state.priceList);renderPrices();renderWork();alert('Цены сохранены.')});
+ document.getElementById(prefix+'-download-prices-png').addEventListener('click',()=>downloadModulePriceListPNG(cfg.prices, key==='elec'?'Прайс_Электрика_Точки.png':'Прайс_Электрика_Метраж.png'));
  function restoreDraft(){if(state.draft){document.getElementById(cfg.customer).value=state.draft.customer||''}renderWork();renderEstimates()}
  restoreDraft();
 }
