@@ -912,6 +912,21 @@ input[type="date"] { color-scheme: dark; }
 .menu-button{display:flex;align-items:center;gap:15px;width:100%;text-align:left;padding:18px;margin:12px 0;border:1px solid var(--border);border-radius:18px;background:var(--card);color:var(--text);box-shadow:0 6px 20px #0002}.menu-icon{font-size:31px}.menu-button b{display:block;font-size:18px}.menu-button small{display:block;color:var(--hint);font-size:13px;margin-top:4px}.menu-arrow{margin-left:auto;font-size:30px;color:var(--hint)}
 .electrical-app{max-width:760px;margin:0 auto;padding:16px 14px calc(30px + env(safe-area-inset-bottom))}.module-header{display:flex;gap:14px;align-items:center;margin-bottom:18px}.module-header h1{font-size:23px;margin:0 0 3px}.module-header p{margin:0;color:var(--hint);font-size:13px}.module-header .btn{white-space:nowrap;padding:10px 12px}.module-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:17px}.module-tabs button{padding:11px 5px;border:1px solid var(--border);border-radius:11px;background:var(--card);color:var(--text);font-size:13px}.module-tabs button.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}.module-panel{background:var(--secondary);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:16px}.module-panel h2{font-size:19px;margin:0 0 15px}.module-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.module-price-group{margin:15px 0}.module-price-group h3{font-size:15px;margin:0 0 8px;color:var(--hint)}.module-price-row,.module-work-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}.module-price-row label,.module-work-row label{font-size:13px;overflow-wrap:anywhere}.module-price-row input,.module-work-row input{width:100%;min-width:0;padding:9px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);text-align:right}.module-work-row{grid-template-columns:minmax(0,1fr) 75px 90px}.module-work-row .work-price{font-size:12px;color:var(--hint);text-align:right}.module-work-row input{padding:8px}.module-total{display:flex;justify-content:space-between;align-items:center;margin:18px 0;padding:16px;border-radius:12px;background:var(--card);font-size:18px}.module-total strong{font-size:22px;color:var(--green)}.module-actions{display:flex;flex-wrap:wrap;gap:8px}.module-estimate{padding:13px 0;border-bottom:1px solid var(--border)}.module-estimate-head{display:flex;justify-content:space-between;gap:12px}.module-estimate-name{font-weight:750;overflow-wrap:anywhere}.module-estimate-total{font-weight:800;color:var(--green);white-space:nowrap}.module-estimate-meta{color:var(--hint);font-size:12px;margin:5px 0 10px}.module-estimate-actions{display:flex;gap:7px;flex-wrap:wrap}.module-estimate-actions button{font-size:12px;padding:8px 10px}.module-empty{padding:20px 5px;text-align:center;color:var(--hint)}
 
+
+/* Общая визуальная система для трёх модулей */
+.electrical-app{max-width:none;margin:0;padding:0}
+.electrical-app .module-panel{max-width:760px;margin:0 auto;padding:18px 14px calc(var(--nav-height) + 35px + env(safe-area-inset-bottom));background:transparent;border:0;border-radius:0}
+.electrical-app .module-panel[hidden]{display:none!important}
+.electrical-app .module-price-group{margin:18px 0 8px}
+.electrical-app .module-price-group h3{font-size:16px;font-weight:750;color:var(--text)}
+.electrical-app .module-price-row,.electrical-app .module-work-row{padding:13px 0}
+.electrical-app .module-price-row label,.electrical-app .module-work-row label{font-size:14px;line-height:1.5}
+.electrical-app .module-price-row input,.electrical-app .module-work-row input{font-size:16px;padding:12px 8px;background:var(--secondary)}
+.electrical-app .module-actions .btn{min-height:44px}
+.electrical-app .module-total{background:var(--secondary)}
+.home-menu-btn{display:inline-flex;margin:0 0 14px;min-height:40px;align-items:center}
+.module-price-row label span.small{display:block;margin-top:5px;line-height:1.4}
+
 </style>
 </head>
 
@@ -940,6 +955,7 @@ input[type="date"] { color-scheme: dark; }
     aria-labelledby="title-estimates"
   >
     <header class="page-header">
+      <button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button>
       <h1 class="page-title" id="title-estimates">
         📁 Сметы
       </h1>
@@ -1241,21 +1257,105 @@ input[type="date"] { color-scheme: dark; }
 
 <!-- ЭЛЕКТРИКА: ПО ТОЧКАМ -->
 <section id="elec-app" class="electrical-app" hidden>
-  <header class="module-header"><button class="btn btn-secondary" data-back-menu>🏠 В меню</button><div><h1>⚡ Электрика по точкам</h1><p>Сметы и прайс-лист</p></div></header>
-  <nav class="module-tabs"><button class="active" data-elec-tab="estimates">Сметы</button><button data-elec-tab="calc">Новый расчёт</button><button data-elec-tab="prices">Прайс-лист</button></nav>
-  <section class="module-panel" data-elec-panel="estimates"><div class="module-heading"><h2>Сохранённые сметы</h2><button class="btn btn-primary" data-elec-new>+ Создать</button></div><div id="elec-estimates-list"></div></section>
-  <section class="module-panel" data-elec-panel="calc" hidden><h2>Новый расчёт</h2><div class="field"><label for="elec-customer">Заказчик / объект</label><input id="elec-customer" placeholder="Имя или адрес"></div><div id="elec-work-list"></div><div class="module-total">Итого: <strong id="elec-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-elec-tab="estimates">Отмена</button><button class="btn btn-primary" id="elec-save">Сохранить смету</button><button class="btn btn-secondary" id="elec-export">PNG / Поделиться</button></div></section>
-  <section class="module-panel" data-elec-panel="prices" hidden><h2>Прайс-лист</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><button class="btn btn-primary" id="elec-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="elec-reset-prices">Сбросить цены</button></section>
+  
+  <section class="module-panel" data-elec-panel="estimates"><header class="page-header"><button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика по точкам · сохранённые расчёты</p></header><div class="card"><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-elec-new>+ Создать</button></div><div id="elec-estimates-list"></div></div></section>
+  <section class="module-panel" data-elec-panel="calc" hidden><header class="page-header"><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика по точкам</p></header><div class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="elec-customer">Заказчик / объект</label><input id="elec-customer" placeholder="Имя или адрес"></div></div><div class="card"><h2 class="card-title">Перечень работ</h2><div id="elec-work-list"></div><div class="module-total">Итого: <strong id="elec-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-elec-tab="estimates">Отмена</button><button class="btn btn-primary" id="elec-save">Сохранить смету</button><button class="btn btn-secondary" id="elec-export">PNG / Поделиться</button></div></div></section>
+  <section class="module-panel" data-elec-panel="prices" hidden><header class="page-header"><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика по точкам</p></header><div class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><button class="btn btn-primary" id="elec-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="elec-reset-prices">Сбросить цены</button></div></section>
 </section>
+<nav class="bottom-nav" aria-label="Навигация: Электрика по точкам">
+
+  <button
+    type="button"
+    class="nav-button active"
+    data-elec-tab="estimates"
+    aria-current="page"
+  >
+    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    </svg>
+    <span class="nav-label">Сметы</span>
+  </button>
+
+  <button
+    type="button"
+    class="nav-button"
+    data-elec-tab="calc"
+    aria-current="false"
+  >
+    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="5" y="2" width="14" height="20" rx="2"/>
+      <path d="M8 6h8v4H8z"/>
+      <path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"/>
+    </svg>
+    <span class="nav-label">Новый расчёт</span>
+  </button>
+
+  <button
+    type="button"
+    class="nav-button"
+    data-elec-tab="prices"
+    aria-current="false"
+  >
+    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="7" cy="7" r="2"/>
+      <circle cx="17" cy="17" r="2"/>
+      <path d="M19 5 5 19"/>
+    </svg>
+    <span class="nav-label">Прайс-лист</span>
+  </button>
+
+</nav>
 
 <!-- ЭЛЕКТРИКА: МЕТРАЖ -->
 <section id="meters-app" class="electrical-app" hidden>
-  <header class="module-header"><button class="btn btn-secondary" data-back-menu>🏠 В меню</button><div><h1>📏 Электрика метраж</h1><p>Сметы и прайс-лист</p></div></header>
-  <nav class="module-tabs"><button class="active" data-meters-tab="estimates">Сметы</button><button data-meters-tab="calc">Новый расчёт</button><button data-meters-tab="prices">Прайс-лист</button></nav>
-  <section class="module-panel" data-meters-panel="estimates"><div class="module-heading"><h2>Сохранённые сметы</h2><button class="btn btn-primary" data-meters-new>+ Создать</button></div><div id="meters-estimates-list"></div></section>
-  <section class="module-panel" data-meters-panel="calc" hidden><h2>Новый расчёт</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"></div><div id="meters-work-list"></div><div class="module-total">Итого: <strong id="meters-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-meters-tab="estimates">Отмена</button><button class="btn btn-primary" id="meters-save">Сохранить смету</button><button class="btn btn-secondary" id="meters-export">PNG / Поделиться</button></div></section>
-  <section class="module-panel" data-meters-panel="prices" hidden><h2>Прайс-лист</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><button class="btn btn-primary" id="meters-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="meters-reset-prices">Сбросить цены</button></section>
+  
+  <section class="module-panel" data-meters-panel="estimates"><header class="page-header"><button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика метраж · сохранённые расчёты</p></header><div class="card"><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-meters-new>+ Создать</button></div><div id="meters-estimates-list"></div></div></section>
+  <section class="module-panel" data-meters-panel="calc" hidden><header class="page-header"><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика метраж</p></header><div class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"></div></div><div class="card"><h2 class="card-title">Перечень работ</h2><div id="meters-work-list"></div><div class="module-total">Итого: <strong id="meters-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-meters-tab="estimates">Отмена</button><button class="btn btn-primary" id="meters-save">Сохранить смету</button><button class="btn btn-secondary" id="meters-export">PNG / Поделиться</button></div></div></section>
+  <section class="module-panel" data-meters-panel="prices" hidden><header class="page-header"><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика метраж</p></header><div class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><button class="btn btn-primary" id="meters-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="meters-reset-prices">Сбросить цены</button></div></section>
 </section>
+<nav class="bottom-nav" aria-label="Навигация: Электрика метраж">
+
+  <button
+    type="button"
+    class="nav-button active"
+    data-meters-tab="estimates"
+    aria-current="page"
+  >
+    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    </svg>
+    <span class="nav-label">Сметы</span>
+  </button>
+
+  <button
+    type="button"
+    class="nav-button"
+    data-meters-tab="calc"
+    aria-current="false"
+  >
+    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="5" y="2" width="14" height="20" rx="2"/>
+      <path d="M8 6h8v4H8z"/>
+      <path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"/>
+    </svg>
+    <span class="nav-label">Новый расчёт</span>
+  </button>
+
+  <button
+    type="button"
+    class="nav-button"
+    data-meters-tab="prices"
+    aria-current="false"
+  >
+    <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="7" cy="7" r="2"/>
+      <circle cx="17" cy="17" r="2"/>
+      <path d="M19 5 5 19"/>
+    </svg>
+    <span class="nav-label">Прайс-лист</span>
+  </button>
+
+</nav>
 
 <script>
 "use strict";
@@ -4159,6 +4259,7 @@ window.TileApp = {
 'use strict';
 const money=n=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(Number(n)||0)+' ₽';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pointDescriptions=["Прорезаем штробы, высверливаем отверстия, укладываем провода.", "Подготавливаем каналы в стенах для бра, выводим провода.", "Выводим провода на потолок, соединяем в распредкоробке.", "Монтируем пластиковые коробки, защищаем от грязи.", "Крепим розетки и выключатели после отделки.", "Монтаж щита, подключение вводного кабеля, сборка.", "Уравнивание потенциалов.", "Дополнительная плата за влагозащиту."];
 const pointDefaults=[
  {group:'Подготовка и монтаж',name:'Подготовка мест под розетки/выключатели',unit:'точка',price:2500},
  {group:'Подготовка и монтаж',name:'Разводка проводки под бра',unit:'точка',price:2000},
@@ -4213,9 +4314,9 @@ function initModule(key,cfg){
  function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
  function calc(){const sum=getLines().reduce((a,x)=>a+x.price*x.qty,0);document.getElementById(cfg.total).textContent=money(sum);state.draft={customer:document.getElementById(cfg.customer).value,quantities:getLines().map(x=>x.qty),editingId:state.editingId};saveDraft();return sum}
  function renderWork(){const host=document.getElementById(cfg.list);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-work-row"><label for="${prefix}-qty-${i}">${esc(x.name)}<br><span class="muted small">${esc(x.unit)} · ${money(x.price)}</span></label><input type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${Number(state.draft?.quantities?.[i])||0}" aria-label="Количество: ${esc(x.name)}"><div class="work-price" id="${prefix}-line-${i}">${money((Number(state.draft?.quantities?.[i])||0)*x.price)}</div></div>`}).join('');host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{const q=Math.max(0,Number(inp.value)||0);document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent=money(q*state.priceList[Number(inp.dataset.qty)].price);calc()}));calc()}
- function renderPrices(){const host=document.getElementById(cfg.prices);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-price-row"><label>${esc(x.name)}<br><span class="muted small">${esc(x.unit)}</span></label><input type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`}).join('')}
+ function renderPrices(){const host=document.getElementById(cfg.prices);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-price-row"><label>${esc(x.name)}<br><span class="muted small">${esc(x.unit)}</span>${key==='elec'?`<span class="small muted">${esc(pointDescriptions[i])}</span>`:''}</label><input type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`}).join('')}
  function renderEstimates(){const host=document.getElementById(cfg.estimates);if(!state.estimates.length){host.innerHTML='<div class="module-empty">Пока нет сохранённых смет.<br>Нажмите «Создать», чтобы начать.</div>';return}host.innerHTML=state.estimates.slice().reverse().map(e=>`<div class="module-estimate"><div class="module-estimate-head"><div class="module-estimate-name">${esc(e.customer||'Без названия')}</div><div class="module-estimate-total">${money(e.total)}</div></div><div class="module-estimate-meta">${esc(e.date||'')} · ${e.lines.filter(x=>x.qty>0).length} позиций</div><div class="module-estimate-actions"><button class="btn btn-secondary" data-edit="${esc(e.id)}">Открыть</button><button class="btn btn-secondary" data-share="${esc(e.id)}">PNG / Поделиться</button><button class="btn btn-danger" data-delete="${esc(e.id)}">Удалить</button></div></div>`).join('');host.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEstimate(b.dataset.edit));host.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('Удалить эту смету?')){state.estimates=state.estimates.filter(e=>e.id!==b.dataset.delete);write(prefix+'_estimates',state.estimates);renderEstimates()}});host.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>exportEstimate(state.estimates.find(e=>e.id===b.dataset.share)))}
- function switchTab(tab){document.querySelectorAll(`#${cfg.app} [${cfg.panels}]`).forEach(el=>el.hidden=el.getAttribute(cfg.panels)!==tab);document.querySelectorAll(`#${cfg.app} [${cfg.tabs}]`).forEach(el=>el.classList.toggle('active',el.getAttribute(cfg.tabs)===tab));if(tab==='estimates')renderEstimates();if(tab==='prices')renderPrices()}
+ function switchTab(tab){document.querySelectorAll(`#${cfg.app} [${cfg.panels}]`).forEach(el=>el.hidden=el.getAttribute(cfg.panels)!==tab);document.querySelectorAll(`#${cfg.app} [${cfg.tabs}]`).forEach(el=>(el.classList.toggle('active',el.getAttribute(cfg.tabs)===tab),el.setAttribute('aria-current',el.getAttribute(cfg.tabs)===tab?'page':'false')));if(tab==='estimates')renderEstimates();if(tab==='prices')renderPrices()}
  function newEstimate(){state.editingId=null;state.draft={customer:'',quantities:cfg.defaults.map(()=>0)};document.getElementById(cfg.customer).value='';renderWork();switchTab('calc');document.getElementById(cfg.customer).focus()}
  function openEstimate(id){const e=state.estimates.find(x=>x.id===id);if(!e)return;state.editingId=e.id;state.draft={customer:e.customer,quantities:state.priceList.map((_,i)=>e.lines.find(x=>x.index===i)?.qty||0)};document.getElementById(cfg.customer).value=e.customer||'';renderWork();switchTab('calc')}
  function saveEstimate(){const lines=getLines();const total=lines.reduce((a,x)=>a+x.qty*x.price,0);const old=state.estimates.find(x=>x.id===state.editingId);const e={id:state.editingId||('e'+Date.now()+Math.random().toString(16).slice(2,6)),customer:document.getElementById(cfg.customer).value.trim()||'Без названия',date:old?.date||new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines,total};if(old)state.estimates=state.estimates.map(x=>x.id===old.id?e:x);else state.estimates.push(e);write(prefix+'_estimates',state.estimates);state.editingId=e.id;renderEstimates();switchTab('estimates');}
