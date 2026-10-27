@@ -4188,11 +4188,12 @@ const pointDefaults=[
  {group:'Подготовка и монтаж',name:'Подготовка мест под розетки/выключатели',unit:'точка',price:2500},
  {group:'Подготовка и монтаж',name:'Разводка проводки под бра',unit:'точка',price:2000},
  {group:'Подготовка и монтаж',name:'Выводы под люстры / освещение',unit:'точка',price:1500},
- {group:'Установка',name:'Установка подрозетников',unit:'шт.',price:450},
- {group:'Установка',name:'Финишная установка розеток',unit:'шт.',price:600},
- {group:'Установка',name:'Монтаж электрощита',unit:'шт.',price:3000},
- {group:'Установка',name:'Система безопасности ванной',unit:'шт.',price:3000},
- {group:'Доплаты',name:'Доплата за каждую розетку в ванной',unit:'шт.',price:500}
+ {group:'Подготовка и монтаж',name:'Установка подрозетников',unit:'шт.',price:450},
+ {group:'Подготовка и монтаж',name:'Финишная установка розеток',unit:'шт.',price:600},
+ {group:'Подготовка и монтаж',name:'Монтаж электрощита (договорная)',unit:'шт.',price:3000,isCustom:true},
+ {group:'Дополнительные работы',name:'Система безопасности для ванной',unit:'шт.',price:3000,isCustom:true},
+ {group:'Дополнительные работы',name:'Доплата за каждую розетку в ванной',unit:'шт.',price:500},
+ {group:'Дополнительные работы',name:'Непредвиденные и дополнительные работы',unit:'договорная',price:0,isCustom:true}
 ];
 const meterDefaults=[
  {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 20×40',unit:'м',price:160},
@@ -4258,7 +4259,8 @@ function initModule(key,cfg){
     let heading='';
     if(x.group!==last){last=x.group;heading=`<h3 class="card-title" style="margin-top:18px">${esc(last)}</h3>`}
     const quantity=Number(state.draft?.quantities?.[i])||0;
-    return `${heading}<div class="zone-number-row electrical-work-row"><label for="${prefix}-qty-${i}"><span class="electrical-work-title">${esc(x.name)}</span><span class="setting-unit">${money(x.price)} / ${esc(x.unit)}</span><span class="electrical-line-total" id="${prefix}-line-${i}">Сумма: ${money(quantity*x.price)}</span></label><input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${quantity}" aria-label="Количество: ${esc(x.name)}"></div>`
+    const customHint=x.isCustom?(Number(x.price)>0?`от ${money(x.price)}`:'договорная'):'';
+    return `${heading}<div class="zone-number-row electrical-work-row"><label for="${prefix}-qty-${i}"><span class="electrical-work-title">${esc(x.name)}</span><span class="setting-unit">${money(x.price)} / ${esc(x.unit)}</span>${x.isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:''}<span class="electrical-line-total" id="${prefix}-line-${i}">Сумма: ${money(quantity*x.price)}</span></label><input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${quantity}" aria-label="Количество: ${esc(x.name)}"></div>`
   }).join('');
   host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{
     const q=Math.max(0,Number(inp.value)||0);
@@ -4272,7 +4274,8 @@ function initModule(key,cfg){
   host.innerHTML=state.priceList.map((x,i)=>{
     let heading='';
     if(x.group!==last){last=x.group;heading=`<h3 class="card-title" style="margin-top:18px">${esc(last)}</h3>`}
-    return `${heading}<div class="setting-row"><label for="${prefix}-price-${i}">${esc(x.name)}<span class="setting-unit">${esc(x.unit)}</span>${key==='elec'?`<span class="setting-unit">${esc(pointDescriptions[i])}</span>`:''}</label><input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`
+    const customHint=x.isCustom?(Number(x.price)>0?`от ${money(x.price)}`:'договорная'):'';
+    return `${heading}<div class="setting-row"><label for="${prefix}-price-${i}">${esc(x.name)}<span class="setting-unit">${esc(x.unit)}</span>${x.isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:''}${key==='elec'?`<span class="setting-unit">${esc(pointDescriptions[i]||'')}</span>`:''}</label><input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`
   }).join('');
  }
  function renderEstimates(){
