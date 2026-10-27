@@ -650,7 +650,7 @@ input[type="date"] { color-scheme: dark; }
   left: 0;
   right: 0;
   z-index: 100;
-  display: grid;
+  display: none;
   grid-template-columns: repeat(3, 1fr);
   height: calc(var(--nav-height) + env(safe-area-inset-bottom));
   padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
@@ -927,6 +927,28 @@ input[type="date"] { color-scheme: dark; }
 .home-menu-btn{display:inline-flex;margin:0 0 14px;min-height:40px;align-items:center}
 .module-price-row label span.small{display:block;margin-top:5px;line-height:1.4}
 
+
+/* Bottom nav is visible only inside the active module. */
+#page-menu .bottom-nav{display:none!important}
+#tile-app[hidden],#elec-app[hidden],#meters-app[hidden]{display:none!important}
+#tile-app .bottom-nav,#elec-app .bottom-nav,#meters-app .bottom-nav{z-index:1000;pointer-events:auto}
+#tile-app .bottom-nav button,#elec-app .bottom-nav button,#meters-app .bottom-nav button{pointer-events:auto;touch-action:manipulation}
+
+/* Navigation is invisible unless its own module is active. */
+.bottom-nav { display: none !important; z-index: 100; pointer-events: auto; }
+.app-container.active:not([hidden]) > .bottom-nav {
+  display: flex !important;
+  align-items: stretch;
+}
+.app-container.active:not([hidden]) > .bottom-nav > .nav-button {
+  flex: 1 1 0;
+  min-width: 0;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  position: relative;
+  z-index: 101;
+}
+.app-container[hidden] { display: none !important; }
 </style>
 </head>
 
@@ -944,14 +966,14 @@ input[type="date"] { color-scheme: dark; }
   </div>
 </section>
 
-<div id="tile-app" hidden>
+<div id="tile-app" class="app-container" hidden>
 <main class="app">
 
   <!-- СМЕТЫ -->
 
   <section
     class="page active"
-    id="page-estimates"
+    id="tile-page-estimates"
     aria-labelledby="title-estimates"
   >
     <header class="page-header">
@@ -1018,7 +1040,7 @@ input[type="date"] { color-scheme: dark; }
 
   <section
     class="page"
-    id="page-calculator"
+    id="tile-page-calculator"
     aria-labelledby="title-calculator"
     hidden
   >
@@ -1176,7 +1198,7 @@ input[type="date"] { color-scheme: dark; }
 
   <section
     class="page"
-    id="page-prices"
+    id="tile-page-prices"
     aria-labelledby="title-prices"
     hidden
   >
@@ -1256,12 +1278,12 @@ input[type="date"] { color-scheme: dark; }
 </div><!-- /tile-app -->
 
 <!-- ЭЛЕКТРИКА: ПО ТОЧКАМ -->
-<section id="elec-app" class="electrical-app" hidden>
+<section id="elec-app" class="electrical-app app-container" hidden>
   
-  <section class="module-panel" data-elec-panel="estimates"><header class="page-header"><button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика по точкам · сохранённые расчёты</p></header><div class="card"><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-elec-new>+ Создать</button></div><div id="elec-estimates-list"></div></div></section>
-  <section class="module-panel" data-elec-panel="calc" hidden><header class="page-header"><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика по точкам</p></header><div class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="elec-customer">Заказчик / объект</label><input id="elec-customer" placeholder="Имя или адрес"></div></div><div class="card"><h2 class="card-title">Перечень работ</h2><div id="elec-work-list"></div><div class="module-total">Итого: <strong id="elec-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-elec-tab="estimates">Отмена</button><button class="btn btn-primary" id="elec-save">Сохранить смету</button><button class="btn btn-secondary" id="elec-export">PNG / Поделиться</button></div></div></section>
-  <section class="module-panel" data-elec-panel="prices" hidden><header class="page-header"><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика по точкам</p></header><div class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><button class="btn btn-primary" id="elec-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="elec-reset-prices">Сбросить цены</button></div></section>
-</section>
+  <section class="module-panel" id="elec-page-estimates" data-elec-panel="estimates"><header class="page-header"><button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика по точкам · сохранённые расчёты</p></header><div class="card"><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-elec-new>+ Создать</button></div><div id="elec-estimates-list"></div></div></section>
+  <section class="module-panel" id="elec-page-calc" data-elec-panel="calc" hidden><header class="page-header"><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика по точкам</p></header><div class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="elec-customer">Заказчик / объект</label><input id="elec-customer" placeholder="Имя или адрес"></div></div><div class="card"><h2 class="card-title">Перечень работ</h2><div id="elec-work-list"></div><div class="module-total">Итого: <strong id="elec-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-elec-tab="estimates">Отмена</button><button class="btn btn-primary" id="elec-save">Сохранить смету</button><button class="btn btn-secondary" id="elec-export">PNG / Поделиться</button></div></div></section>
+  <section class="module-panel" id="elec-page-prices" data-elec-panel="prices" hidden><header class="page-header"><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика по точкам</p></header><div class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><button class="btn btn-primary" id="elec-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="elec-reset-prices">Сбросить цены</button></div></section>
+
 <nav class="bottom-nav" aria-label="Навигация: Электрика по точкам">
 
   <button
@@ -1305,14 +1327,15 @@ input[type="date"] { color-scheme: dark; }
   </button>
 
 </nav>
+</section><!-- /elec-app -->
 
 <!-- ЭЛЕКТРИКА: МЕТРАЖ -->
-<section id="meters-app" class="electrical-app" hidden>
+<section id="meters-app" class="electrical-app app-container" hidden>
   
-  <section class="module-panel" data-meters-panel="estimates"><header class="page-header"><button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика метраж · сохранённые расчёты</p></header><div class="card"><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-meters-new>+ Создать</button></div><div id="meters-estimates-list"></div></div></section>
-  <section class="module-panel" data-meters-panel="calc" hidden><header class="page-header"><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика метраж</p></header><div class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"></div></div><div class="card"><h2 class="card-title">Перечень работ</h2><div id="meters-work-list"></div><div class="module-total">Итого: <strong id="meters-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-meters-tab="estimates">Отмена</button><button class="btn btn-primary" id="meters-save">Сохранить смету</button><button class="btn btn-secondary" id="meters-export">PNG / Поделиться</button></div></div></section>
-  <section class="module-panel" data-meters-panel="prices" hidden><header class="page-header"><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика метраж</p></header><div class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><button class="btn btn-primary" id="meters-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="meters-reset-prices">Сбросить цены</button></div></section>
-</section>
+  <section class="module-panel" id="meters-page-estimates" data-meters-panel="estimates"><header class="page-header"><button type="button" class="btn btn-secondary home-menu-btn" data-back-menu>🏠 В меню</button><h1 class="page-title">📁 Сметы</h1><p class="page-subtitle">Электрика метраж · сохранённые расчёты</p></header><div class="card"><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-meters-new>+ Создать</button></div><div id="meters-estimates-list"></div></div></section>
+  <section class="module-panel" id="meters-page-calc" data-meters-panel="calc" hidden><header class="page-header"><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика метраж</p></header><div class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"></div></div><div class="card"><h2 class="card-title">Перечень работ</h2><div id="meters-work-list"></div><div class="module-total">Итого: <strong id="meters-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-meters-tab="estimates">Отмена</button><button class="btn btn-primary" id="meters-save">Сохранить смету</button><button class="btn btn-secondary" id="meters-export">PNG / Поделиться</button></div></div></section>
+  <section class="module-panel" id="meters-page-prices" data-meters-panel="prices" hidden><header class="page-header"><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Электрика метраж</p></header><div class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><button class="btn btn-primary" id="meters-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="meters-reset-prices">Сбросить цены</button></div></section>
+
 <nav class="bottom-nav" aria-label="Навигация: Электрика метраж">
 
   <button
@@ -1356,6 +1379,7 @@ input[type="date"] { color-scheme: dark; }
   </button>
 
 </nav>
+</section><!-- /meters-app -->
 
 <script>
 "use strict";
@@ -4122,7 +4146,7 @@ function navigateTo(pageName) {
     return;
   }
 
-  document.querySelectorAll(".page").forEach(page => {
+  document.querySelectorAll("#tile-app .page").forEach(page => {
     const active =
       page.id === `page-${pageName}`;
 
@@ -4130,7 +4154,7 @@ function navigateTo(pageName) {
     page.hidden = !active;
   });
 
-  document.querySelectorAll(".nav-button").forEach(
+  document.querySelectorAll("#tile-app .nav-button[data-page]").forEach(
     button => {
       const active =
         button.dataset.page === pageName;
@@ -4159,13 +4183,11 @@ function navigateTo(pageName) {
   haptic();
 }
 
-document.querySelectorAll(".nav-button").forEach(
-  button => {
-    button.addEventListener("click", () => {
-      navigateTo(button.dataset.page);
-    });
-  }
-);
+document.querySelector("#tile-app > .bottom-nav").addEventListener("click", event => {
+  const button = event.target.closest(".nav-button[data-page]");
+  if (!button || !event.currentTarget.contains(button)) return;
+  navigateTo(button.dataset.page);
+});
 
 /* ==========================================
    30. СИНХРОНИЗАЦИЯ LOCALSTORAGE
@@ -4316,12 +4338,23 @@ function initModule(key,cfg){
  function renderWork(){const host=document.getElementById(cfg.list);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-work-row"><label for="${prefix}-qty-${i}">${esc(x.name)}<br><span class="muted small">${esc(x.unit)} · ${money(x.price)}</span></label><input type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${Number(state.draft?.quantities?.[i])||0}" aria-label="Количество: ${esc(x.name)}"><div class="work-price" id="${prefix}-line-${i}">${money((Number(state.draft?.quantities?.[i])||0)*x.price)}</div></div>`}).join('');host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{const q=Math.max(0,Number(inp.value)||0);document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent=money(q*state.priceList[Number(inp.dataset.qty)].price);calc()}));calc()}
  function renderPrices(){const host=document.getElementById(cfg.prices);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-price-row"><label>${esc(x.name)}<br><span class="muted small">${esc(x.unit)}</span>${key==='elec'?`<span class="small muted">${esc(pointDescriptions[i])}</span>`:''}</label><input type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`}).join('')}
  function renderEstimates(){const host=document.getElementById(cfg.estimates);if(!state.estimates.length){host.innerHTML='<div class="module-empty">Пока нет сохранённых смет.<br>Нажмите «Создать», чтобы начать.</div>';return}host.innerHTML=state.estimates.slice().reverse().map(e=>`<div class="module-estimate"><div class="module-estimate-head"><div class="module-estimate-name">${esc(e.customer||'Без названия')}</div><div class="module-estimate-total">${money(e.total)}</div></div><div class="module-estimate-meta">${esc(e.date||'')} · ${e.lines.filter(x=>x.qty>0).length} позиций</div><div class="module-estimate-actions"><button class="btn btn-secondary" data-edit="${esc(e.id)}">Открыть</button><button class="btn btn-secondary" data-share="${esc(e.id)}">PNG / Поделиться</button><button class="btn btn-danger" data-delete="${esc(e.id)}">Удалить</button></div></div>`).join('');host.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEstimate(b.dataset.edit));host.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('Удалить эту смету?')){state.estimates=state.estimates.filter(e=>e.id!==b.dataset.delete);write(prefix+'_estimates',state.estimates);renderEstimates()}});host.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>exportEstimate(state.estimates.find(e=>e.id===b.dataset.share)))}
- function switchTab(tab){document.querySelectorAll(`#${cfg.app} [${cfg.panels}]`).forEach(el=>el.hidden=el.getAttribute(cfg.panels)!==tab);document.querySelectorAll(`#${cfg.app} [${cfg.tabs}]`).forEach(el=>(el.classList.toggle('active',el.getAttribute(cfg.tabs)===tab),el.setAttribute('aria-current',el.getAttribute(cfg.tabs)===tab?'page':'false')));if(tab==='estimates')renderEstimates();if(tab==='prices')renderPrices()}
+ function switchTab(tab){document.querySelectorAll(`#${cfg.app} [${cfg.panels}]`).forEach(el=>el.hidden=el.getAttribute(cfg.panels)!==tab);document.querySelectorAll(`#${cfg.app} [${cfg.tabs}]`).forEach(el=>(el.classList.toggle('active',el.getAttribute(cfg.tabs)===tab),el.setAttribute('aria-current',el.getAttribute(cfg.tabs)===tab?'page':'false')));if(tab==='estimates')renderEstimates();if(tab==='prices')renderPrices();window.scrollTo(0,0)}
  function newEstimate(){state.editingId=null;state.draft={customer:'',quantities:cfg.defaults.map(()=>0)};document.getElementById(cfg.customer).value='';renderWork();switchTab('calc');document.getElementById(cfg.customer).focus()}
  function openEstimate(id){const e=state.estimates.find(x=>x.id===id);if(!e)return;state.editingId=e.id;state.draft={customer:e.customer,quantities:state.priceList.map((_,i)=>e.lines.find(x=>x.index===i)?.qty||0)};document.getElementById(cfg.customer).value=e.customer||'';renderWork();switchTab('calc')}
  function saveEstimate(){const lines=getLines();const total=lines.reduce((a,x)=>a+x.qty*x.price,0);const old=state.estimates.find(x=>x.id===state.editingId);const e={id:state.editingId||('e'+Date.now()+Math.random().toString(16).slice(2,6)),customer:document.getElementById(cfg.customer).value.trim()||'Без названия',date:old?.date||new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines,total};if(old)state.estimates=state.estimates.map(x=>x.id===old.id?e:x);else state.estimates.push(e);write(prefix+'_estimates',state.estimates);state.editingId=e.id;renderEstimates();switchTab('estimates');}
  async function exportEstimate(e){if(!e){alert('Сначала сохраните смету.');return}const lines=e.lines.filter(x=>x.qty>0);const node=document.createElement('div');node.style.cssText='position:fixed;left:-10000px;top:0;width:700px;padding:28px;background:#fff;color:#172033;font-family:Arial,sans-serif';node.innerHTML=`<h1 style="margin:0 0 8px">${key==='elec'?'Электрика по точкам':'Электрика метраж'}</h1><p>${esc(e.customer)} · ${esc(e.date)}</p><hr>${lines.map(x=>`<p style="display:flex;justify-content:space-between;gap:20px"><span>${esc(x.name)} — ${x.qty} ${esc(x.unit)} × ${money(x.price)}</span><b>${money(x.qty*x.price)}</b></p>`).join('')}<hr><h2>Итого: ${money(e.total)}</h2>`;document.body.appendChild(node);try{if(!window.html2canvas)throw new Error('html2canvas unavailable');const canvas=await html2canvas(node,{scale:2,backgroundColor:'#fff'});const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('PNG error');const file=new File([blob],`${prefix}-estimate.png`,{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Смета',text:e.customer})}else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();URL.revokeObjectURL(a.href)}}catch(err){alert('Не удалось создать или отправить PNG. Попробуйте открыть смету в браузере с поддержкой html2canvas.')}finally{node.remove()}}
- document.querySelectorAll(`#${cfg.app} [${cfg.tabs}]`).forEach(b=>b.addEventListener('click',()=>switchTab(b.getAttribute(cfg.tabs))));
+ const moduleRoot = document.getElementById(cfg.app);
+ const bottomNav = moduleRoot.querySelector(':scope > .bottom-nav');
+ bottomNav.addEventListener('click', event => {
+   const button = event.target.closest('.nav-button');
+   if (!button || !bottomNav.contains(button)) return;
+   const tab = button.getAttribute(cfg.tabs);
+   if (tab) switchTab(tab);
+ });
+ moduleRoot.querySelectorAll(`[${cfg.tabs}]`).forEach(button => {
+   if (bottomNav.contains(button)) return;
+   button.addEventListener('click', () => switchTab(button.getAttribute(cfg.tabs)));
+ });
  document.querySelector(cfg.new).addEventListener('click',newEstimate);document.getElementById(cfg.save).addEventListener('click',saveEstimate);document.getElementById(cfg.export).addEventListener('click',()=>{const sum=calc();const e={id:state.editingId||'draft',customer:document.getElementById(cfg.customer).value.trim()||'Черновик',date:new Date().toLocaleDateString('ru-RU'),lines:getLines(),total:sum};exportEstimate(e)});
  document.getElementById(cfg.savePrices).addEventListener('click',()=>{document.querySelectorAll(`#${cfg.app} [data-price]`).forEach(inp=>{state.priceList[Number(inp.dataset.price)].price=Math.max(0,Number(inp.value)||0)});write(prefix+'_priceList',state.priceList);renderPrices();renderWork();alert('Цены сохранены.')});document.getElementById(cfg.resetPrices).addEventListener('click',()=>{if(confirm('Вернуть цены по умолчанию?')){state.priceList=cfg.defaults.map(x=>({...x}));write(prefix+'_priceList',state.priceList);renderPrices();renderWork()}});
  function restoreDraft(){if(state.draft){document.getElementById(cfg.customer).value=state.draft.customer||''}renderWork();renderEstimates()}
@@ -4329,7 +4362,18 @@ function initModule(key,cfg){
 }
 initModule('elec',configs.elec);initModule('meters',configs.meters);
 // Глобальная навигация
-function showModule(name){document.getElementById('page-menu').hidden=name!=='menu';document.getElementById('tile-app').hidden=name!=='tile';document.getElementById('elec-app').hidden=name!=='elec';document.getElementById('meters-app').hidden=name!=='meters';window.scrollTo(0,0)}
+function showModule(name) {
+ const valid = ['menu', 'tile', 'elec', 'meters'];
+ if (!valid.includes(name)) return;
+ document.getElementById('page-menu').hidden = name !== 'menu';
+ for (const moduleName of ['tile', 'elec', 'meters']) {
+   const container = document.getElementById(moduleName + '-app');
+   const isActive = name === moduleName;
+   container.classList.toggle('active', isActive);
+   container.hidden = !isActive;
+ }
+ window.scrollTo(0, 0);
+}
 document.querySelectorAll('[data-open-module]').forEach(b=>b.addEventListener('click',()=>{const name=b.dataset.openModule;showModule(name);if(name==='tile'&&window.TileApp)window.TileApp.refreshDashboard()}));document.querySelectorAll('[data-back-menu]').forEach(b=>b.addEventListener('click',()=>showModule('menu')));
 // Запуск всегда с главного меню; состояния модулей сохранены независимо.
 showModule('menu');
