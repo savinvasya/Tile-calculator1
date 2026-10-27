@@ -3,2732 +3,1913 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
 <title>Калькулятор плиточных работ</title>
 
 <style>
+/* =========================================
+   1. ТЕМА И ПЕРЕМЕННЫЕ
+========================================= */
+
 :root {
-  --bg:var(--tg-theme-bg-color,#ffffff);
-  --text:var(--tg-theme-text-color,#20242a);
-  --hint:var(--tg-theme-hint-color,#788493);
-  --secondary:var(--tg-theme-secondary-bg-color,#f2f5f9);
-  --card:var(--tg-theme-section-bg-color,var(--bg));
-  --button:var(--tg-theme-button-color,#2481cc);
-  --button-text:var(--tg-theme-button-text-color,#ffffff);
-  --border:var(--tg-theme-section-separator-color,#dce2e9);
-}
-
-*{box-sizing:border-box}
-
-html{scroll-behavior:smooth}
-
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  font-size:16px;
-  line-height:1.45;
-  -webkit-tap-highlight-color:transparent;
-}
-
-button,input,select{font:inherit}
-button{cursor:pointer}
-
-.app{
-  max-width:720px;
-  margin:auto;
-  padding:16px 14px calc(32px + env(safe-area-inset-bottom));
-}
-
-header h1{
-  font-size:25px;
-  line-height:1.2;
-  margin:0 0 7px;
-}
-
-.subtitle{
-  color:var(--hint);
-  font-size:14px;
-  margin:0 0 20px;
-}
-
-.section{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:15px;
-  padding:16px;
-  margin-bottom:15px;
-}
-
-.section h2{
-  font-size:18px;
-  margin:0 0 15px;
-}
-
-.note{
-  color:var(--hint);
-  font-size:13px;
-  margin:0 0 14px;
-}
-
-.field{margin-bottom:15px}
-.field:last-child{margin-bottom:0}
-
-label{
-  display:block;
-  font-size:14px;
-  font-weight:600;
-  margin-bottom:7px;
-}
-
-input,select{
-  width:100%;
-  min-width:0;
-  height:52px;
-  border:1px solid var(--border);
-  border-radius:11px;
-  padding:0 13px;
-  background:var(--secondary);
-  color:var(--text);
-  font-size:16px;
-  outline:none;
-}
-
-input:focus,select:focus{
-  border-color:var(--button);
-}
-
-input[type=number]{
-  appearance:textfield;
-  -moz-appearance:textfield;
-}
-
-input::-webkit-inner-spin-button,
-input::-webkit-outer-spin-button{
-  -webkit-appearance:none;
-  margin:0;
-}
-
-select{
-  appearance:none;
-  -webkit-appearance:none;
-  padding-right:35px;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23888888' stroke-width='2.5'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 12px center;
-}
-
-.two-columns{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:12px;
-}
-
-.two-columns .field{margin-bottom:0}
-
-.tabs{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  padding:5px;
-  background:var(--secondary);
-  border-radius:15px;
-  margin:18px 0;
-}
-
-.tab{
-  border:0;
-  border-radius:11px;
-  background:transparent;
-  color:var(--text);
-  padding:14px;
-  font-weight:700;
-  font-size:17px;
-  min-height:52px;
-}
-
-.tab.active{
-  background:var(--button);
-  color:var(--button-text);
-}
-
-.panel[hidden]{display:none}
-
-.item-row{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 105px;
-  align-items:center;
-  gap:10px;
-  padding:12px 0;
-  border-bottom:1px solid var(--border);
-}
-
-.item-row:first-child{padding-top:0}
-
-.item-row:last-child{
-  border-bottom:0;
-  padding-bottom:0;
-}
-
-.item-row label{
-  margin:0;
-  overflow-wrap:anywhere;
-}
-
-.item-row input{
-  text-align:center;
-  height:48px;
-  padding:0 6px;
-}
-
-.item-meta{
-  display:block;
-  font-size:12px;
-  font-weight:400;
-  color:var(--hint);
-  margin-top:3px;
-}
-
-.summary{
-  background:var(--secondary);
-  padding:17px;
-  border-radius:15px;
-  margin-bottom:15px;
-}
-
-.summary h2{
-  margin:0 0 12px;
-  font-size:19px;
-}
+  color-scheme: dark;
 
-.summary-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  gap:12px;
-  padding:11px 0;
-  border-bottom:1px solid var(--border);
-}
-
-.summary-row:last-child{border-bottom:0}
-
-.summary-row .name{
-  font-size:14px;
-  color:var(--hint);
-  min-width:0;
-}
-
-.summary-row .value{
-  font-size:16px;
-  font-weight:700;
-  text-align:right;
-  white-space:nowrap;
-  font-variant-numeric:tabular-nums;
-}
-
-.summary-row.primary .value{
-  color:var(--button);
-  font-size:20px;
-}
-
-.summary-row.total{
-  margin-top:8px;
-  padding-top:17px;
-  align-items:center;
-}
-
-.summary-row.total .name{
-  color:var(--text);
-  font-weight:700;
-  font-size:16px;
-}
-
-.summary-row.total .value{
-  color:var(--button);
-  font-size:clamp(20px,5vw,27px);
-}
-
-.overall{
-  margin-top:22px;
-  border:2px solid var(--button);
-  background:var(--secondary);
-  padding:20px 17px;
-  border-radius:17px;
-}
-
-.overall h2{
-  margin:0 0 12px;
-  font-size:21px;
-}
-
-.grand-total{
-  margin-top:15px;
-  padding-top:15px;
-  border-top:1px solid var(--border);
-}
-
-.grand-total .amount{
-  font-size:clamp(27px,8vw,38px);
-  font-weight:800;
-  color:var(--button);
-  overflow-wrap:anywhere;
-  font-variant-numeric:tabular-nums;
-}
-
-.settings{
-  border:1px solid var(--border);
-  border-radius:15px;
-  background:var(--card);
-  margin-bottom:18px;
-  overflow:hidden;
-}
-
-.settings > summary{
-  list-style:none;
-  padding:17px;
-  cursor:pointer;
-  font-size:17px;
-  font-weight:750;
-  background:var(--secondary);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.settings > summary::-webkit-details-marker{display:none}
-
-.settings > summary::after{
-  content:"⌄";
-  font-size:23px;
-  transition:transform .2s;
-}
-
-.settings[open] > summary::after{
-  transform:rotate(180deg);
-}
-
-.settings-body{padding:15px}
-
-.settings-group{
-  margin-bottom:17px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:13px;
-}
-
-.settings-group h3{
-  font-size:16px;
-  margin:0 0 12px;
-}
-
-.settings-group:last-child{margin-bottom:0}
-
-.setting-row{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 100px;
-  gap:10px;
-  align-items:center;
-  padding:9px 0;
-  border-bottom:1px solid var(--border);
-}
+  --bg: var(--tg-theme-bg-color, #0f172a);
+  --secondary-bg: var(--tg-theme-secondary-bg-color, #111827);
+  --card-bg: var(--tg-theme-section-bg-color, #1e293b);
 
-.setting-row:last-child{border-bottom:0}
+  --text: var(--tg-theme-text-color, #f8fafc);
+  --hint: var(--tg-theme-hint-color, #94a3b8);
 
-.setting-row label{
-  margin:0;
-  font-size:13px;
-  font-weight:500;
-  overflow-wrap:anywhere;
-}
-
-.setting-row input{
-  height:46px;
-  text-align:center;
-  padding:0 6px;
-}
+  --accent: var(--tg-theme-button-color, #3b82f6);
+  --accent-text: var(--tg-theme-button-text-color, #ffffff);
 
-.setting-caption{
-  display:block;
-  color:var(--hint);
-  font-size:12px;
-  font-weight:400;
-}
-
-.download-btn{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:5px;
-  width:100%;
-  border:0;
-  border-radius:16px;
-  min-height:68px;
-  padding:15px;
-  margin-top:20px;
-  background:var(--button);
-  color:var(--button-text);
-  font-size:17px;
-  font-weight:800;
-  text-align:center;
-  box-shadow:0 5px 16px rgba(0,0,0,.15);
-  transition:opacity .15s,transform .15s;
-}
+  --border: var(--tg-theme-section-separator-color, #334155);
 
-.download-btn:active{
-  transform:scale(.985);
-}
+  --success: #22c55e;
+  --danger: #ef4444;
 
-.download-btn:disabled{
-  opacity:.6;
-  cursor:wait;
+  --radius: 16px;
+  --nav-height: 76px;
 }
 
-.download-btn .btn-subtitle{
-  font-size:12px;
-  font-weight:500;
-  opacity:.9;
+* {
+  box-sizing: border-box;
 }
 
-.download-note{
-  font-size:13px;
-  color:var(--hint);
-  text-align:center;
-  margin-top:10px;
-  line-height:1.5;
+html {
+  scroll-behavior: smooth;
 }
 
-footer{
-  color:var(--hint);
-  text-align:center;
-  font-size:12px;
-  margin-top:22px;
-}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
 
-.export-root{
-  position:fixed;
-  left:-100000px;
-  top:0;
-  width:760px;
-  z-index:-1;
-  pointer-events:none;
-}
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
 
-.export-sheet{
-  width:760px;
-  padding:28px;
-  background:#ffffff;
-  color:#20242a;
-  font-family:Arial,sans-serif;
-}
+  font-size: 16px;
+  line-height: 1.5;
 
-.export-sheet h1{
-  margin:0 0 6px;
-  font-size:28px;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.export-sheet h2{
-  font-size:20px;
-  margin:22px 0 10px;
-  padding-bottom:8px;
-  border-bottom:2px solid #2481cc;
+button,
+input {
+  font: inherit;
 }
 
-.export-sheet h3{
-  font-size:15px;
-  margin:15px 0 7px;
+button {
+  cursor: pointer;
 }
 
-.export-muted{
-  color:#697586;
-  font-size:13px;
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-.export-table{
-  width:100%;
-  border-collapse:collapse;
-  table-layout:fixed;
-  font-size:13px;
-  margin-bottom:10px;
-}
+/* =========================================
+   2. ОСНОВНОЙ КОНТЕЙНЕР
+========================================= */
 
-.export-table th,
-.export-table td{
-  padding:9px 8px;
-  border-bottom:1px solid #e0e5ec;
-  text-align:left;
-  vertical-align:top;
-  overflow-wrap:anywhere;
-}
+.app {
+  width: 100%;
+  max-width: 760px;
+  min-height: 100vh;
 
-.export-table th{
-  background:#f1f5fa;
-  font-weight:700;
-}
+  margin: 0 auto;
 
-.export-table td:last-child,
-.export-table th:last-child{
-  text-align:right;
+  padding:
+    20px
+    14px
+    calc(var(--nav-height) + 40px + env(safe-area-inset-bottom));
 }
 
-.export-total{
-  background:#eaf3fc;
-  color:#155d98;
-  padding:16px;
-  border-radius:10px;
-  font-size:24px;
-  font-weight:800;
-  margin-top:15px;
+.page {
+  display: none;
+  animation: fadeIn 0.18s ease;
 }
 
-.export-footer{
-  margin-top:20px;
-  font-size:12px;
-  color:#697586;
+.page.active {
+  display: block;
 }
 
-@media(max-width:360px){
-  .app{
-    padding-left:10px;
-    padding-right:10px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
   }
 
-  .section{padding:13px}
-
-  .item-row{
-    grid-template-columns:minmax(0,1fr) 88px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-
-  .setting-row{
-    grid-template-columns:minmax(0,1fr) 85px;
-  }
-
-  .summary-row .value{font-size:14px}
 }
 
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
+.page-header {
+  margin-bottom: 22px;
+}
+
+.page-title {
+  margin: 0 0 6px;
+
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--hint);
+  font-size: 14px;
+}
+
+/* =========================================
+   3. КАРТОЧКИ
+========================================= */
+
+.card {
+  background: var(--card-bg);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  padding: 17px;
+  margin-bottom: 15px;
+}
+
+.card-title {
+  margin: 0 0 15px;
+
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.card-description {
+  color: var(--hint);
+  font-size: 13px;
+  margin: -6px 0 16px;
+}
+
+/* =========================================
+   4. ПЕРЕКЛЮЧАТЕЛЬ ПОЛ / СТЕНА
+========================================= */
+
+.segmented-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 5px;
+  padding: 5px;
+
+  background: var(--secondary-bg);
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  margin-bottom: 20px;
+}
+
+.segment-button {
+  min-height: 50px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+  color: var(--hint);
+
+  font-size: 16px;
+  font-weight: 700;
+
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.segment-button.active {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+/* =========================================
+   5. ПОЛЯ НАСТРОЕК
+========================================= */
+
+.setting-row {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    105px;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 13px 0;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-row:first-child {
+  padding-top: 0;
+}
+
+.setting-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.setting-label {
+  min-width: 0;
+
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 550;
+
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.setting-unit {
+  display: block;
+
+  margin-top: 4px;
+
+  color: var(--hint);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.setting-input {
+  width: 100%;
+  min-width: 0;
+  height: 52px;
+
+  padding: 0 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background: var(--secondary-bg);
+  color: var(--text);
+
+  text-align: center;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  outline: none;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.setting-input:focus {
+  border-color: var(--accent);
+}
+
+.setting-input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.setting-input::-webkit-inner-spin-button,
+.setting-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* =========================================
+   6. ГРУППЫ НАСТРОЕК
+========================================= */
+
+.group-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+.group-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  flex-shrink: 0;
+
+  background: var(--secondary-bg);
+  border-radius: 10px;
+
+  font-size: 17px;
+}
+
+.group-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.group-content {
+  margin-top: 15px;
+}
+
+/* =========================================
+   7. СТАТУС СОХРАНЕНИЯ
+========================================= */
+
+.save-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 11px;
+
+  margin-bottom: 15px;
+
+  background: var(--secondary-bg);
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  color: var(--hint);
+
+  font-size: 13px;
+  text-align: center;
+}
+
+.save-status.saved {
+  color: var(--success);
+}
+
+.save-status.error {
+  color: var(--danger);
+}
+
+/* =========================================
+   8. ЗАГЛУШКИ ДРУГИХ ВКЛАДОК
+========================================= */
+
+.placeholder {
+  min-height: 260px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 28px;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.placeholder h2 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+
+.placeholder p {
+  color: var(--hint);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* =========================================
+   9. НИЖНЯЯ НАВИГАЦИЯ
+========================================= */
+
+.bottom-nav {
+  position: fixed;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 100;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  height:
+    calc(var(--nav-height) + env(safe-area-inset-bottom));
+
+  padding:
+    7px
+    max(8px, env(safe-area-inset-right))
+    calc(7px + env(safe-area-inset-bottom))
+    max(8px, env(safe-area-inset-left));
+
+  background: var(--secondary-bg);
+
+  border-top: 1px solid var(--border);
+
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.nav-button {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  border: 0;
+  border-radius: 12px;
+
+  background: transparent;
+  color: var(--hint);
+
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.nav-button.active {
+  color: var(--accent);
+  background: var(--card-bg);
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+
+  stroke: currentColor;
+  stroke-width: 2;
+
+  fill: none;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 650;
+
+  white-space: nowrap;
+}
+
+/* =========================================
+   10. АДАПТИВНОСТЬ
+========================================= */
+
+@media (max-width: 360px) {
+  .app {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .card {
+    padding: 13px;
+  }
+
+  .setting-row {
+    grid-template-columns:
+      minmax(0, 1fr)
+      88px;
+
+    gap: 8px;
+  }
+
+  .setting-input {
+    font-size: 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<main class="app" id="calculator">
+<main class="app">
 
-<header>
-  <h1>Калькулятор плиточных работ</h1>
-  <p class="subtitle">
-    Расчёт укладки, резки и дополнительных работ
-  </p>
-</header>
+  <!-- =====================================
+       ВКЛАДКА 1: СМЕТЫ
+  ====================================== -->
 
-<details class="settings" id="settings">
-  <summary>⚙️ Настройки цен и процентов</summary>
-  <div class="settings-body" id="settingsBody"></div>
-</details>
+  <section
+    class="page"
+    id="page-estimates"
+    aria-labelledby="title-estimates"
+    hidden
+  >
+    <header class="page-header">
+      <h1 class="page-title" id="title-estimates">
+        Сметы
+      </h1>
 
-<nav class="tabs" aria-label="Разделы калькулятора">
-  <button
-    type="button"
-    class="tab active"
-    data-tab="floor"
-    aria-selected="true"
-  >Пол</button>
+      <p class="page-subtitle">
+        Ваши сохранённые расчёты
+      </p>
+    </header>
 
-  <button
-    type="button"
-    class="tab"
-    data-tab="walls"
-    aria-selected="false"
-  >Стены</button>
-</nav>
+    <div class="card placeholder">
+      <div class="placeholder-icon">📁</div>
 
-<section class="panel" id="floor"></section>
-<section class="panel" id="walls" hidden></section>
+      <h2>Мои сметы</h2>
 
-<section class="overall" aria-live="polite">
-  <h2>Общий итог</h2>
+      <p>
+        Здесь будут отображаться сохранённые
+        сметы плиточных работ.
+      </p>
+    </div>
+  </section>
 
-  <div class="summary-row">
-    <span class="name">Площадь пола</span>
-    <span class="value" id="overall-floor-area">1 м²</span>
-  </div>
+  <!-- =====================================
+       ВКЛАДКА 2: НОВЫЙ РАСЧЁТ
+  ====================================== -->
 
-  <div class="summary-row">
-    <span class="name">Площадь стен</span>
-    <span class="value" id="overall-walls-area">2 м²</span>
-  </div>
+  <section
+    class="page"
+    id="page-calculator"
+    aria-labelledby="title-calculator"
+    hidden
+  >
+    <header class="page-header">
+      <h1 class="page-title" id="title-calculator">
+        Новый расчёт
+      </h1>
 
-  <div class="summary-row">
-    <span class="name">Суммарная площадь</span>
-    <span class="value" id="overall-area">3 м²</span>
-  </div>
+      <p class="page-subtitle">
+        Создание новой сметы
+      </p>
+    </header>
 
-  <div class="summary-row">
-    <span class="name">Стоимость пола</span>
-    <span class="value" id="overall-floor-cost">0 ₽</span>
-  </div>
+    <div class="card placeholder">
+      <div class="placeholder-icon">🧮</div>
 
-  <div class="summary-row">
-    <span class="name">Стоимость стен</span>
-    <span class="value" id="overall-walls-cost">0 ₽</span>
-  </div>
+      <h2>Калькулятор</h2>
 
-  <div class="grand-total">
-    <div class="export-muted">Общая стоимость работ</div>
-    <div class="amount" id="overall-total">0 ₽</div>
-  </div>
-</section>
+      <p>
+        Здесь будет калькулятор плиточных работ,
+        использующий цены из Прайс-листа.
+      </p>
+    </div>
+  </section>
 
-<button
-  type="button"
-  class="download-btn"
-  id="downloadBtn"
->
-  <span id="downloadBtnTitle">
-    📥 Скачать смету в PNG
-  </span>
-  <span class="btn-subtitle" id="downloadBtnSubtitle">
-    Сохранить изображение на устройство
-  </span>
-</button>
+  <!-- =====================================
+       ВКЛАДКА 3: ПРАЙС-ЛИСТ
+  ====================================== -->
 
-<p
-  class="download-note"
-  id="downloadStatus"
-  role="status"
->
-  В изображение войдут пол, стены и общий итог.
-</p>
+  <section
+    class="page active"
+    id="page-prices"
+    aria-labelledby="title-prices"
+  >
+    <header class="page-header">
+      <h1 class="page-title" id="title-prices">
+        Прайс-лист
+      </h1>
 
-<footer>
-  Все суммы указаны в рублях.
-  Расчёт предварительный.
-</footer>
+      <p class="page-subtitle">
+        Настройка цен и процентов для расчётов
+      </p>
+    </header>
+
+    <!-- ПОЛ / СТЕНА -->
+
+    <div
+      class="segmented-control"
+      role="group"
+      aria-label="Настройки для пола или стены"
+    >
+      <button
+        type="button"
+        class="segment-button active"
+        data-price-type="floor"
+        aria-pressed="true"
+      >
+        Пол
+      </button>
+
+      <button
+        type="button"
+        class="segment-button"
+        data-price-type="wall"
+        aria-pressed="false"
+      >
+        Стена
+      </button>
+    </div>
+
+    <!-- СТАТУС СОХРАНЕНИЯ -->
+
+    <div
+      class="save-status saved"
+      id="saveStatus"
+      role="status"
+      aria-live="polite"
+    >
+      ✓ Настройки сохраняются автоматически
+    </div>
+
+    <!-- НАСТРОЙКИ ГЕНЕРИРУЮТСЯ JS -->
+
+    <div id="priceListContainer"></div>
+
+  </section>
 
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<!-- =====================================
+     НИЖНЕЕ МЕНЮ
+====================================== -->
+
+<nav
+  class="bottom-nav"
+  aria-label="Основная навигация"
+>
+  <button
+    type="button"
+    class="nav-button"
+    data-page="estimates"
+    aria-label="Сметы"
+    aria-current="false"
+  >
+    <svg
+      class="nav-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    </svg>
+
+    <span class="nav-label">
+      Сметы
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="nav-button"
+    data-page="calculator"
+    aria-label="Новый расчёт"
+    aria-current="false"
+  >
+    <svg
+      class="nav-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <rect
+        x="5"
+        y="2"
+        width="14"
+        height="20"
+        rx="2"
+      />
+      <path d="M8 6h8v4H8z"/>
+      <path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"/>
+    </svg>
+
+    <span class="nav-label">
+      Новый расчёт
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="nav-button active"
+    data-page="prices"
+    aria-label="Прайс-лист"
+    aria-current="page"
+  >
+    <svg
+      class="nav-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle cx="7" cy="7" r="2"/>
+      <circle cx="17" cy="17" r="2"/>
+      <path d="M19 5 5 19"/>
+    </svg>
+
+    <span class="nav-label">
+      Прайс-лист
+    </span>
+  </button>
+</nav>
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
 "use strict";
 
-/* ==========================================
-   TELEGRAM WEB APP
-========================================== */
+/* =========================================
+   1. TELEGRAM MINI APP
+========================================= */
 
-const APP_URL=
-  "https://savinvasya.github.io/Tile-calculator1/";
+const tg = window.Telegram?.WebApp ?? null;
 
-const tg=window.Telegram?.WebApp??null;
-
-/*
-  Наличие Telegram.WebApp само по себе не означает,
-  что страница открыта внутри Telegram.
-
-  Официальный SDK загружается и в обычном браузере.
-  Поэтому дополнительно проверяем initData.
-*/
-
-function isTelegramMiniApp(){
-  return Boolean(
-    tg &&
-    typeof tg.openLink==="function" &&
-    typeof tg.initData==="string" &&
-    tg.initData.length>0
-  );
-}
-
-if(tg){
-  try{
+if (tg) {
+  try {
     tg.ready();
     tg.expand();
 
-    try{
+    if (typeof tg.setHeaderColor === "function") {
       tg.setHeaderColor("secondary_bg_color");
-    }catch(error){
-      console.warn(
-        "Не удалось изменить цвет заголовка:",
-        error
-      );
     }
-  }catch(error){
-    console.warn("Telegram WebApp:",error);
+  } catch (error) {
+    console.warn("Telegram initialization:", error);
   }
 }
 
-/* ==========================================
-   СПРАВОЧНИКИ
-========================================== */
+/* =========================================
+   2. КОНСТАНТЫ
+========================================= */
 
-const CATEGORIES=[
-  {
-    id:"size",
-    title:"Размер плитки",
-    options:[
-      {id:"30",label:"30 × 30 см",percent:0},
-      {id:"60",label:"60 × 60 см",percent:10},
-      {id:"medium",label:"От 60 до 100 см / до 1 м",percent:20},
-      {id:"large",label:"От 1 м",percent:50},
-      {id:"small",label:"До 30 см",percent:20},
-      {id:"mosaic",label:"Мозаика",percent:200}
-    ]
-  },
-  {
-    id:"thickness",
-    title:"Толщина плитки",
-    options:[
-      {id:"8",label:"До 8 мм",percent:0},
-      {id:"10",label:"До 1 см",percent:5},
-      {id:"12",label:"До 1,2 см",percent:10},
-      {id:"15",label:"До 1,5 см",percent:15},
-      {id:"20",label:"До 2 см",percent:20},
-      {id:"more",label:"Более 2 см (договорная)",percent:0}
-    ]
-  },
-  {
-    id:"material",
-    title:"Материал плитки",
-    options:[
-      {id:"ceramic",label:"Керамика",percent:0},
-      {id:"porcelain",label:"Керамогранит",percent:10},
-      {id:"clinker",label:"Клинкер",percent:20},
-      {id:"glass",label:"Стекло",percent:20},
-      {id:"stone",label:"Мрамор или гранит (договорная)",percent:0}
-    ]
-  },
-  {
-    id:"curvature",
-    title:"Кривизна плитки",
-    options:[
-      {id:"none",label:"Нет",percent:0},
-      {id:"seams",label:"По швам",percent:20},
-      {id:"level",label:"По высоте (СВП)",percent:20},
-      {id:"calibration",label:"Калибровка (договорная)",percent:30}
-    ]
-  },
-  {
-    id:"glue",
-    title:"Слой клея",
-    options:[
-      {id:"standard",label:"Стандарт (гребёнка)",percent:0},
-      {id:"2",label:"На слой до 2 см",percent:30},
-      {id:"4",label:"На слой от 2 до 4 см",percent:50}
-    ]
-  },
-  {
-    id:"laying",
-    title:"Укладка",
-    options:[
-      {id:"straight",label:"Прямая",percent:0},
-      {id:"offset",label:"Со смещением",percent:10},
-      {id:"diagonal",label:"Диагональ",percent:20},
-      {id:"herringbone",label:"Ёлочка",percent:20}
-    ]
-  },
-  {
-    id:"cleanliness",
-    title:"Чистота (место резки)",
-    options:[
-      {id:"same",label:"В этом помещении",percent:0},
-      {id:"next",label:"В соседнем помещении",percent:5},
-      {id:"outside",label:"На площадке и т. п.",percent:10}
-    ]
-  },
-  {
-    id:"height",
-    title:"Высота",
-    options:[
-      {id:"3",label:"До 3 м",percent:0},
-      {id:"4",label:"От 3 до 4 м",percent:50},
-      {id:"above",label:"Выше 4 м",percent:70}
-    ]
-  },
-  {
-    id:"position",
-    title:"Расположение плитки",
-    options:[
-      {id:"wall",label:"Стены",percent:0},
-      {id:"floor",label:"Пол",percent:20},
-      {id:"ceiling",label:"Потолок",percent:100}
-    ]
-  }
+const STORAGE_KEY = "priceList";
+
+const ACTIVE_PAGE_KEY = "tileAppActivePage";
+const ACTIVE_PRICE_TYPE_KEY = "tileAppPriceType";
+
+const VALID_PAGES = [
+  "estimates",
+  "calculator",
+  "prices"
 ];
 
-const CUTS=[
-  {id:"roughDry",label:"Рез черновой (сухорез)",percent:30,unit:"м/п"},
-  {id:"roughWet",label:"Рез черновой (болгарка, мокрорез)",percent:50,unit:"м/п"},
-  {id:"figure",label:"Рез фигурный (болгарка, мокрорез)",percent:70,unit:"м/п"},
-  {id:"finish",label:"Рез финишный (черепашка)",percent:100,unit:"м/п"},
-  {id:"finishFigure",label:"Рез финишный фигурный (черепашка)",percent:120,unit:"м/п"},
-  {id:"angleFactory",label:"Рез 45° финишный (заводской стык)",percent:150,unit:"м/п"},
-  {id:"angleCut",label:"Рез 45° финишный (резаный стык)",percent:170,unit:"м/п"},
-  {id:"joinRough",label:"Соединение двух резов (черновое)",percent:20,unit:"шт"},
-  {id:"joinFinish",label:"Соединение двух резов (финишное)",percent:30,unit:"шт"},
-  {id:"joinAngle",label:"Соединение двух резов (заусовка)",percent:40,unit:"шт"}
+const PRICE_TYPES = [
+  "floor",
+  "wall"
 ];
 
-const HOLES=[
-  {id:"small",label:"До 2 см",percent:15,unit:"шт"},
-  {id:"medium",label:"От 2 до 7 см",percent:25,unit:"шт"},
-  {id:"large",label:"Выше 7 см",percent:35,unit:"шт"}
-];
+/* =========================================
+   3. ОПИСАНИЕ ПОЛЕЙ ПРАЙС-ЛИСТА
 
-const PREPARATION=[
-  {id:"primerBefore",label:"Грунтовка до гидроизоляции",percent:3,unit:"м²"},
-  {id:"waterproof",label:"Гидроизоляция (2 слоя)",percent:25,unit:"м²"}
-];
+   key   — уникальный ключ настройки
+   label — название поля
+   value — значение по умолчанию
+   unit  — единица измерения
 
-const DEFAULT_SETTINGS={
-  basePrice:{floor:800,walls:500},
-  tileThreshold:1000,
-  tileExtraPercent:5,
-  categories:{},
-  cuts:{},
-  holes:{},
-  preparation:{},
-  grout:{
-    cement:{"1.5":20,"2":25,"2.5":30,"3":35},
-    epoxy:{"1.5":100,"2":110,"2.5":120,"3":130}
-  },
-  silicone:{"1.5":100,"2":120,"2.5":150,"3":170}
-};
+   Все настройки создаются из этой схемы.
+========================================= */
 
-CATEGORIES.forEach(category=>{
-  DEFAULT_SETTINGS.categories[category.id]={};
+const PRICE_SCHEMA = [
 
-  category.options.forEach(option=>{
-    DEFAULT_SETTINGS.categories[category.id][option.id]=
-      option.percent;
-  });
-});
+  {
+    id: "base",
+    title: "Базовая ставка",
+    icon: "💰",
 
-CUTS.forEach(item=>{
-  DEFAULT_SETTINGS.cuts[item.id]=item.percent;
-});
-
-HOLES.forEach(item=>{
-  DEFAULT_SETTINGS.holes[item.id]=item.percent;
-});
-
-PREPARATION.forEach(item=>{
-  DEFAULT_SETTINGS.preparation[item.id]=item.percent;
-});
-
-/* ==========================================
-   LOCAL STORAGE
-========================================== */
-
-const STORAGE_KEY="tile_calculator_settings_v2";
-const FORM_STORAGE_KEY="tile_calculator_form_v2";
-
-function clone(value){
-  return JSON.parse(JSON.stringify(value));
-}
-
-function mergeSettings(target,source){
-  if(!source || typeof source!=="object"){
-    return target;
-  }
-
-  Object.keys(target).forEach(key=>{
-    if(
-      !Object.prototype.hasOwnProperty.call(source,key)
-    ){
-      return;
-    }
-
-    if(
-      target[key] &&
-      typeof target[key]==="object" &&
-      !Array.isArray(target[key])
-    ){
-      mergeSettings(target[key],source[key]);
-    }else{
-      const number=Number(source[key]);
-
-      if(Number.isFinite(number) && number>=0){
-        target[key]=number;
+    fields: [
+      {
+        key: "standard",
+        label: "Стандартная цена укладки плитки",
+        value: 800,
+        wallValue: 500,
+        unit: "₽ за м²"
       }
-    }
-  });
-
-  return target;
-}
-
-function readStorage(key){
-  try{
-    return JSON.parse(localStorage.getItem(key));
-  }catch(error){
-    return null;
-  }
-}
-
-function writeStorage(key,value){
-  try{
-    localStorage.setItem(
-      key,
-      JSON.stringify(value)
-    );
-  }catch(error){
-    console.warn("Ошибка сохранения:",error);
-  }
-}
-
-/*
-  Передача текущей сметы из Telegram в браузер.
-
-  localStorage Telegram WebView и системного браузера
-  могут быть разными.
-
-  Поэтому данные передаются через параметр URL.
-  При открытии ссылки браузер восстанавливает
-  настройки и заполненные поля.
-*/
-
-function readTransferredState(){
-  try{
-    const url=new URL(window.location.href);
-    const encoded=url.searchParams.get("estimate");
-
-    if(!encoded){
-      return null;
-    }
-
-    const state=JSON.parse(encoded);
-
-    if(
-      !state ||
-      typeof state!=="object" ||
-      state.version!==1
-    ){
-      return null;
-    }
-
-    /*
-      Удаляем параметр из адресной строки после
-      чтения, чтобы не сохранять длинный URL.
-    */
-
-    url.searchParams.delete("estimate");
-
-    try{
-      history.replaceState(
-        null,
-        "",
-        url.pathname+url.search+url.hash
-      );
-    }catch(error){
-      console.warn(
-        "Не удалось очистить адрес:",
-        error
-      );
-    }
-
-    return state;
-
-  }catch(error){
-    console.warn(
-      "Не удалось восстановить переданную смету:",
-      error
-    );
-
-    return null;
-  }
-}
-
-const transferredState=readTransferredState();
-
-let settings=mergeSettings(
-  clone(DEFAULT_SETTINGS),
-  readStorage(STORAGE_KEY)
-);
-
-if(transferredState?.settings){
-  settings=mergeSettings(
-    clone(DEFAULT_SETTINGS),
-    transferredState.settings
-  );
-
-  writeStorage(STORAGE_KEY,settings);
-}
-
-let savedForm=readStorage(FORM_STORAGE_KEY)||{};
-
-if(
-  transferredState?.form &&
-  typeof transferredState.form==="object"
-){
-  savedForm=transferredState.form;
-  writeStorage(FORM_STORAGE_KEY,savedForm);
-}
-
-/* ==========================================
-   ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-========================================== */
-
-const moneyFormat=new Intl.NumberFormat("ru-RU",{
-  minimumFractionDigits:2,
-  maximumFractionDigits:2
-});
-
-const numberFormat=new Intl.NumberFormat("ru-RU",{
-  maximumFractionDigits:3
-});
-
-function money(value){
-  return moneyFormat.format(
-    Number.isFinite(value)?value:0
-  )+" ₽";
-}
-
-function fmt(value){
-  return numberFormat.format(
-    Number.isFinite(value)?value:0
-  );
-}
-
-function num(value){
-  const n=Number(
-    String(value??"").replace(",",".")
-  );
-
-  return Number.isFinite(n)
-    ?Math.max(0,n)
-    :0;
-}
-
-function byId(id){
-  return document.getElementById(id);
-}
-
-function setText(id,value){
-  const element=byId(id);
-
-  if(element){
-    element.textContent=value;
-  }
-}
-
-function getNumber(id){
-  return num(byId(id)?.value);
-}
-
-function getValue(id){
-  return byId(id)?.value??"";
-}
-
-function esc(value){
-  return String(value)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#39;");
-}
-
-/* ==========================================
-   НАСТРОЙКИ
-========================================== */
-
-function settingRow(key,label,value,unit){
-  return `
-    <div class="setting-row">
-      <label for="setting-${esc(key)}">
-        ${esc(label)}
-        <span class="setting-caption">
-          ${esc(unit)}
-        </span>
-      </label>
-
-      <input
-        type="number"
-        id="setting-${esc(key)}"
-        data-setting="${esc(key)}"
-        min="0"
-        step="any"
-        inputmode="decimal"
-        value="${value}"
-      >
-    </div>
-  `;
-}
-
-function settingGroup(title,content){
-  return `
-    <div class="settings-group">
-      <h3>${esc(title)}</h3>
-      ${content}
-    </div>
-  `;
-}
-
-function buildSettings(){
-  let html="";
-
-  html+=settingGroup(
-    "Базовые цены",
-    settingRow(
-      "basePrice.floor",
-      "Пол",
-      settings.basePrice.floor,
-      "₽/м²"
-    )+
-    settingRow(
-      "basePrice.walls",
-      "Стены",
-      settings.basePrice.walls,
-      "₽/м²"
-    )+
-    settingRow(
-      "tileThreshold",
-      "Порог цены плитки",
-      settings.tileThreshold,
-      "₽/м²"
-    )+
-    settingRow(
-      "tileExtraPercent",
-      "Надбавка за дорогую плитку",
-      settings.tileExtraPercent,
-      "%"
-    )
-  );
-
-  CATEGORIES.forEach(category=>{
-    let rows="";
-
-    category.options.forEach(option=>{
-      rows+=settingRow(
-        `categories.${category.id}.${option.id}`,
-        option.label,
-        settings.categories[category.id][option.id],
-        "%"
-      );
-    });
-
-    html+=settingGroup(category.title,rows);
-  });
-
-  function groupItems(title,items,group){
-    let rows="";
-
-    items.forEach(item=>{
-      rows+=settingRow(
-        `${group}.${item.id}`,
-        item.label,
-        settings[group][item.id],
-        `% за ${item.unit}`
-      );
-    });
-
-    return settingGroup(title,rows);
-  }
-
-  html+=groupItems("Рез плитки",CUTS,"cuts");
-  html+=groupItems("Отверстия",HOLES,"holes");
-  html+=groupItems(
-    "Подготовка",
-    PREPARATION,
-    "preparation"
-  );
-
-  ["cement","epoxy"].forEach(type=>{
-    const title=type==="cement"
-      ?"Цементная затирка"
-      :"Эпоксидная затирка";
-
-    let rows="";
-
-    ["1.5","2","2.5","3"].forEach(width=>{
-      rows+=settingRow(
-        `grout.${type}.${width}`,
-        `Шов ${width.replace(".",",")} мм`,
-        settings.grout[type][width],
-        "₽/м/п"
-      );
-    });
-
-    html+=settingGroup(title,rows);
-  });
-
-  let siliconeRows="";
-
-  ["1.5","2","2.5","3"].forEach(width=>{
-    siliconeRows+=settingRow(
-      `silicone.${width}`,
-      `Шов ${width.replace(".",",")} мм`,
-      settings.silicone[width],
-      "₽/м/п"
-    );
-  });
-
-  html+=settingGroup(
-    "Силикон",
-    siliconeRows
-  );
-
-  byId("settingsBody").innerHTML=html;
-}
-
-function setSetting(path,value){
-  const parts=path.split(".");
-  let target=settings;
-
-  for(let i=0;i<parts.length-1;i++){
-    if(!target[parts[i]]){
-      return;
-    }
-
-    target=target[parts[i]];
-  }
-
-  const last=parts[parts.length-1];
-
-  if(
-    !Object.prototype.hasOwnProperty.call(
-      target,
-      last
-    )
-  ){
-    return;
-  }
-
-  target[last]=num(value);
-}
-
-buildSettings();
-
-/* ==========================================
-   ПОЛЯ КАЛЬКУЛЯТОРА
-========================================== */
-
-function numberField(section,id,label,value){
-  return `
-    <div class="field">
-      <label for="${section}-${id}">
-        ${label}
-      </label>
-
-      <input
-        type="number"
-        id="${section}-${id}"
-        min="0"
-        step="any"
-        inputmode="decimal"
-        value="${value}"
-      >
-    </div>
-  `;
-}
-
-function selectField(section,category){
-  const options=category.options.map(option=>{
-    let label=option.label;
-
-    if(
-      category.id==="size" &&
-      option.id==="medium"
-    ){
-      label=section==="floor"
-        ?"От 60 до 100 см"
-        :"До 1 м";
-    }
-
-    const percent=
-      settings.categories[category.id][option.id];
-
-    return `
-      <option value="${esc(option.id)}">
-        ${esc(label)}
-        (${percent>0?"+":""}${fmt(percent)}%)
-      </option>
-    `;
-  }).join("");
-
-  return `
-    <div class="field">
-      <label for="${section}-${category.id}">
-        ${esc(category.title)}
-      </label>
-
-      <select
-        id="${section}-${category.id}"
-        data-category="${category.id}"
-      >
-        ${options}
-      </select>
-    </div>
-  `;
-}
-
-function quantityRows(section,items,prefix,group){
-  return items.map(item=>{
-    const id=
-      `${section}-${prefix}-${item.id}`;
-
-    return `
-      <div class="item-row">
-        <label for="${id}">
-          ${esc(item.label)}
-
-          <span
-            class="item-meta"
-            data-rate-label="${group}.${item.id}"
-          >
-            ${fmt(settings[group][item.id])}%
-            · ${item.unit}
-          </span>
-        </label>
-
-        <input
-          id="${id}"
-          type="number"
-          min="0"
-          step="any"
-          inputmode="decimal"
-          value="0"
-        >
-      </div>
-    `;
-  }).join("");
-}
-
-function summaryRow(label,id,extraClass=""){
-  return `
-    <div class="summary-row ${extraClass}">
-      <span class="name">${label}</span>
-      <span class="value" id="${id}">0 ₽</span>
-    </div>
-  `;
-}
-
-function buildPanel(section){
-  const base=settings.basePrice[section];
-  const area=section==="floor"?1:2;
-
-  const html=`
-    <div class="section">
-      <h2>1. Основные данные</h2>
-
-      ${numberField(
-        section,
-        "basePrice",
-        "Базовая цена, ₽/м²",
-        base
-      )}
-
-      ${numberField(
-        section,
-        "area",
-        "Площадь, м²",
-        area
-      )}
-
-      ${numberField(
-        section,
-        "tilePrice",
-        "Стоимость плитки, ₽/м²",
-        0
-      )}
-    </div>
-
-    <div class="section">
-      <h2>2. Надбавки за укладку</h2>
-
-      <p class="note">
-        Выберите один вариант в каждой категории.
-      </p>
-
-      ${CATEGORIES.map(
-        category=>selectField(section,category)
-      ).join("")}
-    </div>
-
-    <div class="section">
-      <h2>3. Рез плитки</h2>
-
-      <p class="note">
-        Укажите погонные метры
-        или количество соединений.
-      </p>
-
-      ${quantityRows(
-        section,
-        CUTS,
-        "cut",
-        "cuts"
-      )}
-    </div>
-
-    <div class="section">
-      <h2>4. Отверстия</h2>
-
-      <p class="note">
-        Укажите количество отверстий.
-      </p>
-
-      ${quantityRows(
-        section,
-        HOLES,
-        "hole",
-        "holes"
-      )}
-    </div>
-
-    <div class="section">
-      <h2>5. Затирка и силикон</h2>
-
-      <div class="field">
-        <label for="${section}-groutType">
-          Тип затирки
-        </label>
-
-        <select id="${section}-groutType">
-          <option value="cement">
-            Цементная
-          </option>
-
-          <option value="epoxy">
-            Эпоксидная
-          </option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="${section}-jointWidth">
-          Ширина шва
-        </label>
-
-        <select id="${section}-jointWidth">
-          <option value="1.5">1,5 мм</option>
-          <option value="2">2 мм</option>
-          <option value="2.5">2,5 мм</option>
-          <option value="3">3 мм</option>
-        </select>
-      </div>
-
-      <div class="two-columns">
-        ${numberField(
-          section,
-          "groutLength",
-          "Затирка, м/п",
-          0
-        )}
-
-        ${numberField(
-          section,
-          "siliconeLength",
-          "Силикон, м/п",
-          0
-        )}
-      </div>
-
-      ${summaryRow(
-        "Цена затирки за м/п",
-        section+"-groutRate"
-      )}
-
-      ${summaryRow(
-        "Цена силикона за м/п",
-        section+"-siliconeRate"
-      )}
-    </div>
-
-    <div class="section">
-      <h2>6. Предварительная подготовка</h2>
-
-      <p class="note">
-        Стоимость считается от базовой цены.
-      </p>
-
-      ${quantityRows(
-        section,
-        PREPARATION,
-        "prep",
-        "preparation"
-      )}
-    </div>
-
-    <div class="summary" aria-live="polite">
-      <h2>Результат расчёта</h2>
-
-      ${summaryRow(
-        "Сумма надбавок",
-        section+"-percent"
-      )}
-
-      ${summaryRow(
-        "Надбавка за плитку, ₽/м²",
-        section+"-tileExtra"
-      )}
-
-      ${summaryRow(
-        "Стоимость 1 м²",
-        section+"-sqmPrice",
-        "primary"
-      )}
-
-      ${summaryRow(
-        "Укладка за весь объём",
-        section+"-layingCost"
-      )}
-
-      ${summaryRow(
-        "Стоимость реза",
-        section+"-cutsCost"
-      )}
-
-      ${summaryRow(
-        "Стоимость отверстий",
-        section+"-holesCost"
-      )}
-
-      ${summaryRow(
-        "Стоимость затирки",
-        section+"-groutCost"
-      )}
-
-      ${summaryRow(
-        "Стоимость силикона",
-        section+"-siliconeCost"
-      )}
-
-      ${summaryRow(
-        "Затирка и силикон",
-        section+"-groutTotal"
-      )}
-
-      ${summaryRow(
-        "Стоимость подготовки",
-        section+"-prepCost"
-      )}
-
-      ${summaryRow(
-        "Итого за раздел",
-        section+"-total",
-        "total"
-      )}
-    </div>
-  `;
-
-  byId(section).innerHTML=html;
-
-  byId(section+"-position").value=
-    section==="floor"?"floor":"wall";
-}
-
-buildPanel("floor");
-buildPanel("walls");
-
-/* ==========================================
-   СОХРАНЕНИЕ И ВОССТАНОВЛЕНИЕ ПОЛЕЙ
-========================================== */
-
-function restoreForm(){
-  document.querySelectorAll(
-    ".panel input,.panel select"
-  ).forEach(element=>{
-    if(
-      !Object.prototype.hasOwnProperty.call(
-        savedForm,
-        element.id
-      )
-    ){
-      return;
-    }
-
-    const value=savedForm[element.id];
-
-    if(element.tagName==="SELECT"){
-      const exists=Array.from(element.options)
-        .some(option=>option.value===value);
-
-      if(exists){
-        element.value=value;
+    ]
+  },
+
+  {
+    id: "size",
+    title: "Размер плитки",
+    icon: "📐",
+
+    fields: [
+      {
+        key: "none",
+        label: "Без надбавки",
+        value: 0
+      },
+      {
+        key: "30x30",
+        label: "30 × 30 см",
+        value: 0
+      },
+      {
+        key: "60x60",
+        label: "60 × 60 см",
+        value: 10
+      },
+      {
+        key: "60to100",
+        label: "От 60 до 100 см",
+        value: 20
+      },
+      {
+        key: "from1m",
+        label: "От 1 метра",
+        value: 50
+      },
+      {
+        key: "under30",
+        label: "До 30 см",
+        value: 20
+      },
+      {
+        key: "mosaic",
+        label: "Мозаика",
+        value: 200
       }
-    }else{
-      element.value=value;
-    }
-  });
-}
+    ]
+  },
 
-function collectForm(){
-  const data={};
+  {
+    id: "thickness",
+    title: "Толщина плитки",
+    icon: "📏",
 
-  document.querySelectorAll(
-    ".panel input,.panel select"
-  ).forEach(element=>{
-    data[element.id]=element.value;
-  });
+    fields: [
+      {
+        key: "upTo8mm",
+        label: "До 8 мм",
+        value: 0
+      },
+      {
+        key: "upTo10mm",
+        label: "До 1 см",
+        value: 5
+      },
+      {
+        key: "upTo12mm",
+        label: "До 1,2 см",
+        value: 10
+      },
+      {
+        key: "upTo15mm",
+        label: "До 1,5 см",
+        value: 15
+      },
+      {
+        key: "upTo20mm",
+        label: "До 2 см",
+        value: 20
+      },
+      {
+        key: "over20mm",
+        label: "Более 2 см (договорная)",
+        value: 0
+      }
+    ]
+  },
 
-  return data;
-}
+  {
+    id: "material",
+    title: "Материал плитки",
+    icon: "🧱",
 
-function saveForm(){
-  writeStorage(
-    FORM_STORAGE_KEY,
-    collectForm()
-  );
-}
+    fields: [
+      {
+        key: "ceramic",
+        label: "Керамика",
+        value: 0
+      },
+      {
+        key: "porcelain",
+        label: "Керамогранит",
+        value: 10
+      },
+      {
+        key: "clinker",
+        label: "Клинкер",
+        value: 20
+      },
+      {
+        key: "glass",
+        label: "Стекло",
+        value: 20
+      },
+      {
+        key: "marble",
+        label: "Мрамор",
+        value: 0
+      }
+    ]
+  },
 
-restoreForm();
+  {
+    id: "curvature",
+    title: "Кривизна плитки",
+    icon: "〰️",
 
-/* ==========================================
-   ОБНОВЛЕНИЕ ПРОЦЕНТОВ
-========================================== */
+    fields: [
+      {
+        key: "seams",
+        label: "По швам",
+        value: 20
+      },
+      {
+        key: "height",
+        label: "По высоте",
+        value: 20
+      },
+      {
+        key: "calibration",
+        label: "Калибровка",
+        value: 30
+      }
+    ]
+  },
 
-function refreshRateLabels(){
-  document.querySelectorAll(
-    "[data-category]"
-  ).forEach(select=>{
-    const categoryId=select.dataset.category;
+  {
+    id: "glue",
+    title: "Слой клея",
+    icon: "🪣",
 
-    const category=CATEGORIES.find(
-      item=>item.id===categoryId
-    );
+    fields: [
+      {
+        key: "comb",
+        label: "Гребёнка",
+        value: 0
+      },
+      {
+        key: "upTo2cm",
+        label: "До 2 см",
+        value: 30
+      },
+      {
+        key: "from2to4cm",
+        label: "От 2 до 4 см",
+        value: 50
+      }
+    ]
+  },
 
-    if(!category){
-      return;
-    }
+  {
+    id: "laying",
+    title: "Способ укладки",
+    icon: "🔲",
 
-    category.options.forEach((option,index)=>{
-      const percent=
-        settings.categories[categoryId][option.id];
+    fields: [
+      {
+        key: "straight",
+        label: "Прямая",
+        value: 0
+      },
+      {
+        key: "offset",
+        label: "Со смещением",
+        value: 10
+      },
+      {
+        key: "diagonal",
+        label: "Диагональ",
+        value: 20
+      },
+      {
+        key: "herringbone",
+        label: "Ёлочка",
+        value: 20
+      }
+    ]
+  },
 
-      const text=
-        select.options[index].textContent;
+  {
+    id: "cleanliness",
+    title: "Чистота / место резки",
+    icon: "🧹",
 
-      const label=text
-        .replace(/\s*\([^()]*%\)\s*$/,"")
-        .trim();
+    fields: [
+      {
+        key: "sameRoom",
+        label: "В помещении",
+        value: 0
+      },
+      {
+        key: "nextRoom",
+        label: "В соседнем помещении",
+        value: 5
+      },
+      {
+        key: "outside",
+        label: "На площадке",
+        value: 10
+      }
+    ]
+  },
 
-      select.options[index].textContent=
-        `${label} (${percent>0?"+":""}${fmt(percent)}%)`;
-    });
-  });
+  {
+    id: "height",
+    title: "Высота работ",
+    icon: "📶",
 
-  document.querySelectorAll(
-    "[data-rate-label]"
-  ).forEach(element=>{
-    const [group,id]=
-      element.dataset.rateLabel.split(".");
+    fields: [
+      {
+        key: "upTo3m",
+        label: "До 3 м",
+        value: 0
+      },
+      {
+        key: "from3to4m",
+        label: "От 3 до 4 м",
+        value: 50
+      },
+      {
+        key: "over4m",
+        label: "Выше 4 м",
+        value: 70
+      }
+    ]
+  },
 
-    const collection={
-      cuts:CUTS,
-      holes:HOLES,
-      preparation:PREPARATION
-    }[group];
+  {
+    id: "position",
+    title: "Расположение плитки",
+    icon: "📍",
 
-    const item=collection?.find(
-      value=>value.id===id
-    );
+    fields: [
+      {
+        key: "wall",
+        label: "Стены",
+        value: 0
+      },
+      {
+        key: "floor",
+        label: "Пол",
+        value: 20
+      },
+      {
+        key: "ceiling",
+        label: "Потолок",
+        value: 100
+      }
+    ]
+  },
 
-    if(item){
-      element.textContent=
-        `${fmt(settings[group][id])}% · ${item.unit}`;
-    }
-  });
-}
+  {
+    id: "expensiveTile",
+    title: "Дорогая плитка",
+    icon: "💎",
 
-/* ==========================================
-   РАСЧЁТ
-========================================== */
+    fields: [
+      {
+        key: "extraPercent",
+        label: "Надбавка при цене плитки свыше 1000 ₽/м²",
+        value: 5
+      }
+    ]
+  },
 
-function calculateItems(
-  section,
-  items,
-  prefix,
-  group,
-  price
-){
-  let total=0;
-  const details=[];
+  {
+    id: "cuts",
+    title: "Рез плитки",
+    icon: "✂️",
 
-  items.forEach(item=>{
-    const quantity=getNumber(
-      `${section}-${prefix}-${item.id}`
-    );
+    fields: [
+      {
+        key: "dry",
+        label: "Сухорез",
+        value: 30
+      },
+      {
+        key: "grinder",
+        label: "Болгарка / мокрорез",
+        value: 50
+      },
+      {
+        key: "figure",
+        label: "Фигурный рез",
+        value: 70
+      },
+      {
+        key: "turtle",
+        label: "Черепашка",
+        value: 100
+      },
+      {
+        key: "figureTurtle",
+        label: "Фигурная черепашка",
+        value: 120
+      },
+      {
+        key: "angleFactory",
+        label: "45° заводской стык",
+        value: 150
+      },
+      {
+        key: "angleCut",
+        label: "45° резаный стык",
+        value: 170
+      },
+      {
+        key: "joinRough",
+        label: "Соединение черновое",
+        value: 20,
+        unit: "% за шт."
+      },
+      {
+        key: "joinFinish",
+        label: "Соединение финишное",
+        value: 30,
+        unit: "% за шт."
+      },
+      {
+        key: "joinAngle",
+        label: "Соединение (заусовка)",
+        value: 40,
+        unit: "% за шт."
+      }
+    ]
+  },
 
-    const percent=settings[group][item.id];
-    const rate=price*percent/100;
-    const cost=quantity*rate;
+  {
+    id: "holes",
+    title: "Отверстия",
+    icon: "⭕",
 
-    total+=cost;
+    fields: [
+      {
+        key: "small",
+        label: "До 2 см",
+        value: 15
+      },
+      {
+        key: "medium",
+        label: "От 2 до 7 см",
+        value: 25
+      },
+      {
+        key: "large",
+        label: "Выше 7 см",
+        value: 35
+      }
+    ]
+  },
 
-    details.push({
-      label:item.label,
-      quantity,
-      unit:item.unit,
-      percent,
-      rate,
-      cost
-    });
-  });
+  {
+    id: "groutCement",
+    title: "Цементная затирка",
+    icon: "🧴",
+    defaultUnit: "₽ за м/п",
 
-  return {total,details};
-}
+    fields: [
+      {
+        key: "1.5",
+        label: "Шов 1,5 мм",
+        value: 20
+      },
+      {
+        key: "2",
+        label: "Шов 2 мм",
+        value: 25
+      },
+      {
+        key: "2.5",
+        label: "Шов 2,5 мм",
+        value: 30
+      },
+      {
+        key: "3",
+        label: "Шов 3 мм",
+        value: 35
+      }
+    ]
+  },
 
-function calculateSection(section){
-  const basePrice=getNumber(
-    `${section}-basePrice`
-  );
+  {
+    id: "groutEpoxy",
+    title: "Эпоксидная затирка",
+    icon: "🧪",
+    defaultUnit: "₽ за м/п",
 
-  const area=getNumber(
-    `${section}-area`
-  );
+    fields: [
+      {
+        key: "1.5",
+        label: "Шов 1,5 мм",
+        value: 100
+      },
+      {
+        key: "2",
+        label: "Шов 2 мм",
+        value: 110
+      },
+      {
+        key: "2.5",
+        label: "Шов 2,5 мм",
+        value: 120
+      },
+      {
+        key: "3",
+        label: "Шов 3 мм",
+        value: 130
+      }
+    ]
+  },
 
-  const tilePrice=getNumber(
-    `${section}-tilePrice`
-  );
+  {
+    id: "silicone",
+    title: "Силикон",
+    icon: "💧",
+    defaultUnit: "₽ за м/п",
 
-  let totalPercent=0;
-  const selections=[];
+    fields: [
+      {
+        key: "1.5",
+        label: "Шов 1,5 мм",
+        value: 100
+      },
+      {
+        key: "2",
+        label: "Шов 2 мм",
+        value: 120
+      },
+      {
+        key: "2.5",
+        label: "Шов 2,5 мм",
+        value: 150
+      },
+      {
+        key: "3",
+        label: "Шов 3 мм",
+        value: 170
+      }
+    ]
+  },
 
-  CATEGORIES.forEach(category=>{
-    const selectedId=getValue(
-      `${section}-${category.id}`
-    );
+  {
+    id: "preparation",
+    title: "Подготовка поверхности",
+    icon: "🛠️",
 
-    const option=category.options.find(
-      item=>item.id===selectedId
-    );
+    fields: [
+      {
+        key: "primerBefore",
+        label: "Грунтовка до гидроизоляции",
+        value: 3
+      },
+      {
+        key: "waterproof",
+        label: "Гидроизоляция, 2 слоя",
+        value: 25
+      }
+    ]
+  }
 
-    if(!option){
-      return;
-    }
+];
 
-    const percent=
-      settings.categories[category.id][option.id];
+/* =========================================
+   4. ГЕНЕРАЦИЯ НАСТРОЕК ПО УМОЛЧАНИЮ
 
-    totalPercent+=percent;
+   Итоговая структура:
 
-    let label=option.label;
+   priceList = {
+     floor: {
+       base: {...},
+       size: {...},
+       cuts: {...},
+       ...
+     },
+     wall: {
+       base: {...},
+       size: {...},
+       cuts: {...},
+       ...
+     }
+   }
+========================================= */
 
-    if(
-      category.id==="size" &&
-      option.id==="medium"
-    ){
-      label=section==="floor"
-        ?"От 60 до 100 см"
-        :"До 1 м";
-    }
-
-    selections.push({
-      category:category.title,
-      label,
-      percent
-    });
-  });
-
-  const tileExtra=
-    tilePrice>settings.tileThreshold
-      ?tilePrice*settings.tileExtraPercent/100
-      :0;
-
-  const sqmPrice=
-    basePrice+
-    basePrice*totalPercent/100+
-    tileExtra;
-
-  const layingCost=area*sqmPrice;
-
-  const cuts=calculateItems(
-    section,
-    CUTS,
-    "cut",
-    "cuts",
-    sqmPrice
-  );
-
-  const holes=calculateItems(
-    section,
-    HOLES,
-    "hole",
-    "holes",
-    sqmPrice
-  );
-
-  const preparation=calculateItems(
-    section,
-    PREPARATION,
-    "prep",
-    "preparation",
-    basePrice
-  );
-
-  const groutType=getValue(
-    `${section}-groutType`
-  );
-
-  const jointWidth=getValue(
-    `${section}-jointWidth`
-  );
-
-  const groutLength=getNumber(
-    `${section}-groutLength`
-  );
-
-  const siliconeLength=getNumber(
-    `${section}-siliconeLength`
-  );
-
-  const groutRate=
-    settings.grout[groutType]?.[jointWidth]??0;
-
-  const siliconeRate=
-    settings.silicone[jointWidth]??0;
-
-  const groutCost=
-    groutLength*groutRate;
-
-  const siliconeCost=
-    siliconeLength*siliconeRate;
-
-  const groutTotal=
-    groutCost+siliconeCost;
-
-  const total=
-    layingCost+
-    cuts.total+
-    holes.total+
-    groutTotal+
-    preparation.total;
-
-  const values={
-    percent:`+${fmt(totalPercent)}%`,
-    tileExtra:money(tileExtra),
-    sqmPrice:money(sqmPrice),
-    layingCost:money(layingCost),
-    cutsCost:money(cuts.total),
-    holesCost:money(holes.total),
-    groutRate:money(groutRate),
-    siliconeRate:money(siliconeRate),
-    groutCost:money(groutCost),
-    siliconeCost:money(siliconeCost),
-    groutTotal:money(groutTotal),
-    prepCost:money(preparation.total),
-    total:money(total)
+function createDefaultPriceList() {
+  const result = {
+    floor: {},
+    wall: {}
   };
 
-  Object.entries(values).forEach(
-    ([key,value])=>{
-      setText(
-        `${section}-${key}`,
-        value
-      );
-    }
-  );
+  PRICE_TYPES.forEach(type => {
+    PRICE_SCHEMA.forEach(group => {
+      result[type][group.id] = {};
 
-  return {
-    section,
-    basePrice,
-    area,
-    tilePrice,
-    totalPercent,
-    tileExtra,
-    sqmPrice,
-    layingCost,
-    selections,
-    cuts,
-    holes,
-    preparation,
-    groutType,
-    jointWidth,
-    groutLength,
-    siliconeLength,
-    groutRate,
-    siliconeRate,
-    groutCost,
-    siliconeCost,
-    groutTotal,
-    total
-  };
-}
+      group.fields.forEach(field => {
+        let value = field.value;
 
-let currentResults=null;
+        if (
+          type === "wall" &&
+          field.wallValue !== undefined
+        ) {
+          value = field.wallValue;
+        }
 
-function calculateAll(){
-  const floor=calculateSection("floor");
-  const walls=calculateSection("walls");
-
-  const totalArea=
-    floor.area+walls.area;
-
-  const totalCost=
-    floor.total+walls.total;
-
-  setText(
-    "overall-floor-area",
-    fmt(floor.area)+" м²"
-  );
-
-  setText(
-    "overall-walls-area",
-    fmt(walls.area)+" м²"
-  );
-
-  setText(
-    "overall-area",
-    fmt(totalArea)+" м²"
-  );
-
-  setText(
-    "overall-floor-cost",
-    money(floor.total)
-  );
-
-  setText(
-    "overall-walls-cost",
-    money(walls.total)
-  );
-
-  setText(
-    "overall-total",
-    money(totalCost)
-  );
-
-  currentResults={
-    floor,
-    walls,
-    totalArea,
-    totalCost
-  };
-
-  return currentResults;
-}
-
-/* ==========================================
-   СОБЫТИЯ КАЛЬКУЛЯТОРА
-========================================== */
-
-document.querySelectorAll(
-  ".panel"
-).forEach(panel=>{
-  panel.addEventListener("input",()=>{
-    calculateAll();
-    saveForm();
-  });
-
-  panel.addEventListener("change",()=>{
-    calculateAll();
-    saveForm();
-  });
-});
-
-byId("settingsBody").addEventListener(
-  "input",
-  event=>{
-    const input=event.target.closest(
-      "[data-setting]"
-    );
-
-    if(!input){
-      return;
-    }
-
-    setSetting(
-      input.dataset.setting,
-      input.value
-    );
-
-    writeStorage(
-      STORAGE_KEY,
-      settings
-    );
-
-    const path=input.dataset.setting;
-
-    if(
-      path==="basePrice.floor" ||
-      path==="basePrice.walls"
-    ){
-      const section=
-        path.endsWith("floor")
-          ?"floor"
-          :"walls";
-
-      const field=byId(
-        `${section}-basePrice`
-      );
-
-      if(field){
-        field.value=
-          settings.basePrice[section];
-      }
-
-      saveForm();
-    }
-
-    refreshRateLabels();
-    calculateAll();
-  }
-);
-
-document.querySelectorAll(
-  ".tab"
-).forEach(tab=>{
-  tab.addEventListener("click",()=>{
-    const name=tab.dataset.tab;
-
-    document.querySelectorAll(
-      ".tab"
-    ).forEach(button=>{
-      const active=button===tab;
-
-      button.classList.toggle(
-        "active",
-        active
-      );
-
-      button.setAttribute(
-        "aria-selected",
-        String(active)
-      );
+        result[type][group.id][field.key] = value;
+      });
     });
-
-    document.querySelectorAll(
-      ".panel"
-    ).forEach(panel=>{
-      panel.hidden=panel.id!==name;
-    });
-
-    try{
-      if(isTelegramMiniApp()){
-        tg.HapticFeedback?.selectionChanged();
-      }
-    }catch(error){
-      console.warn(
-        "HapticFeedback:",
-        error
-      );
-    }
-  });
-});
-
-refreshRateLabels();
-calculateAll();
-
-/* ==========================================
-   ГЕНЕРАЦИЯ СМЕТЫ
-========================================== */
-
-function exportTable(headers,rows){
-  return `
-    <table class="export-table">
-      <thead>
-        <tr>
-          ${headers.map(
-            header=>`<th>${esc(header)}</th>`
-          ).join("")}
-        </tr>
-      </thead>
-
-      <tbody>
-        ${rows.map(row=>`
-          <tr>
-            ${row.map(
-              cell=>`<td>${esc(cell)}</td>`
-            ).join("")}
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-}
-
-function exportQuantityTable(title,items){
-  const active=items.details.filter(
-    item=>item.quantity>0
-  );
-
-  if(!active.length){
-    return `
-      <h3>${esc(title)}</h3>
-      <p class="export-muted">
-        Работы не указаны.
-      </p>
-    `;
-  }
-
-  return `
-    <h3>${esc(title)}</h3>
-
-    ${exportTable(
-      [
-        "Работа",
-        "Кол-во",
-        "Ставка",
-        "Стоимость"
-      ],
-      active.map(item=>[
-        item.label,
-        `${fmt(item.quantity)} ${item.unit}`,
-        `${fmt(item.percent)}% · ${money(item.rate)}`,
-        money(item.cost)
-      ])
-    )}
-  `;
-}
-
-function exportSection(result,title){
-  const categoryRows=
-    result.selections.map(item=>[
-      item.category,
-      item.label,
-      `${fmt(item.percent)}%`
-    ]);
-
-  return `
-    <section>
-      <h2>${esc(title)}</h2>
-
-      ${exportTable(
-        ["Основные данные","Значение"],
-        [
-          [
-            "Базовая цена",
-            money(result.basePrice)+" / м²"
-          ],
-          [
-            "Площадь",
-            fmt(result.area)+" м²"
-          ],
-          [
-            "Стоимость плитки",
-            money(result.tilePrice)+" / м²"
-          ]
-        ]
-      )}
-
-      <h3>Выбранные надбавки</h3>
-
-      ${exportTable(
-        [
-          "Категория",
-          "Вариант",
-          "Надбавка"
-        ],
-        categoryRows
-      )}
-
-      ${exportTable(
-        ["Расчёт укладки","Значение"],
-        [
-          [
-            "Сумма надбавок",
-            fmt(result.totalPercent)+"%"
-          ],
-          [
-            "Доплата за цену плитки",
-            money(result.tileExtra)+" / м²"
-          ],
-          [
-            "Стоимость 1 м²",
-            money(result.sqmPrice)
-          ],
-          [
-            "Укладка за весь объём",
-            money(result.layingCost)
-          ]
-        ]
-      )}
-
-      ${exportQuantityTable(
-        "Рез плитки",
-        result.cuts
-      )}
-
-      ${exportQuantityTable(
-        "Отверстия",
-        result.holes
-      )}
-
-      <h3>Затирка и силикон</h3>
-
-      ${exportTable(
-        [
-          "Параметр",
-          "Значение",
-          "Стоимость"
-        ],
-        [
-          [
-            "Тип затирки",
-            result.groutType==="cement"
-              ?"Цементная"
-              :"Эпоксидная",
-            "—"
-          ],
-          [
-            "Ширина шва",
-            result.jointWidth.replace(".",",")+" мм",
-            "—"
-          ],
-          [
-            "Затирка",
-            `${fmt(result.groutLength)} м/п × ${money(result.groutRate)}`,
-            money(result.groutCost)
-          ],
-          [
-            "Силикон",
-            `${fmt(result.siliconeLength)} м/п × ${money(result.siliconeRate)}`,
-            money(result.siliconeCost)
-          ]
-        ]
-      )}
-
-      ${exportQuantityTable(
-        "Предварительная подготовка",
-        result.preparation
-      )}
-
-      <h3>Итоги раздела</h3>
-
-      ${exportTable(
-        [
-          "Наименование",
-          "Стоимость"
-        ],
-        [
-          [
-            "Укладка",
-            money(result.layingCost)
-          ],
-          [
-            "Рез плитки",
-            money(result.cuts.total)
-          ],
-          [
-            "Отверстия",
-            money(result.holes.total)
-          ],
-          [
-            "Затирка и силикон",
-            money(result.groutTotal)
-          ],
-          [
-            "Подготовка",
-            money(result.preparation.total)
-          ],
-          [
-            "Итого",
-            money(result.total)
-          ]
-        ]
-      )}
-    </section>
-  `;
-}
-
-function createExportHTML(results){
-  const date=new Date().toLocaleString(
-    "ru-RU"
-  );
-
-  return `
-    <div class="export-sheet">
-      <h1>Смета плиточных работ</h1>
-
-      <div class="export-muted">
-        Дата расчёта: ${esc(date)}
-      </div>
-
-      ${exportSection(
-        results.floor,
-        "Пол"
-      )}
-
-      ${exportSection(
-        results.walls,
-        "Стены"
-      )}
-
-      <h2>Общий итог</h2>
-
-      ${exportTable(
-        [
-          "Показатель",
-          "Значение"
-        ],
-        [
-          [
-            "Площадь пола",
-            fmt(results.floor.area)+" м²"
-          ],
-          [
-            "Площадь стен",
-            fmt(results.walls.area)+" м²"
-          ],
-          [
-            "Суммарная площадь",
-            fmt(results.totalArea)+" м²"
-          ],
-          [
-            "Стоимость пола",
-            money(results.floor.total)
-          ],
-          [
-            "Стоимость стен",
-            money(results.walls.total)
-          ]
-        ]
-      )}
-
-      <div class="export-total">
-        Общая стоимость:
-        ${money(results.totalCost)}
-      </div>
-
-      <div class="export-footer">
-        Расчёт предварительный.
-        Все цены указаны в рублях.
-      </div>
-    </div>
-  `;
-}
-
-/* ==========================================
-   УВЕДОМЛЕНИЯ
-========================================== */
-
-function showNotification(message,callback){
-  const done=
-    typeof callback==="function"
-      ?callback
-      :()=>{};
-
-  try{
-    if(
-      isTelegramMiniApp() &&
-      typeof tg.showAlert==="function"
-    ){
-      tg.showAlert(message,done);
-      return;
-    }
-  }catch(error){
-    console.warn(
-      "Telegram showAlert:",
-      error
-    );
-  }
-
-  window.alert(message);
-  done();
-}
-
-/* ==========================================
-   ПЕРЕДАЧА СМЕТЫ В СИСТЕМНЫЙ БРАУЗЕР
-========================================== */
-
-/*
-  При открытии обычного APP_URL настройки
-  из Telegram WebView могут потеряться.
-
-  Поэтому передаём заполненные поля и настройки
-  через URL.
-
-  Используем только значения, отличающиеся
-  от настроек по умолчанию, чтобы ссылка
-  оставалась относительно короткой.
-*/
-
-function settingsDifference(current,defaults){
-  const result={};
-
-  Object.keys(defaults).forEach(key=>{
-    const currentValue=current?.[key];
-    const defaultValue=defaults[key];
-
-    if(
-      defaultValue &&
-      typeof defaultValue==="object" &&
-      !Array.isArray(defaultValue)
-    ){
-      const nested=settingsDifference(
-        currentValue,
-        defaultValue
-      );
-
-      if(Object.keys(nested).length){
-        result[key]=nested;
-      }
-    }else if(
-      currentValue!==undefined &&
-      currentValue!==defaultValue
-    ){
-      result[key]=currentValue;
-    }
   });
 
   return result;
 }
 
-function buildBrowserURL(){
+const DEFAULT_PRICE_LIST = createDefaultPriceList();
+
+/* =========================================
+   5. БЕЗОПАСНАЯ ЗАГРУЗКА ИЗ LOCALSTORAGE
+========================================= */
+
+function loadPriceList() {
+  const defaults = createDefaultPriceList();
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) {
+      return defaults;
+    }
+
+    const saved = JSON.parse(raw);
+
+    if (
+      !saved ||
+      typeof saved !== "object"
+    ) {
+      return defaults;
+    }
+
+    PRICE_TYPES.forEach(type => {
+      PRICE_SCHEMA.forEach(group => {
+        group.fields.forEach(field => {
+          const savedValue =
+            saved?.[type]?.[group.id]?.[field.key];
+
+          if (
+            savedValue === undefined ||
+            savedValue === null ||
+            savedValue === ""
+          ) {
+            return;
+          }
+
+          const number = Number(savedValue);
+
+          if (
+            Number.isFinite(number) &&
+            number >= 0
+          ) {
+            defaults[type][group.id][field.key] =
+              number;
+          }
+        });
+      });
+    });
+
+    return defaults;
+
+  } catch (error) {
+    console.warn(
+      "Ошибка загрузки Прайс-листа:",
+      error
+    );
+
+    return defaults;
+  }
+}
+
+let priceList = loadPriceList();
+
+/* =========================================
+   6. СОХРАНЕНИЕ
+========================================= */
+
+function setSaveStatus(message, status = "saved") {
+  const element = document.getElementById(
+    "saveStatus"
+  );
+
+  element.textContent = message;
+
+  element.classList.remove(
+    "saved",
+    "error"
+  );
+
+  element.classList.add(status);
+}
+
+function savePriceList() {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(priceList)
+    );
+
+    setSaveStatus(
+      "✓ Все изменения сохранены",
+      "saved"
+    );
+
+    return true;
+
+  } catch (error) {
+    console.error(
+      "Ошибка сохранения Прайс-листа:",
+      error
+    );
+
+    setSaveStatus(
+      "Не удалось сохранить настройки",
+      "error"
+    );
+
+    return false;
+  }
+}
+
+/* =========================================
+   7. ТЕКУЩИЙ ТИП НАСТРОЕК
+========================================= */
+
+function getStoredPriceType() {
+  try {
+    const stored = localStorage.getItem(
+      ACTIVE_PRICE_TYPE_KEY
+    );
+
+    return PRICE_TYPES.includes(stored)
+      ? stored
+      : "floor";
+
+  } catch (error) {
+    return "floor";
+  }
+}
+
+let activePriceType = getStoredPriceType();
+
+/* =========================================
+   8. HTML-ЭКРАНИРОВАНИЕ
+========================================= */
+
+function escapeHTML(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/* =========================================
+   9. ОТРИСОВКА ПРАЙС-ЛИСТА
+========================================= */
+
+function renderPriceList() {
+  const container = document.getElementById(
+    "priceListContainer"
+  );
+
+  const html = PRICE_SCHEMA.map(group => {
+    const fieldsHTML = group.fields.map(field => {
+      const value =
+        priceList[activePriceType]
+          [group.id]
+          [field.key];
+
+      const unit =
+        field.unit ||
+        group.defaultUnit ||
+        "%";
+
+      const inputId =
+        `price-${activePriceType}-${group.id}-${field.key}`;
+
+      return `
+        <div class="setting-row">
+
+          <label
+            class="setting-label"
+            for="${escapeHTML(inputId)}"
+          >
+            ${escapeHTML(field.label)}
+
+            <span class="setting-unit">
+              ${escapeHTML(unit)}
+            </span>
+          </label>
+
+          <input
+            class="setting-input"
+            type="number"
+
+            id="${escapeHTML(inputId)}"
+
+            data-group="${escapeHTML(group.id)}"
+            data-field="${escapeHTML(field.key)}"
+
+            min="0"
+            step="any"
+            inputmode="decimal"
+
+            value="${value}"
+
+            autocomplete="off"
+          >
+
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <section class="card">
+
+        <div class="group-heading">
+
+          <div
+            class="group-icon"
+            aria-hidden="true"
+          >
+            ${group.icon}
+          </div>
+
+          <h2 class="group-title">
+            ${escapeHTML(group.title)}
+          </h2>
+
+        </div>
+
+        <div class="group-content">
+          ${fieldsHTML}
+        </div>
+
+      </section>
+    `;
+  }).join("");
+
+  container.innerHTML = html;
+}
+
+/* =========================================
+   10. ИЗМЕНЕНИЕ ПОЛЕЙ ПРАЙС-ЛИСТА
+========================================= */
+
+document.getElementById(
+  "priceListContainer"
+).addEventListener("input", event => {
+  const input = event.target.closest(
+    ".setting-input"
+  );
+
+  if (!input) {
+    return;
+  }
+
+  const group = input.dataset.group;
+  const field = input.dataset.field;
+
+  if (
+    !Object.prototype.hasOwnProperty.call(
+      priceList[activePriceType],
+      group
+    )
+  ) {
+    return;
+  }
+
+  if (
+    !Object.prototype.hasOwnProperty.call(
+      priceList[activePriceType][group],
+      field
+    )
+  ) {
+    return;
+  }
+
   /*
-    Формируем URL с текущими данными,
-    чтобы браузер открыл именно эту смету.
+    Пустое или некорректное значение не записываем.
+    Предыдущее корректное значение сохраняется.
   */
 
-  const state={
-    version:1,
-    settings:settingsDifference(
-      settings,
-      DEFAULT_SETTINGS
-    ),
-    form:collectForm()
-  };
+  if (input.value.trim() === "") {
+    setSaveStatus(
+      "Введите значение для сохранения",
+      "error"
+    );
 
-  const url=new URL(APP_URL);
-
-  url.searchParams.set(
-    "estimate",
-    JSON.stringify(state)
-  );
-
-  return url.toString();
-}
-
-function openCalculatorInBrowser(){
-  const status=byId("downloadStatus");
-
-  if(!isTelegramMiniApp()){
-    downloadPNG();
     return;
   }
 
-  try{
-    /*
-      Важно:
-      Telegram.WebApp.openLink вызывается
-      непосредственно после нажатия кнопки.
+  const value = Number(
+    input.value.replace(",", ".")
+  );
 
-      Это помогает избежать ограничений
-      мобильных клиентов на открытие ссылок.
-    */
+  if (
+    !Number.isFinite(value) ||
+    value < 0
+  ) {
+    setSaveStatus(
+      "Введите число от 0 и выше",
+      "error"
+    );
 
-    const browserURL=buildBrowserURL();
+    return;
+  }
 
-    if(browserURL.length>12000){
-      throw new Error(
-        "Ссылка со сметой слишком длинная"
-      );
-    }
+  priceList[activePriceType][group][field] =
+    value;
 
-    const message=
-      "Telegram ограничивает обычное скачивание PNG. " +
-      "Сейчас калькулятор откроется в системном браузере " +
-      "с вашими заполненными данными. " +
-      "Там нажмите кнопку «Скачать смету в PNG».";
+  savePriceList();
+});
 
-    status.textContent=
-      "Открываем калькулятор во внешнем браузере...";
+/*
+  При завершении редактирования исправляем
+  некорректные значения в поле.
+*/
 
-    /*
-      Сначала открываем ссылку в обработчике
-      пользовательского нажатия.
+document.getElementById(
+  "priceListContainer"
+).addEventListener("change", event => {
+  const input = event.target.closest(
+    ".setting-input"
+  );
 
-      Затем показываем пояснение в Telegram.
-    */
+  if (!input) {
+    return;
+  }
 
-    tg.openLink(browserURL,{
-      try_instant_view:false
-    });
+  const group = input.dataset.group;
+  const field = input.dataset.field;
 
-    /*
-      Уведомление показываем после openLink,
-      чтобы оно не мешало пользовательскому
-      жесту открытия внешнего браузера.
-    */
+  const value =
+    priceList[activePriceType]?.[group]?.[field];
 
-    setTimeout(()=>{
-      try{
-        if(
-          isTelegramMiniApp() &&
-          typeof tg.showAlert==="function"
-        ){
-          tg.showAlert(message);
-        }
-      }catch(error){
-        console.warn(
-          "Не удалось показать уведомление:",
-          error
-        );
-      }
-    },350);
+  if (typeof value !== "number") {
+    return;
+  }
 
-  }catch(error){
-    console.error(
-      "Ошибка открытия браузера:",
+  input.value = value;
+});
+
+/* =========================================
+   11. ПЕРЕКЛЮЧЕНИЕ ПОЛ / СТЕНА
+========================================= */
+
+function switchPriceType(type) {
+  if (!PRICE_TYPES.includes(type)) {
+    return;
+  }
+
+  activePriceType = type;
+
+  document.querySelectorAll(
+    "[data-price-type]"
+  ).forEach(button => {
+    const active =
+      button.dataset.priceType === type;
+
+    button.classList.toggle(
+      "active",
+      active
+    );
+
+    button.setAttribute(
+      "aria-pressed",
+      String(active)
+    );
+  });
+
+  try {
+    localStorage.setItem(
+      ACTIVE_PRICE_TYPE_KEY,
+      type
+    );
+  } catch (error) {
+    console.warn(
+      "Не удалось сохранить тип настроек:",
       error
     );
-
-    const message=
-      "Не удалось автоматически открыть браузер. " +
-      "Откройте адрес вручную:\n" +
-      APP_URL +
-      "\n\nПосле этого нажмите «Скачать смету в PNG».";
-
-    status.textContent=
-      "Не удалось открыть браузер автоматически.";
-
-    showNotification(message);
-  }
-}
-
-/* ==========================================
-   СКАЧИВАНИЕ PNG В ОБЫЧНОМ БРАУЗЕРЕ
-========================================== */
-
-async function downloadPNG(){
-  const button=byId("downloadBtn");
-  const status=byId("downloadStatus");
-
-  if(button.disabled){
-    return;
   }
 
-  if(typeof html2canvas!=="function"){
-    const message=
-      "Библиотека создания PNG не загрузилась. " +
-      "Проверьте подключение к интернету.";
+  renderPriceList();
 
-    status.textContent=message;
-    showNotification(message);
-    return;
-  }
-
-  button.disabled=true;
-
-  setText(
-    "downloadBtnTitle",
-    "⏳ Создание изображения..."
+  setSaveStatus(
+    type === "floor"
+      ? "✓ Настройки для пола"
+      : "✓ Настройки для стены",
+    "saved"
   );
 
-  setText(
-    "downloadBtnSubtitle",
-    "Подождите несколько секунд"
-  );
-
-  status.textContent=
-    "Формируем полную смету...";
-
-  let exportRoot=null;
-
-  try{
-    const results=calculateAll();
-
-    exportRoot=document.createElement("div");
-    exportRoot.className="export-root";
-
-    exportRoot.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
-    exportRoot.innerHTML=
-      createExportHTML(results);
-
-    document.body.appendChild(exportRoot);
-
-    if(document.fonts?.ready){
-      await document.fonts.ready;
-    }
-
-    const sheet=exportRoot.querySelector(
-      ".export-sheet"
-    );
-
-    if(!sheet){
-      throw new Error(
-        "Не удалось создать макет сметы"
-      );
-    }
-
-    const canvas=await html2canvas(sheet,{
-      backgroundColor:"#ffffff",
-      scale:2,
-      useCORS:true,
-      logging:false,
-      width:760,
-      windowWidth:800,
-      scrollX:0,
-      scrollY:0
-    });
-
-    if(!canvas.width || !canvas.height){
-      throw new Error(
-        "Изображение имеет неверный размер"
-      );
-    }
-
-    const date=new Date();
-
-    const dateString=[
-      date.getFullYear(),
-      String(date.getMonth()+1).padStart(2,"0"),
-      String(date.getDate()).padStart(2,"0")
-    ].join("-");
-
-    const fileName=
-      `smeta-plitka-${dateString}.png`;
-
-    const blob=await new Promise(
-      (resolve,reject)=>{
-        canvas.toBlob(result=>{
-          if(result && result.size>0){
-            resolve(result);
-          }else{
-            reject(
-              new Error(
-                "Не удалось создать PNG"
-              )
-            );
-          }
-        },"image/png");
-      }
-    );
-
-    const objectURL=
-      URL.createObjectURL(blob);
-
-    try{
-      const link=document.createElement("a");
-
-      link.href=objectURL;
-      link.download=fileName;
-      link.style.display="none";
-
-      document.body.appendChild(link);
-
-      link.click();
-      link.remove();
-
-      status.textContent=
-        "Скачивание PNG запущено. " +
-        "Проверьте загрузки браузера.";
-
-    }finally{
-      /*
-        Даём браузеру время начать
-        скачивание до удаления Blob URL.
-      */
-
-      setTimeout(()=>{
-        URL.revokeObjectURL(objectURL);
-      },60000);
-    }
-
-  }catch(error){
-    console.error(
-      "Ошибка скачивания PNG:",
+  try {
+    tg?.HapticFeedback?.selectionChanged();
+  } catch (error) {
+    console.warn(
+      "Telegram HapticFeedback:",
       error
     );
-
-    const message=
-      "Не удалось создать или скачать PNG-смету. " +
-      "Попробуйте ещё раз.";
-
-    status.textContent=message;
-    showNotification(message);
-
-  }finally{
-    if(exportRoot){
-      exportRoot.remove();
-    }
-
-    button.disabled=false;
-
-    updateDownloadButton();
   }
 }
 
-/* ==========================================
-   НАСТРОЙКА КНОПКИ СКАЧИВАНИЯ
-========================================== */
+document.querySelectorAll(
+  "[data-price-type]"
+).forEach(button => {
+  button.addEventListener("click", () => {
+    switchPriceType(
+      button.dataset.priceType
+    );
+  });
+});
 
-function updateDownloadButton(){
-  const status=byId("downloadStatus");
+/* =========================================
+   12. SPA НАВИГАЦИЯ
+========================================= */
 
-  if(isTelegramMiniApp()){
-    setText(
-      "downloadBtnTitle",
-      "🌐 Скачать PNG (откроется в браузере)"
+function navigateTo(pageName) {
+  if (!VALID_PAGES.includes(pageName)) {
+    return;
+  }
+
+  /*
+    Скрываем неактивные страницы.
+    Перезагрузка не требуется.
+  */
+
+  document.querySelectorAll(
+    ".page"
+  ).forEach(page => {
+    const active =
+      page.id === `page-${pageName}`;
+
+    page.classList.toggle(
+      "active",
+      active
     );
 
-    setText(
-      "downloadBtnSubtitle",
-      "Ваш расчёт будет перенесён в браузер"
+    page.hidden = !active;
+  });
+
+  /*
+    Обновляем нижнее меню.
+  */
+
+  document.querySelectorAll(
+    ".nav-button"
+  ).forEach(button => {
+    const active =
+      button.dataset.page === pageName;
+
+    button.classList.toggle(
+      "active",
+      active
     );
 
-    status.textContent=
-      "В Telegram скачивание PNG может быть недоступно. " +
-      "Нажмите кнопку, чтобы открыть калькулятор " +
-      "в браузере телефона. Затем скачайте смету.";
-
-  }else{
-    setText(
-      "downloadBtnTitle",
-      "📥 Скачать смету в PNG"
+    button.setAttribute(
+      "aria-current",
+      active ? "page" : "false"
     );
+  });
 
-    setText(
-      "downloadBtnSubtitle",
-      "Сохранить изображение на устройство"
+  /*
+    Запоминаем последнюю открытую вкладку.
+  */
+
+  try {
+    localStorage.setItem(
+      ACTIVE_PAGE_KEY,
+      pageName
     );
+  } catch (error) {
+    console.warn(
+      "Не удалось сохранить вкладку:",
+      error
+    );
+  }
 
-    if(transferredState){
-      status.textContent=
-        "Смета перенесена из Telegram. " +
-        "Проверьте данные и нажмите кнопку " +
-        "для скачивания PNG.";
-    }else{
-      status.textContent=
-        "В изображение войдут пол, " +
-        "стены и общий итог.";
-    }
+  /*
+    Возвращаемся к началу новой страницы.
+  */
+
+  window.scrollTo({
+    top: 0,
+    behavior: "instant"
+  });
+
+  /*
+    Лёгкая вибрация в Telegram.
+  */
+
+  try {
+    tg?.HapticFeedback?.selectionChanged();
+  } catch (error) {
+    console.warn(
+      "Telegram HapticFeedback:",
+      error
+    );
   }
 }
 
-/* ==========================================
-   ОБРАБОТЧИК КНОПКИ
-========================================== */
+document.querySelectorAll(
+  ".nav-button"
+).forEach(button => {
+  button.addEventListener("click", () => {
+    navigateTo(
+      button.dataset.page
+    );
+  });
+});
 
-byId("downloadBtn").addEventListener(
-  "click",
-  ()=>{
-    if(isTelegramMiniApp()){
-      /*
-        В Telegram не пытаемся скачать PNG
-        внутри WebView.
+/* =========================================
+   13. ИНИЦИАЛИЗАЦИЯ
+========================================= */
 
-        Открываем калькулятор в браузере.
-      */
+function initializeApp() {
+  /*
+    Отображаем сохранённые настройки
+    выбранного типа.
+  */
 
-      openCalculatorInBrowser();
+  switchPriceType(activePriceType);
 
-    }else{
-      /*
-        В обычном браузере создаём PNG
-        и скачиваем стандартным способом.
-      */
+  /*
+    Восстанавливаем последнюю вкладку.
+    При первом запуске показываем Прайс-лист.
+  */
 
-      downloadPNG();
+  let initialPage = "prices";
+
+  try {
+    const storedPage = localStorage.getItem(
+      ACTIVE_PAGE_KEY
+    );
+
+    if (VALID_PAGES.includes(storedPage)) {
+      initialPage = storedPage;
     }
+  } catch (error) {
+    console.warn(
+      "Ошибка восстановления вкладки:",
+      error
+    );
   }
-);
 
-/* ==========================================
-   ИНИЦИАЛИЗАЦИЯ
-========================================== */
+  navigateTo(initialPage);
+}
 
-updateDownloadButton();
+initializeApp();
 
+/* =========================================
+   14. ПУБЛИЧНЫЙ API ДЛЯ СЛЕДУЮЩИХ ЧАСТЕЙ
+
+   Позволяет калькулятору и сметам
+   получать актуальные цены.
+
+   Пример:
+
+   TileApp.getPrice("floor", "base", "standard")
+   TileApp.getPrice("wall", "cuts", "dry")
+   TileApp.getPriceList()
+
+========================================= */
+
+window.TileApp = {
+
+  getPriceList() {
+    return JSON.parse(
+      JSON.stringify(priceList)
+    );
+  },
+
+  getPrice(type, group, field) {
+    return priceList?.[type]?.[group]?.[field] ?? 0;
+  },
+
+  savePriceList,
+
+  navigateTo,
+
+  getActivePriceType() {
+    return activePriceType;
+  },
+
+  getDefaultPriceList() {
+    return createDefaultPriceList();
+  }
+
+};
 </script>
 
 </body>
-  </html>
+</html>
