@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
-<title>Калькулятор плиточных работ</title>
+<title>Калькулятор работ — плитка и электрика</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -884,11 +884,52 @@ input[type="date"] { color-scheme: dark; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+
+.delete-modal[hidden] { display: none !important; }
+.delete-modal {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.delete-modal-backdrop {
+  position: absolute; inset: 0; background: rgba(0, 0, 0, .68);
+}
+.delete-modal-dialog {
+  position: relative; width: min(100%, 360px); padding: 24px;
+  border: 1px solid var(--border); border-radius: 18px;
+  background: var(--card); color: var(--text);
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+.delete-modal-dialog h2 { margin: 0 0 22px; font-size: 20px; }
+.delete-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.delete-modal-actions .btn-danger { background: #dc2626; color: #fff; border-color: #dc2626; }
+
+
+/* Главное меню и независимые электрические модули */
+.menu-screen{min-height:100vh;padding:34px 18px calc(30px + env(safe-area-inset-bottom));display:flex;justify-content:center;align-items:center;background:var(--bg)}
+.menu-inner{width:100%;max-width:560px}.menu-brand{font-size:44px;margin-bottom:12px}.menu-inner h1{font-size:30px;margin:0 0 6px;font-weight:850}.menu-subtitle{color:var(--hint);margin:0 0 26px}
+.menu-button{display:flex;align-items:center;gap:15px;width:100%;text-align:left;padding:18px;margin:12px 0;border:1px solid var(--border);border-radius:18px;background:var(--card);color:var(--text);box-shadow:0 6px 20px #0002}.menu-icon{font-size:31px}.menu-button b{display:block;font-size:18px}.menu-button small{display:block;color:var(--hint);font-size:13px;margin-top:4px}.menu-arrow{margin-left:auto;font-size:30px;color:var(--hint)}
+.electrical-app{max-width:760px;margin:0 auto;padding:16px 14px calc(30px + env(safe-area-inset-bottom))}.module-header{display:flex;gap:14px;align-items:center;margin-bottom:18px}.module-header h1{font-size:23px;margin:0 0 3px}.module-header p{margin:0;color:var(--hint);font-size:13px}.module-header .btn{white-space:nowrap;padding:10px 12px}.module-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:17px}.module-tabs button{padding:11px 5px;border:1px solid var(--border);border-radius:11px;background:var(--card);color:var(--text);font-size:13px}.module-tabs button.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}.module-panel{background:var(--secondary);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:16px}.module-panel h2{font-size:19px;margin:0 0 15px}.module-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.module-price-group{margin:15px 0}.module-price-group h3{font-size:15px;margin:0 0 8px;color:var(--hint)}.module-price-row,.module-work-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}.module-price-row label,.module-work-row label{font-size:13px;overflow-wrap:anywhere}.module-price-row input,.module-work-row input{width:100%;min-width:0;padding:9px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);text-align:right}.module-work-row{grid-template-columns:minmax(0,1fr) 75px 90px}.module-work-row .work-price{font-size:12px;color:var(--hint);text-align:right}.module-work-row input{padding:8px}.module-total{display:flex;justify-content:space-between;align-items:center;margin:18px 0;padding:16px;border-radius:12px;background:var(--card);font-size:18px}.module-total strong{font-size:22px;color:var(--green)}.module-actions{display:flex;flex-wrap:wrap;gap:8px}.module-estimate{padding:13px 0;border-bottom:1px solid var(--border)}.module-estimate-head{display:flex;justify-content:space-between;gap:12px}.module-estimate-name{font-weight:750;overflow-wrap:anywhere}.module-estimate-total{font-weight:800;color:var(--green);white-space:nowrap}.module-estimate-meta{color:var(--hint);font-size:12px;margin:5px 0 10px}.module-estimate-actions{display:flex;gap:7px;flex-wrap:wrap}.module-estimate-actions button{font-size:12px;padding:8px 10px}.module-empty{padding:20px 5px;text-align:center;color:var(--hint)}
+
 </style>
 </head>
 
 <body>
 
+<!-- ГЛАВНОЕ МЕНЮ -->
+<section id="page-menu" class="menu-screen">
+  <div class="menu-inner">
+    <div class="menu-brand">🛠️</div>
+    <h1>Калькулятор работ</h1>
+    <p class="menu-subtitle">Выберите раздел для расчёта</p>
+    <button class="menu-button" data-open-module="tile"><span class="menu-icon">🧱</span><span><b>Плитка</b><small>Расчёт плиточных работ</small></span><span class="menu-arrow">›</span></button>
+    <button class="menu-button" data-open-module="elec"><span class="menu-icon">⚡</span><span><b>Электрика по точкам</b><small>Расчёт по количеству точек</small></span><span class="menu-arrow">›</span></button>
+    <button class="menu-button" data-open-module="meters"><span class="menu-icon">📏</span><span><b>Электрика метраж</b><small>Кабель, штробы, короба и щиты</small></span><span class="menu-arrow">›</span></button>
+  </div>
+</section>
+
+<div id="tile-app" hidden>
 <main class="app">
 
   <!-- СМЕТЫ -->
@@ -1141,6 +1182,9 @@ input[type="date"] { color-scheme: dark; }
       ✓ Настройки сохраняются автоматически
     </div>
 
+    <button type="button" class="btn btn-secondary btn-large" id="downloadPricePngBtn" style="width:100%; margin-bottom:16px;">
+      📸 Скачать прайс в PNG
+    </button>
     <div id="priceListContainer"></div>
   </section>
 
@@ -1193,6 +1237,25 @@ input[type="date"] { color-scheme: dark; }
 </nav>
 
 <div id="exportWorkspace" aria-hidden="true"></div>
+</div><!-- /tile-app -->
+
+<!-- ЭЛЕКТРИКА: ПО ТОЧКАМ -->
+<section id="elec-app" class="electrical-app" hidden>
+  <header class="module-header"><button class="btn btn-secondary" data-back-menu>🏠 В меню</button><div><h1>⚡ Электрика по точкам</h1><p>Сметы и прайс-лист</p></div></header>
+  <nav class="module-tabs"><button class="active" data-elec-tab="estimates">Сметы</button><button data-elec-tab="calc">Новый расчёт</button><button data-elec-tab="prices">Прайс-лист</button></nav>
+  <section class="module-panel" data-elec-panel="estimates"><div class="module-heading"><h2>Сохранённые сметы</h2><button class="btn btn-primary" data-elec-new>+ Создать</button></div><div id="elec-estimates-list"></div></section>
+  <section class="module-panel" data-elec-panel="calc" hidden><h2>Новый расчёт</h2><div class="field"><label for="elec-customer">Заказчик / объект</label><input id="elec-customer" placeholder="Имя или адрес"></div><div id="elec-work-list"></div><div class="module-total">Итого: <strong id="elec-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-elec-tab="estimates">Отмена</button><button class="btn btn-primary" id="elec-save">Сохранить смету</button><button class="btn btn-secondary" id="elec-export">PNG / Поделиться</button></div></section>
+  <section class="module-panel" data-elec-panel="prices" hidden><h2>Прайс-лист</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="elec-price-list"></div><button class="btn btn-primary" id="elec-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="elec-reset-prices">Сбросить цены</button></section>
+</section>
+
+<!-- ЭЛЕКТРИКА: МЕТРАЖ -->
+<section id="meters-app" class="electrical-app" hidden>
+  <header class="module-header"><button class="btn btn-secondary" data-back-menu>🏠 В меню</button><div><h1>📏 Электрика метраж</h1><p>Сметы и прайс-лист</p></div></header>
+  <nav class="module-tabs"><button class="active" data-meters-tab="estimates">Сметы</button><button data-meters-tab="calc">Новый расчёт</button><button data-meters-tab="prices">Прайс-лист</button></nav>
+  <section class="module-panel" data-meters-panel="estimates"><div class="module-heading"><h2>Сохранённые сметы</h2><button class="btn btn-primary" data-meters-new>+ Создать</button></div><div id="meters-estimates-list"></div></section>
+  <section class="module-panel" data-meters-panel="calc" hidden><h2>Новый расчёт</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"></div><div id="meters-work-list"></div><div class="module-total">Итого: <strong id="meters-total">0 ₽</strong></div><div class="module-actions"><button class="btn btn-secondary" data-meters-tab="estimates">Отмена</button><button class="btn btn-primary" id="meters-save">Сохранить смету</button><button class="btn btn-secondary" id="meters-export">PNG / Поделиться</button></div></section>
+  <section class="module-panel" data-meters-panel="prices" hidden><h2>Прайс-лист</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="meters-price-list"></div><button class="btn btn-primary" id="meters-save-prices">Сохранить цены</button><button class="btn btn-secondary" id="meters-reset-prices">Сбросить цены</button></section>
+</section>
 
 <script>
 "use strict";
@@ -1240,9 +1303,9 @@ function haptic() {
    2. КОНСТАНТЫ
 ========================================== */
 
-const PRICE_STORAGE_KEY = "priceList";
-const ESTIMATES_STORAGE_KEY = "estimates";
-const DRAFT_STORAGE_KEY = "tileCalculatorCurrentDraft";
+const PRICE_STORAGE_KEY = "tile_priceList";
+const ESTIMATES_STORAGE_KEY = "tile_estimates";
+const DRAFT_STORAGE_KEY = "tile_draft";
 const PAGE_STORAGE_KEY = "tileAppActivePage";
 
 const ADDON_GROUPS = [
@@ -1427,7 +1490,7 @@ const PRICE_SCHEMA = [
       {key: "upTo12mm", label: "До 1,2 см", value: 10},
       {key: "upTo15mm", label: "До 1,5 см", value: 15},
       {key: "upTo20mm", label: "До 2 см", value: 20},
-      {key: "over20mm", label: "Более 2 см (договорная)", value: 0}
+      {key: "over20mm", label: "Более 2 см (договорная)", value: 0, isCustom: true}
     ]
   },
   {
@@ -1439,7 +1502,7 @@ const PRICE_SCHEMA = [
       {key: "porcelain", label: "Керамогранит", value: 10},
       {key: "clinker", label: "Клинкер", value: 20},
       {key: "glass", label: "Стекло", value: 20},
-      {key: "marble", label: "Мрамор", value: 0}
+      {key: "marble", label: "Мрамор", value: 0, isCustom: true}
     ]
   },
   {
@@ -1449,8 +1512,8 @@ const PRICE_SCHEMA = [
     fields: [
       {key: "none", label: "Без надбавки", value: 0},
       {key: "seams", label: "По швам", value: 20},
-      {key: "height", label: "По высоте", value: 20},
-      {key: "calibration", label: "Калибровка", value: 30}
+      {key: "height", label: "По высоте (СВП)", value: 20},
+      {key: "calibration", label: "Калибровка", value: 0, isCustom: true}
     ]
   },
   {
@@ -1795,6 +1858,7 @@ function createEmptyZone(type = "floor") {
   const cuts = {};
   const holes = {};
   const prep = {};
+  const customAddons = {};
 
   ADDON_GROUPS.forEach(groupId => {
     addons[groupId] = SCHEMA_MAP[groupId].fields[0].key;
@@ -1821,6 +1885,7 @@ function createEmptyZone(type = "floor") {
     area: 0,
     tilePrice: 0,
     addons,
+    customAddons,
     cuts,
     holes,
     grout: {
@@ -1848,6 +1913,9 @@ function normalizeZone(source) {
   zone.id = source.id ?? uniqueId();
   zone.area = num(source.area);
   zone.tilePrice = num(source.tilePrice);
+  zone.customAddons = source.customAddons && typeof source.customAddons === "object"
+    ? { ...source.customAddons }
+    : {};
 
   ADDON_GROUPS.forEach(groupId => {
     const selected = source.addons?.[groupId];
@@ -1988,10 +2056,16 @@ function calculateZone(zone) {
   let totalPercent = 0;
 
   ADDON_GROUPS.forEach(groupId => {
-    totalPercent += getPrice(
-      groupId,
-      zone.addons[groupId]
+    const selectedKey = zone.addons[groupId];
+    const selectedField = SCHEMA_MAP[groupId].fields.find(
+      field => field.key === selectedKey
     );
+
+    if (selectedField?.isCustom === true) {
+      totalPercent += num(zone.customAddons?.[groupId]);
+    } else {
+      totalPercent += getPrice(groupId, selectedKey);
+    }
   });
 
   const tileExtraPercent = getPrice(
@@ -2134,7 +2208,9 @@ function addonSelectHTML(zone, groupId) {
   const selected = zone.addons[groupId];
 
   const options = group.fields.map(field => {
-    const percent = getPrice(groupId, field.key);
+    const percent = field.isCustom === true
+      ? num(zone.customAddons?.[groupId])
+      : getPrice(groupId, field.key);
 
     return `
       <option
@@ -2562,7 +2638,36 @@ function handleZoneInput(event) {
       const group = input.dataset.group;
 
       if (ADDON_GROUPS.includes(group)) {
-        zone.addons[group] = value;
+        const selectedField = SCHEMA_MAP[group].fields.find(
+          item => item.key === value
+        );
+
+        if (selectedField?.isCustom === true) {
+          const previousValue = zone.addons[group];
+          const entered = prompt(
+            `Введите процент надбавки для ${selectedField.label}:`,
+            String(num(zone.customAddons?.[group]))
+          );
+
+          if (entered === null) {
+            input.value = previousValue;
+            return;
+          }
+
+          const normalized = entered.trim().replace(",", ".");
+          const percent = Number(normalized);
+
+          if (normalized === "" || !Number.isFinite(percent) || percent < 0) {
+            alert("Введите корректный процент (число не меньше 0).");
+            input.value = previousValue;
+            return;
+          }
+
+          zone.customAddons[group] = percent;
+          zone.addons[group] = value;
+        } else {
+          zone.addons[group] = value;
+        }
       }
       break;
     }
@@ -2841,10 +2946,6 @@ function deleteEstimate(id) {
 
   if (!estimate) return false;
 
-  const confirmed = confirm("Удалить эту смету?");
-
-  if (!confirmed) return false;
-
   const updatedEstimates = estimates.filter(
     item => String(item.id) !== String(id)
   );
@@ -2874,6 +2975,36 @@ function deleteEstimate(id) {
 
   return true;
 }
+
+let pendingDeleteEstimateId = null;
+
+function showDeleteModal(id) {
+  pendingDeleteEstimateId = String(id);
+  const modal = byId("deleteModal");
+  if (!modal) return;
+  modal.hidden = false;
+  modal.setAttribute("aria-hidden", "false");
+  byId("confirmDeleteBtn")?.focus();
+}
+
+function hideDeleteModal() {
+  const modal = byId("deleteModal");
+  if (modal) {
+    modal.hidden = true;
+    modal.setAttribute("aria-hidden", "true");
+  }
+  pendingDeleteEstimateId = null;
+}
+
+byId("cancelDeleteBtn")?.addEventListener("click", hideDeleteModal);
+byId("deleteModal")?.addEventListener("click", event => {
+  if (event.target.matches("[data-delete-modal-cancel]")) hideDeleteModal();
+});
+byId("confirmDeleteBtn")?.addEventListener("click", () => {
+  const id = pendingDeleteEstimateId;
+  if (id !== null) deleteEstimate(id);
+  hideDeleteModal();
+});
 
 /* ==========================================
    18. СТАТИСТИКА
@@ -3093,7 +3224,7 @@ byId("estimatesList").addEventListener(
       event.stopPropagation();
       event.preventDefault();
 
-      deleteEstimate(
+      showDeleteModal(
         deleteButton.dataset.deleteEstimate
       );
 
@@ -3821,6 +3952,61 @@ byId("downloadPngBtn").addEventListener(
   downloadPNG
 );
 
+async function downloadPriceListPNG() {
+  const container = byId("priceListContainer");
+  const button = byId("downloadPricePngBtn");
+  if (!container || !button) return;
+
+  if (typeof html2canvas !== "function") {
+    alert("Библиотека экспорта не загрузилась. Проверьте интернет-соединение.");
+    return;
+  }
+
+  button.disabled = true;
+  const oldText = button.textContent;
+  button.textContent = "⏳ Создаём PNG...";
+
+  try {
+    const canvas = await html2canvas(container, {
+      backgroundColor: "#ffffff",
+      scale: Math.min(2, window.devicePixelRatio || 1),
+      useCORS: true,
+      logging: false,
+      scrollX: 0,
+      scrollY: 0
+    });
+
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(result => result ? resolve(result) : reject(new Error("Не удалось создать PNG")), "image/png");
+    });
+    const file = new File([blob], `Прайс-лист_${todayISO()}.png`, { type: "image/png" });
+
+    if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+      await navigator.share({ files: [file], title: "Прайс-лист", text: "Прайс-лист калькулятора плитки" });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+  } catch (error) {
+    if (error?.name !== "AbortError") {
+      console.error("Ошибка экспорта прайс-листа:", error);
+      alert("Не удалось создать или отправить PNG прайс-листа.");
+    }
+  } finally {
+    button.disabled = false;
+    button.textContent = oldText;
+  }
+}
+
+byId("downloadPricePngBtn").addEventListener("click", downloadPriceListPNG);
+
+
 /* ==========================================
    29. НАВИГАЦИЯ
 ========================================== */
@@ -3965,7 +4151,104 @@ window.TileApp = {
   downloadPNG,
   isTelegramMiniApp
 };
+
+/* ==========================================
+   ЭЛЕКТРИЧЕСКИЕ МОДУЛИ — независимые состояния
+========================================== */
+(function(){
+'use strict';
+const money=n=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(Number(n)||0)+' ₽';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pointDefaults=[
+ {group:'Подготовка и монтаж',name:'Подготовка мест под розетки/выключатели',unit:'точка',price:2500},
+ {group:'Подготовка и монтаж',name:'Разводка проводки под бра',unit:'точка',price:2000},
+ {group:'Подготовка и монтаж',name:'Выводы под люстры / освещение',unit:'точка',price:1500},
+ {group:'Установка',name:'Установка подрозетников',unit:'шт.',price:450},
+ {group:'Установка',name:'Финишная установка розеток',unit:'шт.',price:600},
+ {group:'Установка',name:'Монтаж электрощита',unit:'шт.',price:3000},
+ {group:'Установка',name:'Система безопасности ванной',unit:'шт.',price:3000},
+ {group:'Доплаты',name:'Доплата за каждую розетку в ванной',unit:'шт.',price:500}
+];
+const meterDefaults=[
+ {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 20×40',unit:'м',price:160},
+ {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 40×40',unit:'м',price:180},
+ {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 60×40',unit:'м',price:230},
+ {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 100×40',unit:'м',price:320},
+ {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 100×60',unit:'м',price:370},
+ {group:'2. Проводка и кабель (пог. м)',name:'Ретро-проводка на изоляторах',unit:'м',price:220},
+ {group:'2. Проводка и кабель (пог. м)',name:'СИП-4 (2×16)',unit:'м',price:170},
+ {group:'2. Проводка и кабель (пог. м)',name:'СИП-4 (4×16)',unit:'м',price:190},
+ ...[
+ ['20×20','пеноблок / штукатурка',340],['20×20','кирпич / дерево',380],['20×20','бетон',600],
+ ['20×40','пеноблок / штукатурка',430],['20×40','кирпич / дерево',480],['20×40','бетон',650],
+ ['40×40','пеноблок / штукатурка',440],['40×40','кирпич / дерево',540],['40×40','бетон',770],
+ ['100×40','пеноблок / штукатурка',650],['100×40','кирпич / дерево',870],['100×40','бетон',1250]
+ ].map(x=>({group:'3. Штробление (пог. м)',name:`Штроба до ${x[0]}, ${x[1]}`,unit:'м',price:x[2]})),
+ {group:'4. Электрощиты (шт.)',name:'Наружный электрощит',unit:'шт.',price:1750},
+ ...[
+ ['8 модулей','гипсокартон',2150],['8 модулей','кирпич',3000],['8 модулей','бетон',3350],
+ ['12 модулей','гипсокартон',2650],['12 модулей','кирпич',3650],['12 модулей','бетон',4850],
+ ['18 модулей','гипсокартон',3150],['18 модулей','кирпич',4550],['18 модулей','бетон',5850],
+ ['24 модуля','гипсокартон',3650],['24 модуля','кирпич',5250],['24 модуля','бетон',6650],
+ ['36 модулей','гипсокартон',4150],['36 модулей','кирпич',6750],['36 модулей','бетон',8250],
+ ['54 модуля','гипсокартон',4650],['54 модуля','кирпич',8250],['54 модуля','бетон',10500]
+ ].map(x=>({group:'4. Электрощиты (шт.)',name:`Установка щита ${x[0]}, ${x[1]}`,unit:'шт.',price:x[2]})),
+ ...[
+ ['Установка ретро-распаечной коробки',670],['Установка наружной розетки',530],['Установка трансформатора для галогенных светильников',580],['Установка / подключение встроенной стиральной машины',2550],['Установка / подключение встроенной посудомоечной машины',2450]
+ ].map(x=>({group:'5. Прочие работы (шт.)',name:x[0],unit:'шт.',price:x[1]}))
+];
+const configs={
+ elec:{prefix:'elec',defaults:pointDefaults,app:'elec-app',tabs:'data-elec-tab',panels:'data-elec-panel',list:'elec-work-list',prices:'elec-price-list',estimates:'elec-estimates-list',customer:'elec-customer',total:'elec-total',save:'elec-save',export:'elec-export',new:'[data-elec-new]',savePrices:'elec-save-prices',resetPrices:'elec-reset-prices'},
+ meters:{prefix:'meters',defaults:meterDefaults,app:'meters-app',tabs:'data-meters-tab',panels:'data-meters-panel',list:'meters-work-list',prices:'meters-price-list',estimates:'meters-estimates-list',customer:'meters-customer',total:'meters-total',save:'meters-save',export:'meters-export',new:'[data-meters-new]',savePrices:'meters-save-prices',resetPrices:'meters-reset-prices'}
+};
+const states={};
+function read(key, fallback){try{const v=localStorage.getItem(key);return v===null?fallback:JSON.parse(v)}catch(e){return fallback}}
+function write(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch(e){alert('Не удалось сохранить данные. Проверьте память устройства.')}}
+function initModule(key,cfg){
+ const prefix=cfg.prefix;
+ const state={priceList:read(prefix+'_priceList',cfg.defaults.map(x=>({...x}))),estimates:read(prefix+'_estimates',[]),draft:read(prefix+'_draft',null),editingId:null};states[key]=state;
+ // Repair/merge price list by index while preserving saved prices and labels.
+ if(!Array.isArray(state.priceList)||state.priceList.length!==cfg.defaults.length) state.priceList=cfg.defaults.map(x=>({...x}));
+ function saveDraft(){write(prefix+'_draft',state.draft)}
+ function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
+ function calc(){const sum=getLines().reduce((a,x)=>a+x.price*x.qty,0);document.getElementById(cfg.total).textContent=money(sum);state.draft={customer:document.getElementById(cfg.customer).value,quantities:getLines().map(x=>x.qty),editingId:state.editingId};saveDraft();return sum}
+ function renderWork(){const host=document.getElementById(cfg.list);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-work-row"><label for="${prefix}-qty-${i}">${esc(x.name)}<br><span class="muted small">${esc(x.unit)} · ${money(x.price)}</span></label><input type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${Number(state.draft?.quantities?.[i])||0}" aria-label="Количество: ${esc(x.name)}"><div class="work-price" id="${prefix}-line-${i}">${money((Number(state.draft?.quantities?.[i])||0)*x.price)}</div></div>`}).join('');host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{const q=Math.max(0,Number(inp.value)||0);document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent=money(q*state.priceList[Number(inp.dataset.qty)].price);calc()}));calc()}
+ function renderPrices(){const host=document.getElementById(cfg.prices);let last='';host.innerHTML=state.priceList.map((x,i)=>{let heading='';if(x.group!==last){last=x.group;heading=`<div class="module-price-group"><h3>${esc(last)}</h3></div>`}return `${heading}<div class="module-price-row"><label>${esc(x.name)}<br><span class="muted small">${esc(x.unit)}</span></label><input type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`}).join('')}
+ function renderEstimates(){const host=document.getElementById(cfg.estimates);if(!state.estimates.length){host.innerHTML='<div class="module-empty">Пока нет сохранённых смет.<br>Нажмите «Создать», чтобы начать.</div>';return}host.innerHTML=state.estimates.slice().reverse().map(e=>`<div class="module-estimate"><div class="module-estimate-head"><div class="module-estimate-name">${esc(e.customer||'Без названия')}</div><div class="module-estimate-total">${money(e.total)}</div></div><div class="module-estimate-meta">${esc(e.date||'')} · ${e.lines.filter(x=>x.qty>0).length} позиций</div><div class="module-estimate-actions"><button class="btn btn-secondary" data-edit="${esc(e.id)}">Открыть</button><button class="btn btn-secondary" data-share="${esc(e.id)}">PNG / Поделиться</button><button class="btn btn-danger" data-delete="${esc(e.id)}">Удалить</button></div></div>`).join('');host.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEstimate(b.dataset.edit));host.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('Удалить эту смету?')){state.estimates=state.estimates.filter(e=>e.id!==b.dataset.delete);write(prefix+'_estimates',state.estimates);renderEstimates()}});host.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>exportEstimate(state.estimates.find(e=>e.id===b.dataset.share)))}
+ function switchTab(tab){document.querySelectorAll(`#${cfg.app} [${cfg.panels}]`).forEach(el=>el.hidden=el.getAttribute(cfg.panels)!==tab);document.querySelectorAll(`#${cfg.app} [${cfg.tabs}]`).forEach(el=>el.classList.toggle('active',el.getAttribute(cfg.tabs)===tab));if(tab==='estimates')renderEstimates();if(tab==='prices')renderPrices()}
+ function newEstimate(){state.editingId=null;state.draft={customer:'',quantities:cfg.defaults.map(()=>0)};document.getElementById(cfg.customer).value='';renderWork();switchTab('calc');document.getElementById(cfg.customer).focus()}
+ function openEstimate(id){const e=state.estimates.find(x=>x.id===id);if(!e)return;state.editingId=e.id;state.draft={customer:e.customer,quantities:state.priceList.map((_,i)=>e.lines.find(x=>x.index===i)?.qty||0)};document.getElementById(cfg.customer).value=e.customer||'';renderWork();switchTab('calc')}
+ function saveEstimate(){const lines=getLines();const total=lines.reduce((a,x)=>a+x.qty*x.price,0);const old=state.estimates.find(x=>x.id===state.editingId);const e={id:state.editingId||('e'+Date.now()+Math.random().toString(16).slice(2,6)),customer:document.getElementById(cfg.customer).value.trim()||'Без названия',date:old?.date||new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines,total};if(old)state.estimates=state.estimates.map(x=>x.id===old.id?e:x);else state.estimates.push(e);write(prefix+'_estimates',state.estimates);state.editingId=e.id;renderEstimates();switchTab('estimates');}
+ async function exportEstimate(e){if(!e){alert('Сначала сохраните смету.');return}const lines=e.lines.filter(x=>x.qty>0);const node=document.createElement('div');node.style.cssText='position:fixed;left:-10000px;top:0;width:700px;padding:28px;background:#fff;color:#172033;font-family:Arial,sans-serif';node.innerHTML=`<h1 style="margin:0 0 8px">${key==='elec'?'Электрика по точкам':'Электрика метраж'}</h1><p>${esc(e.customer)} · ${esc(e.date)}</p><hr>${lines.map(x=>`<p style="display:flex;justify-content:space-between;gap:20px"><span>${esc(x.name)} — ${x.qty} ${esc(x.unit)} × ${money(x.price)}</span><b>${money(x.qty*x.price)}</b></p>`).join('')}<hr><h2>Итого: ${money(e.total)}</h2>`;document.body.appendChild(node);try{if(!window.html2canvas)throw new Error('html2canvas unavailable');const canvas=await html2canvas(node,{scale:2,backgroundColor:'#fff'});const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('PNG error');const file=new File([blob],`${prefix}-estimate.png`,{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Смета',text:e.customer})}else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();URL.revokeObjectURL(a.href)}}catch(err){alert('Не удалось создать или отправить PNG. Попробуйте открыть смету в браузере с поддержкой html2canvas.')}finally{node.remove()}}
+ document.querySelectorAll(`#${cfg.app} [${cfg.tabs}]`).forEach(b=>b.addEventListener('click',()=>switchTab(b.getAttribute(cfg.tabs))));
+ document.querySelector(cfg.new).addEventListener('click',newEstimate);document.getElementById(cfg.save).addEventListener('click',saveEstimate);document.getElementById(cfg.export).addEventListener('click',()=>{const sum=calc();const e={id:state.editingId||'draft',customer:document.getElementById(cfg.customer).value.trim()||'Черновик',date:new Date().toLocaleDateString('ru-RU'),lines:getLines(),total:sum};exportEstimate(e)});
+ document.getElementById(cfg.savePrices).addEventListener('click',()=>{document.querySelectorAll(`#${cfg.app} [data-price]`).forEach(inp=>{state.priceList[Number(inp.dataset.price)].price=Math.max(0,Number(inp.value)||0)});write(prefix+'_priceList',state.priceList);renderPrices();renderWork();alert('Цены сохранены.')});document.getElementById(cfg.resetPrices).addEventListener('click',()=>{if(confirm('Вернуть цены по умолчанию?')){state.priceList=cfg.defaults.map(x=>({...x}));write(prefix+'_priceList',state.priceList);renderPrices();renderWork()}});
+ function restoreDraft(){if(state.draft){document.getElementById(cfg.customer).value=state.draft.customer||''}renderWork();renderEstimates()}
+ restoreDraft();
+}
+initModule('elec',configs.elec);initModule('meters',configs.meters);
+// Глобальная навигация
+function showModule(name){document.getElementById('page-menu').hidden=name!=='menu';document.getElementById('tile-app').hidden=name!=='tile';document.getElementById('elec-app').hidden=name!=='elec';document.getElementById('meters-app').hidden=name!=='meters';window.scrollTo(0,0)}
+document.querySelectorAll('[data-open-module]').forEach(b=>b.addEventListener('click',()=>{const name=b.dataset.openModule;showModule(name);if(name==='tile'&&window.TileApp)window.TileApp.refreshDashboard()}));document.querySelectorAll('[data-back-menu]').forEach(b=>b.addEventListener('click',()=>showModule('menu')));
+// Запуск всегда с главного меню; состояния модулей сохранены независимо.
+showModule('menu');
+})();
+
 </script>
+
+
+
+<!-- Модальное окно подтверждения удаления сметы -->
+<div id="deleteModal" class="delete-modal" hidden aria-hidden="true">
+  <div class="delete-modal-backdrop" data-delete-modal-cancel></div>
+  <div class="delete-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <h2 id="deleteModalTitle">Удалить эту смету?</h2>
+    <div class="delete-modal-actions">
+      <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Отмена</button>
+      <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Удалить</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
