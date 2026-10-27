@@ -12,29 +12,19 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-/* ==========================================
-   1. ТЕМА
-========================================== */
-
 :root {
   color-scheme: dark;
-
   --bg: var(--tg-theme-bg-color, #0f172a);
   --secondary: var(--tg-theme-secondary-bg-color, #111827);
   --card: var(--tg-theme-section-bg-color, #1e293b);
-
   --text: var(--tg-theme-text-color, #f8fafc);
   --hint: var(--tg-theme-hint-color, #94a3b8);
-
   --accent: var(--tg-theme-button-color, #3b82f6);
   --accent-text: var(--tg-theme-button-text-color, #ffffff);
-
   --border: var(--tg-theme-section-separator-color, #334155);
-
   --green: #22c55e;
   --red: #ef4444;
   --orange: #f59e0b;
-
   --radius: 16px;
   --nav-height: 76px;
 }
@@ -50,28 +40,15 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-
   background: var(--bg);
   color: var(--text);
-
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Arial,
-    sans-serif;
-
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.45;
-
   -webkit-tap-highlight-color: transparent;
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
   font: inherit;
 }
 
@@ -96,18 +73,10 @@ textarea:focus-visible {
   display: none !important;
 }
 
-/* ==========================================
-   2. ОБЩИЙ МАКЕТ
-========================================== */
-
 .app {
   max-width: 760px;
   margin: 0 auto;
-
-  padding:
-    18px
-    14px
-    calc(var(--nav-height) + 35px + env(safe-area-inset-bottom));
+  padding: 18px 14px calc(var(--nav-height) + 35px + env(safe-area-inset-bottom));
 }
 
 .page {
@@ -138,7 +107,6 @@ textarea:focus-visible {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-
   padding: 16px;
   margin-bottom: 15px;
 }
@@ -161,7 +129,6 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 10px;
   margin-bottom: 15px;
 }
@@ -170,10 +137,6 @@ textarea:focus-visible {
   margin: 0;
   font-size: 19px;
 }
-
-/* ==========================================
-   3. ПОЛЯ
-========================================== */
 
 .field {
   margin-bottom: 14px;
@@ -186,7 +149,6 @@ textarea:focus-visible {
 .field label {
   display: block;
   margin-bottom: 7px;
-
   font-size: 14px;
   font-weight: 650;
 }
@@ -196,18 +158,13 @@ textarea:focus-visible {
 .field textarea,
 .search-input {
   display: block;
-
   width: 100%;
   min-width: 0;
-
   border: 1px solid var(--border);
   border-radius: 11px;
-
   background: var(--secondary);
   color: var(--text);
-
   padding: 0 12px;
-
   font-size: 16px;
   outline: none;
 }
@@ -256,26 +213,17 @@ input[type="date"] {
   margin-bottom: 0;
 }
 
-/* ==========================================
-   4. КНОПКИ
-========================================== */
-
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 7px;
-
   min-height: 46px;
   padding: 10px 15px;
-
   border: 1px solid transparent;
   border-radius: 11px;
-
   font-size: 14px;
   font-weight: 750;
-
   text-align: center;
 }
 
@@ -303,34 +251,18 @@ input[type="date"] {
   border-radius: 14px;
 }
 
-.btn-row {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-row .btn {
-  flex: 1;
-}
-
-/* ==========================================
-   5. DASHBOARD
-========================================== */
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 11px;
-
   margin-bottom: 18px;
 }
 
 .stat-card {
   min-width: 0;
-
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 15px;
-
   padding: 15px;
 }
 
@@ -349,7 +281,6 @@ input[type="date"] {
   font-size: clamp(17px, 4.5vw, 23px);
   font-weight: 800;
   line-height: 1.2;
-
   overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 }
@@ -362,13 +293,10 @@ input[type="date"] {
   width: 100%;
   display: block;
   text-align: left;
-
   background: var(--card);
   color: var(--text);
-
   border: 1px solid var(--border);
   border-radius: 15px;
-
   padding: 16px;
   margin-bottom: 12px;
 }
@@ -381,7 +309,6 @@ input[type="date"] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   gap: 10px;
   margin-bottom: 11px;
 }
@@ -394,10 +321,8 @@ input[type="date"] {
 .status-badge {
   display: inline-flex;
   align-items: center;
-
   border-radius: 999px;
   padding: 5px 9px;
-
   font-size: 11px;
   font-weight: 750;
   white-space: nowrap;
@@ -411,6 +336,11 @@ input[type="date"] {
 .status-badge.draft {
   color: var(--orange);
   background: rgba(245, 158, 11, 0.12);
+}
+
+.status-badge.completed {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.12);
 }
 
 .estimate-customer {
@@ -430,12 +360,9 @@ input[type="date"] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   gap: 10px;
-
   margin-top: 13px;
   padding-top: 12px;
-
   border-top: 1px solid var(--border);
 }
 
@@ -454,7 +381,6 @@ input[type="date"] {
 .empty-state {
   padding: 38px 18px;
   text-align: center;
-
   background: var(--card);
   border: 1px dashed var(--border);
   border-radius: 16px;
@@ -475,16 +401,10 @@ input[type="date"] {
   font-size: 14px;
 }
 
-/* ==========================================
-   6. ЗОНЫ РАБОТ
-========================================== */
-
 .zone-card {
   border: 1px solid var(--border);
   border-radius: 16px;
-
   background: var(--card);
-
   margin-bottom: 16px;
   overflow: hidden;
 }
@@ -493,11 +413,8 @@ input[type="date"] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   gap: 10px;
-
   padding: 15px;
-
   background: var(--secondary);
   border-bottom: 1px solid var(--border);
 }
@@ -522,7 +439,6 @@ input[type="date"] {
 .zone-group {
   margin-top: 17px;
   padding-top: 15px;
-
   border-top: 1px solid var(--border);
 }
 
@@ -541,10 +457,8 @@ input[type="date"] {
 .zone-number-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 98px;
-
   align-items: center;
   gap: 10px;
-
   padding: 9px 0;
   border-bottom: 1px solid var(--border);
 }
@@ -563,15 +477,11 @@ input[type="date"] {
   width: 100%;
   min-width: 0;
   height: 45px;
-
   background: var(--secondary);
   color: var(--text);
-
   border: 1px solid var(--border);
   border-radius: 9px;
-
   padding: 0 7px;
-
   font-size: 16px;
   font-weight: 700;
   text-align: center;
@@ -585,7 +495,6 @@ input[type="date"] {
 .zone-summary {
   margin-top: 18px;
   padding: 15px;
-
   background: var(--secondary);
   border-radius: 13px;
 }
@@ -593,10 +502,8 @@ input[type="date"] {
 .zone-summary-row {
   display: flex;
   justify-content: space-between;
-
   gap: 10px;
   padding: 7px 0;
-
   font-size: 13px;
 }
 
@@ -612,13 +519,10 @@ input[type="date"] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   gap: 10px;
-
   border-top: 1px solid var(--border);
   margin-top: 10px;
   padding-top: 14px;
-
   font-size: 15px;
   font-weight: 800;
 }
@@ -640,17 +544,11 @@ input[type="date"] {
   min-height: 52px;
 }
 
-/* ==========================================
-   7. ОБЩИЙ ИТОГ
-========================================== */
-
 .estimate-summary {
   border: 2px solid var(--accent);
   border-radius: 17px;
-
   padding: 18px;
   margin-bottom: 15px;
-
   background: var(--card);
 }
 
@@ -658,7 +556,6 @@ input[type="date"] {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
 }
@@ -683,11 +580,9 @@ input[type="date"] {
 
 .grand-total-value {
   margin-top: 5px;
-
   font-size: clamp(25px, 7vw, 36px);
   font-weight: 850;
   color: var(--accent);
-
   overflow-wrap: anywhere;
 }
 
@@ -705,49 +600,12 @@ input[type="date"] {
   color: var(--red);
 }
 
-/* ==========================================
-   8. ПРАЙС-ЛИСТ
-========================================== */
-
-.segmented-control {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  gap: 5px;
-  padding: 5px;
-
-  background: var(--secondary);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-
-  margin-bottom: 16px;
-}
-
-.segment-button {
-  min-height: 49px;
-
-  border: 0;
-  border-radius: 10px;
-
-  background: transparent;
-  color: var(--hint);
-
-  font-weight: 750;
-}
-
-.segment-button.active {
-  background: var(--accent);
-  color: var(--accent-text);
-}
-
 .save-status {
   padding: 11px;
   margin-bottom: 15px;
-
   background: var(--secondary);
   border: 1px solid var(--border);
   border-radius: 11px;
-
   text-align: center;
   font-size: 13px;
   color: var(--green);
@@ -767,13 +625,10 @@ input[type="date"] {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 35px;
   height: 35px;
-
   border-radius: 10px;
   background: var(--secondary);
-
   font-size: 18px;
 }
 
@@ -789,10 +644,8 @@ input[type="date"] {
 .setting-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 100px;
-
   align-items: center;
   gap: 10px;
-
   padding: 11px 0;
   border-bottom: 1px solid var(--border);
 }
@@ -817,13 +670,10 @@ input[type="date"] {
   width: 100%;
   min-width: 0;
   height: 48px;
-
   background: var(--secondary);
   color: var(--text);
-
   border: 1px solid var(--border);
   border-radius: 10px;
-
   text-align: center;
   font-size: 17px;
   font-weight: 750;
@@ -834,48 +684,30 @@ input[type="date"] {
   border-color: var(--accent);
 }
 
-/* ==========================================
-   9. НИЖНЯЯ НАВИГАЦИЯ
-========================================== */
-
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-
   z-index: 100;
-
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-
   height: calc(var(--nav-height) + env(safe-area-inset-bottom));
-
-  padding:
-    7px
-    8px
-    calc(7px + env(safe-area-inset-bottom));
-
+  padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
   background: var(--secondary);
   border-top: 1px solid var(--border);
-
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .nav-button {
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
   gap: 5px;
-
   min-width: 0;
-
   border: 0;
   border-radius: 12px;
-
   background: transparent;
   color: var(--hint);
 }
@@ -888,11 +720,9 @@ input[type="date"] {
 .nav-icon {
   width: 24px;
   height: 24px;
-
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
-
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -903,16 +733,8 @@ input[type="date"] {
   white-space: nowrap;
 }
 
-/* ==========================================
-   10. ЭКСПОРТ PNG
-========================================== */
-
 .export-button {
   margin-top: 11px;
-}
-
-.export-button:disabled {
-  opacity: 0.65;
 }
 
 .export-note {
@@ -922,25 +744,13 @@ input[type="date"] {
   text-align: center;
 }
 
-/*
-  Экспортный документ создаётся отдельно
-  от интерфейса приложения.
-
-  Это позволяет не менять реальные input,
-  не скрывать навигацию и не нарушать работу
-  калькулятора во время экспорта.
-*/
-
 #exportWorkspace {
   position: fixed;
   left: 0;
   top: 0;
-
   width: 800px;
-
   z-index: -1000;
   pointer-events: none;
-
   opacity: 0;
   overflow: visible;
 }
@@ -948,10 +758,8 @@ input[type="date"] {
 .export-document {
   width: 800px;
   padding: 40px;
-
   background: #ffffff;
   color: #172033;
-
   font-family: Arial, sans-serif;
   font-size: 15px;
   line-height: 1.45;
@@ -983,7 +791,6 @@ input[type="date"] {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
-
   margin-bottom: 25px;
 }
 
@@ -991,7 +798,6 @@ input[type="date"] {
   background: #f1f5f9;
   padding: 13px;
   border-radius: 9px;
-
   overflow-wrap: anywhere;
 }
 
@@ -1009,10 +815,8 @@ input[type="date"] {
 .export-notes {
   margin-bottom: 25px;
   padding: 14px;
-
   background: #f8fafc;
   border-left: 4px solid #2563eb;
-
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -1020,19 +824,15 @@ input[type="date"] {
 .export-zone {
   margin-bottom: 25px;
   padding: 20px;
-
   border: 1px solid #cbd5e1;
   border-radius: 12px;
-
   break-inside: avoid;
 }
 
 .export-zone-title {
   margin: 0 0 15px;
   padding-bottom: 10px;
-
   border-bottom: 1px solid #e2e8f0;
-
   font-size: 20px;
   font-weight: 800;
   color: #172033;
@@ -1048,10 +848,8 @@ input[type="date"] {
 .export-row {
   display: flex;
   justify-content: space-between;
-
   gap: 15px;
   padding: 6px 0;
-
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -1071,14 +869,10 @@ input[type="date"] {
 .export-zone-total {
   display: flex;
   justify-content: space-between;
-
   gap: 15px;
-
   margin-top: 17px;
   padding-top: 15px;
-
   border-top: 2px solid #2563eb;
-
   font-size: 19px;
   font-weight: 800;
 }
@@ -1089,10 +883,8 @@ input[type="date"] {
 
 .export-grand-summary {
   padding: 24px;
-
   border-radius: 14px;
   background: #eff6ff;
-
   border: 2px solid #2563eb;
 }
 
@@ -1103,7 +895,6 @@ input[type="date"] {
 
 .export-grand-value {
   margin-top: 10px;
-
   font-size: 34px;
   font-weight: 800;
   color: #1d4ed8;
@@ -1112,17 +903,11 @@ input[type="date"] {
 .export-footer {
   margin-top: 25px;
   padding-top: 15px;
-
   border-top: 1px solid #cbd5e1;
-
   color: #64748b;
   font-size: 12px;
   text-align: center;
 }
-
-/* ==========================================
-   11. АДАПТИВНОСТЬ
-========================================== */
 
 @media (max-width: 360px) {
   .app {
@@ -1163,9 +948,7 @@ input[type="date"] {
 
 <main class="app">
 
-  <!-- ======================================
-       СМЕТЫ / DASHBOARD
-  ======================================= -->
+  <!-- СМЕТЫ -->
 
   <section
     class="page active"
@@ -1235,9 +1018,7 @@ input[type="date"] {
     <div id="estimatesList"></div>
   </section>
 
-  <!-- ======================================
-       НОВЫЙ РАСЧЁТ
-  ======================================= -->
+  <!-- НОВЫЙ РАСЧЁТ -->
 
   <section
     class="page"
@@ -1257,10 +1038,10 @@ input[type="date"] {
 
     <form id="estimateForm" novalidate>
 
-      <!-- ДАННЫЕ ОБЪЕКТА -->
-
       <section class="card">
-        <h2 class="card-title">Информация об объекте</h2>
+        <h2 class="card-title">
+          Информация об объекте
+        </h2>
 
         <div class="field">
           <label for="estimateCustomer">
@@ -1326,8 +1107,6 @@ input[type="date"] {
         </div>
       </section>
 
-      <!-- ЗОНЫ -->
-
       <div class="section-heading">
         <h2>Зоны работ</h2>
 
@@ -1359,8 +1138,6 @@ input[type="date"] {
 
       <div id="zonesContainer"></div>
 
-      <!-- ОБЩИЙ ИТОГ -->
-
       <section class="estimate-summary">
         <h2 class="card-title">
           Итог по смете
@@ -1390,8 +1167,6 @@ input[type="date"] {
         </div>
       </section>
 
-      <!-- СТАТУС И СОХРАНЕНИЕ -->
-
       <section class="card">
         <div class="field">
           <label for="estimateStatus">
@@ -1406,6 +1181,10 @@ input[type="date"] {
             <option value="approved">
               Согласована
             </option>
+
+            <option value="completed">
+              Выполнена
+            </option>
           </select>
         </div>
 
@@ -1416,8 +1195,6 @@ input[type="date"] {
         >
           💾 Сохранить смету
         </button>
-
-        <!-- НОВАЯ КНОПКА PNG -->
 
         <button
           type="button"
@@ -1445,9 +1222,7 @@ input[type="date"] {
     </form>
   </section>
 
-  <!-- ======================================
-       ПРАЙС-ЛИСТ
-  ======================================= -->
+  <!-- ЕДИНЫЙ ПРАЙС-ЛИСТ -->
 
   <section
     class="page"
@@ -1461,33 +1236,9 @@ input[type="date"] {
       </h1>
 
       <p class="page-subtitle">
-        Глобальные цены и проценты
+        Единые цены и проценты для всех зон работ
       </p>
     </header>
-
-    <div
-      class="segmented-control"
-      role="group"
-      aria-label="Настройки пола или стены"
-    >
-      <button
-        type="button"
-        class="segment-button active"
-        data-price-type="floor"
-        aria-pressed="true"
-      >
-        Пол
-      </button>
-
-      <button
-        type="button"
-        class="segment-button"
-        data-price-type="wall"
-        aria-pressed="false"
-      >
-        Стена
-      </button>
-    </div>
 
     <div
       class="save-status"
@@ -1503,9 +1254,7 @@ input[type="date"] {
 
 </main>
 
-<!-- ========================================
-     НИЖНЯЯ НАВИГАЦИЯ
-========================================= -->
+<!-- НИЖНЯЯ НАВИГАЦИЯ -->
 
 <nav class="bottom-nav" aria-label="Навигация">
 
@@ -1554,8 +1303,6 @@ input[type="date"] {
 
 </nav>
 
-<!-- ВРЕМЕННЫЙ КОНТЕЙНЕР ДЛЯ PNG -->
-
 <div
   id="exportWorkspace"
   aria-hidden="true"
@@ -1572,16 +1319,6 @@ const tg = window.Telegram?.WebApp ?? null;
 
 const APP_BROWSER_URL =
   "https://savinvasya.github.io/Tile-calculator1/?v=3";
-
-/*
-  Telegram SDK загружается и в обычном браузере.
-
-  Поэтому одного window.Telegram.WebApp
-  недостаточно для определения Mini App.
-
-  initData присутствует при реальном запуске
-  через Telegram.
-*/
 
 function isTelegramMiniApp() {
   return Boolean(
@@ -1623,7 +1360,6 @@ const PRICE_STORAGE_KEY = "priceList";
 const ESTIMATES_STORAGE_KEY = "estimates";
 const DRAFT_STORAGE_KEY = "tileCalculatorCurrentDraft";
 const PAGE_STORAGE_KEY = "tileAppActivePage";
-const TYPE_STORAGE_KEY = "tileAppPriceType";
 
 const ADDON_GROUPS = [
   "size",
@@ -1642,8 +1378,6 @@ const QUANTITY_GROUPS = [
   "holes",
   "preparation"
 ];
-
-const PRICE_TYPES = ["floor", "wall"];
 
 const moneyFormatter = new Intl.NumberFormat("ru-RU", {
   minimumFractionDigits: 2,
@@ -1775,7 +1509,7 @@ function showMessage(message, type = "success") {
 }
 
 /* ==========================================
-   4. СХЕМА ПРАЙС-ЛИСТА
+   4. СХЕМА ЕДИНОГО ПРАЙС-ЛИСТА
 ========================================== */
 
 const PRICE_SCHEMA = [
@@ -1789,8 +1523,7 @@ const PRICE_SCHEMA = [
       {
         key: "standard",
         label: "Стандартная цена укладки плитки",
-        value: 800,
-        wallValue: 500
+        value: 800
       }
     ]
   },
@@ -1800,7 +1533,6 @@ const PRICE_SCHEMA = [
     title: "Размер плитки",
     icon: "📐",
     fields: [
-      {key: "none", label: "Без надбавки", value: 0},
       {key: "30x30", label: "30 × 30 см", value: 0},
       {key: "60x60", label: "60 × 60 см", value: 10},
       {key: "60to100", label: "От 60 до 100 см", value: 20},
@@ -1842,6 +1574,7 @@ const PRICE_SCHEMA = [
     title: "Кривизна плитки",
     icon: "〰️",
     fields: [
+      {key: "none", label: "Без надбавки", value: 0},
       {key: "seams", label: "По швам", value: 20},
       {key: "height", label: "По высоте", value: 20},
       {key: "calibration", label: "Калибровка", value: 30}
@@ -2001,25 +1734,22 @@ const SCHEMA_MAP = Object.fromEntries(
 );
 
 /* ==========================================
-   5. ПРАЙС-ЛИСТ
+   5. ЕДИНЫЙ ПРАЙС-ЛИСТ
+
+   Новая структура:
+   priceList.base.standard
+   priceList.size["60x60"]
+   priceList.position.floor
 ========================================== */
 
 function createDefaultPriceList() {
-  const result = {
-    floor: {},
-    wall: {}
-  };
+  const result = {};
 
-  PRICE_TYPES.forEach(type => {
-    PRICE_SCHEMA.forEach(group => {
-      result[type][group.id] = {};
+  PRICE_SCHEMA.forEach(group => {
+    result[group.id] = {};
 
-      group.fields.forEach(field => {
-        result[type][group.id][field.key] =
-          type === "wall" && field.wallValue !== undefined
-            ? field.wallValue
-            : field.value;
-      });
+    group.fields.forEach(field => {
+      result[group.id][field.key] = field.value;
     });
   });
 
@@ -2034,42 +1764,63 @@ function loadPriceList() {
     return defaults;
   }
 
-  PRICE_TYPES.forEach(type => {
-    PRICE_SCHEMA.forEach(group => {
-      group.fields.forEach(field => {
-        const value = saved?.[type]?.[group.id]?.[field.key];
+  /*
+    Миграция старого формата:
+    priceList.floor.group.field
 
-        if (
-          value === undefined ||
-          value === null ||
-          value === ""
-        ) {
-          return;
-        }
+    Если сохранён старый прайс, переносим
+    значения из floor в единый прайс.
 
-        const number = Number(value);
+    Для новых данных используется
+    только плоская структура.
+  */
 
-        if (Number.isFinite(number) && number >= 0) {
-          defaults[type][group.id][field.key] = number;
-        }
-      });
+  const isLegacy =
+    saved.floor &&
+    typeof saved.floor === "object" &&
+    saved.wall &&
+    typeof saved.wall === "object";
+
+  const source = isLegacy
+    ? saved.floor
+    : saved;
+
+  PRICE_SCHEMA.forEach(group => {
+    group.fields.forEach(field => {
+      const value = source?.[group.id]?.[field.key];
+
+      if (
+        value === undefined ||
+        value === null ||
+        value === ""
+      ) {
+        return;
+      }
+
+      const number = Number(value);
+
+      if (Number.isFinite(number) && number >= 0) {
+        defaults[group.id][field.key] = number;
+      }
     });
   });
+
+  /*
+    После миграции сохраняем только
+    новую плоскую структуру.
+  */
+
+  if (isLegacy) {
+    writeJSON(PRICE_STORAGE_KEY, defaults);
+  }
 
   return defaults;
 }
 
 let priceList = loadPriceList();
 
-let activePriceType =
-  readJSON(TYPE_STORAGE_KEY, "floor");
-
-if (!PRICE_TYPES.includes(activePriceType)) {
-  activePriceType = "floor";
-}
-
-function getPrice(type, group, field) {
-  return num(priceList?.[type]?.[group]?.[field]);
+function getPrice(group, field) {
+  return num(priceList?.[group]?.[field]);
 }
 
 function savePriceList() {
@@ -2095,7 +1846,7 @@ function renderPriceList() {
   container.innerHTML = PRICE_SCHEMA.map(group => {
     const rows = group.fields.map(field => {
       const value =
-        priceList[activePriceType][group.id][field.key];
+        priceList[group.id][field.key];
 
       const unit = group.unit || (
         group.id === "base"
@@ -2104,7 +1855,7 @@ function renderPriceList() {
       );
 
       const inputId =
-        `price-${activePriceType}-${group.id}-${field.key}`;
+        `price-${group.id}-${field.key}`;
 
       return `
         <div class="setting-row">
@@ -2152,30 +1903,6 @@ function renderPriceList() {
   }).join("");
 }
 
-function switchPriceType(type) {
-  if (!PRICE_TYPES.includes(type)) return;
-
-  activePriceType = type;
-
-  writeJSON(TYPE_STORAGE_KEY, type);
-
-  document.querySelectorAll(
-    "[data-price-type]"
-  ).forEach(button => {
-    const active =
-      button.dataset.priceType === type;
-
-    button.classList.toggle("active", active);
-
-    button.setAttribute(
-      "aria-pressed",
-      String(active)
-    );
-  });
-
-  renderPriceList();
-}
-
 byId("priceListContainer").addEventListener(
   "input",
   event => {
@@ -2190,7 +1917,7 @@ byId("priceListContainer").addEventListener(
 
     if (
       !Object.prototype.hasOwnProperty.call(
-        priceList[activePriceType]?.[group] ?? {},
+        priceList[group] ?? {},
         field
       )
     ) {
@@ -2207,7 +1934,7 @@ byId("priceListContainer").addEventListener(
       return;
     }
 
-    priceList[activePriceType][group][field] = value;
+    priceList[group][field] = value;
 
     savePriceList();
     calculateEstimate();
@@ -2224,21 +1951,11 @@ byId("priceListContainer").addEventListener(
     if (!input) return;
 
     input.value = getPrice(
-      activePriceType,
       input.dataset.priceGroup,
       input.dataset.priceField
     );
   }
 );
-
-document.querySelectorAll(
-  "[data-price-type]"
-).forEach(button => {
-  button.addEventListener("click", () => {
-    switchPriceType(button.dataset.priceType);
-    haptic();
-  });
-});
 
 /* ==========================================
    6. СТРУКТУРА ЗОНЫ
@@ -2254,6 +1971,14 @@ function createEmptyZone(type = "floor") {
     addons[groupId] =
       SCHEMA_MAP[groupId].fields[0].key;
   });
+
+  /*
+    Тип зоны определяет начальное
+    расположение плитки.
+
+    Процент всегда берётся из
+    единого прайс-листа.
+  */
 
   addons.position =
     type === "floor" ? "floor" : "wall";
@@ -2393,10 +2118,17 @@ function normalizeEstimate(source) {
   estimate.roomType = String(source.roomType ?? "");
   estimate.notes = String(source.notes ?? "");
 
-  estimate.status =
-    source.status === "approved"
-      ? "approved"
-      : "draft";
+  const validStatuses = [
+    "draft",
+    "approved",
+    "completed"
+  ];
+
+  estimate.status = validStatuses.includes(
+    source.status
+  )
+    ? source.status
+    : "draft";
 
   estimate.zones = Array.isArray(source.zones)
     ? source.zones.map(normalizeZone)
@@ -2442,14 +2174,11 @@ function persistDraft() {
 }
 
 /* ==========================================
-   8. РАСЧЁТ ЗОНЫ
+   8. РАСЧЁТ ЗОНЫ ПО ЕДИНОМУ ПРАЙСУ
 ========================================== */
 
 function calculateZone(zone) {
-  const type = zone.type;
-
   const basePrice = getPrice(
-    type,
     "base",
     "standard"
   );
@@ -2458,14 +2187,12 @@ function calculateZone(zone) {
 
   ADDON_GROUPS.forEach(groupId => {
     totalPercent += getPrice(
-      type,
       groupId,
       zone.addons[groupId]
     );
   });
 
   const tileExtraPercent = getPrice(
-    type,
     "expensiveTile",
     "extraPercent"
   );
@@ -2490,7 +2217,6 @@ function calculateZone(zone) {
     return Object.entries(values).reduce(
       (total, [key, quantity]) => {
         const percent = getPrice(
-          type,
           groupId,
           key
         );
@@ -2526,7 +2252,6 @@ function calculateZone(zone) {
       : "groutCement";
 
   const groutRate = getPrice(
-    type,
     groutGroup,
     zone.grout.width
   );
@@ -2535,7 +2260,6 @@ function calculateZone(zone) {
     zone.grout.length * groutRate;
 
   const siliconeRate = getPrice(
-    type,
     "silicone",
     zone.grout.siliconeWidth
   );
@@ -2628,7 +2352,6 @@ function addonSelectHTML(zone, groupId) {
 
   const options = group.fields.map(field => {
     const percent = getPrice(
-      zone.type,
       groupId,
       field.key
     );
@@ -2684,7 +2407,6 @@ function quantityFieldsHTML(zone, groupId) {
           : "м²";
 
     const percent = getPrice(
-      zone.type,
       groupId,
       field.key
     );
@@ -2824,7 +2546,7 @@ function zoneHTML(zone, index) {
           <h4>Надбавки за укладку</h4>
 
           <p class="zone-group-description">
-            Проценты берутся из Прайс-листа.
+            Проценты берутся из единого Прайс-листа.
           </p>
 
           ${addonFields}
@@ -3059,7 +2781,7 @@ function updateZoneSummary(zoneId, result) {
 ========================================== */
 
 function addZone(type) {
-  if (!PRICE_TYPES.includes(type)) return;
+  if (!["floor", "wall"].includes(type)) return;
 
   currentEstimate.zones.push(
     createEmptyZone(type)
@@ -3443,7 +3165,15 @@ function calculateDashboardStats() {
       0
     );
 
-    if (estimate.status === "approved") {
+    /*
+      В сумму в работе и средний чек
+      входят согласованные и выполненные сметы.
+    */
+
+    if (
+      estimate.status === "approved" ||
+      estimate.status === "completed"
+    ) {
       approvedCount++;
       approvedSum += num(estimate.totalPrice);
     }
@@ -3460,8 +3190,23 @@ function calculateDashboardStats() {
 }
 
 function estimateCardHTML(estimate) {
-  const approved =
-    estimate.status === "approved";
+  const statusMap = {
+    draft: {
+      label: "Черновик",
+      className: "draft"
+    },
+    approved: {
+      label: "Согласована",
+      className: "approved"
+    },
+    completed: {
+      label: "Выполнена",
+      className: "completed"
+    }
+  };
+
+  const status =
+    statusMap[estimate.status] || statusMap.draft;
 
   return `
     <button
@@ -3476,8 +3221,8 @@ function estimateCardHTML(estimate) {
           📅 ${escapeHTML(displayDate(estimate.date))}
         </span>
 
-        <span class="status-badge ${approved ? "approved" : "draft"}">
-          ${approved ? "Согласована" : "Черновик"}
+        <span class="status-badge ${status.className}">
+          ${status.label}
         </span>
 
       </div>
@@ -3664,15 +3409,9 @@ function exportZoneHTML(zone, index) {
     const selected = zone.addons[groupId];
 
     const percent = getPrice(
-      zone.type,
       groupId,
       selected
     );
-
-    /*
-      В документе показываем только
-      реально выбранные надбавки.
-    */
 
     if (percent === 0) return "";
 
@@ -3706,7 +3445,6 @@ function exportZoneHTML(zone, index) {
           field?.unit || unit;
 
         const percent = getPrice(
-          zone.type,
           groupId,
           key
         );
@@ -3866,10 +3604,14 @@ function exportZoneHTML(zone, index) {
 ========================================== */
 
 function buildExportHTML(estimate) {
+  const statusMap = {
+    draft: "Черновик",
+    approved: "Согласована",
+    completed: "Выполнена"
+  };
+
   const statusText =
-    estimate.status === "approved"
-      ? "Согласована"
-      : "Черновик";
+    statusMap[estimate.status] || "Черновик";
 
   const zonesHTML = estimate.zones.map(
     (zone, index) => exportZoneHTML(zone, index)
@@ -4023,46 +3765,32 @@ function makeExportFilename(customer) {
 }
 
 /* ==========================================
-   22. ПЕРЕДАЧА СМЕТЫ ИЗ TELEGRAM В БРАУЗЕР
-
-   В Telegram и внешнем браузере разные
-   хранилища localStorage.
-
-   Поэтому передаём текущую смету и
-   изменённые настройки в URL.
-
-   Это позволяет скачать именно тот расчёт,
-   который пользователь только что заполнил.
+   22. ПЕРЕДАЧА СМЕТЫ И ЕДИНОГО ПРАЙСА
+       ИЗ TELEGRAM В БРАУЗЕР
 ========================================== */
 
 function priceListChanges() {
   const defaults = createDefaultPriceList();
+  const changes = {};
 
-  const changes = {
-    floor: {},
-    wall: {}
-  };
+  PRICE_SCHEMA.forEach(group => {
+    const groupChanges = {};
 
-  PRICE_TYPES.forEach(type => {
-    PRICE_SCHEMA.forEach(group => {
-      const groupChanges = {};
+    group.fields.forEach(field => {
+      const current =
+        priceList[group.id][field.key];
 
-      group.fields.forEach(field => {
-        const current =
-          priceList[type][group.id][field.key];
+      const defaultValue =
+        defaults[group.id][field.key];
 
-        const defaultValue =
-          defaults[type][group.id][field.key];
-
-        if (current !== defaultValue) {
-          groupChanges[field.key] = current;
-        }
-      });
-
-      if (Object.keys(groupChanges).length) {
-        changes[type][group.id] = groupChanges;
+      if (current !== defaultValue) {
+        groupChanges[field.key] = current;
       }
     });
+
+    if (Object.keys(groupChanges).length) {
+      changes[group.id] = groupChanges;
+    }
   });
 
   return changes;
@@ -4072,7 +3800,7 @@ function buildBrowserExportURL() {
   const url = new URL(APP_BROWSER_URL);
 
   const transferData = {
-    version: 3,
+    version: 4,
     estimate: currentEstimate,
     prices: priceListChanges()
   };
@@ -4090,30 +3818,43 @@ function applyTransferredPrices(changes) {
     return;
   }
 
-  PRICE_TYPES.forEach(type => {
-    PRICE_SCHEMA.forEach(group => {
-      group.fields.forEach(field => {
-        const value =
-          changes?.[type]?.[group.id]?.[field.key];
+  /*
+    Поддержка переноса из старой версии
+    с разделением floor / wall.
+  */
 
-        if (
-          value === undefined ||
-          value === null ||
-          value === ""
-        ) {
-          return;
-        }
+  const isLegacy =
+    changes.floor &&
+    typeof changes.floor === "object" &&
+    changes.wall &&
+    typeof changes.wall === "object";
 
-        const number = Number(value);
+  const source = isLegacy
+    ? changes.floor
+    : changes;
 
-        if (
-          Number.isFinite(number) &&
-          number >= 0
-        ) {
-          priceList[type][group.id][field.key] =
-            number;
-        }
-      });
+  PRICE_SCHEMA.forEach(group => {
+    group.fields.forEach(field => {
+      const value =
+        source?.[group.id]?.[field.key];
+
+      if (
+        value === undefined ||
+        value === null ||
+        value === ""
+      ) {
+        return;
+      }
+
+      const number = Number(value);
+
+      if (
+        Number.isFinite(number) &&
+        number >= 0
+      ) {
+        priceList[group.id][field.key] =
+          number;
+      }
     });
   });
 
@@ -4132,7 +3873,7 @@ function restoreTransferredEstimate() {
 
     if (
       !transferred ||
-      transferred.version !== 3 ||
+      ![3, 4].includes(transferred.version) ||
       !transferred.estimate
     ) {
       throw new Error("Неверный формат данных");
@@ -4146,21 +3887,12 @@ function restoreTransferredEstimate() {
       transferred.estimate
     );
 
-    /*
-      В браузере открываем вкладку расчёта.
-    */
-
     writeJSON(
       PAGE_STORAGE_KEY,
       "calculator"
     );
 
     persistDraft();
-
-    /*
-      Удаляем длинные параметры из адресной
-      строки после успешного переноса.
-    */
 
     url.searchParams.delete("transfer");
 
@@ -4204,13 +3936,6 @@ function openExportInBrowser() {
 
     return;
   }
-
-  /*
-    Сначала предупреждаем пользователя.
-
-    После подтверждения открываем ссылку
-    через Telegram WebApp.openLink().
-  */
 
   const message =
     "Чтобы сохранить картинку, приложение откроется в браузере. " +
@@ -4299,13 +4024,6 @@ async function downloadPNG() {
   );
 
   try {
-    /*
-      Создаём отдельный HTML-документ.
-
-      Все значения уже представлены текстом:
-      никаких input, select или кнопок.
-    */
-
     const estimate = clone(currentEstimate);
 
     workspace.innerHTML = buildExportHTML(
@@ -4322,16 +4040,6 @@ async function downloadPNG() {
       );
     }
 
-    /*
-      Делаем снимок клонированного документа.
-
-      onclone позволяет временно показать
-      рабочую область только в копии DOM,
-      используемой html2canvas.
-
-      Исходный интерфейс остаётся неизменным.
-    */
-
     const canvas = await html2canvas(
       documentElement,
       {
@@ -4343,12 +4051,9 @@ async function downloadPNG() {
         ),
 
         useCORS: true,
-
         logging: false,
-
         scrollX: 0,
         scrollY: 0,
-
         windowWidth: 900,
 
         onclone: clonedDocument => {
@@ -4378,10 +4083,6 @@ async function downloadPNG() {
       estimate.customer
     );
 
-    /*
-      Скачивание через Blob и временную ссылку.
-    */
-
     const blob = await new Promise(
       (resolve, reject) => {
         canvas.toBlob(
@@ -4407,9 +4108,7 @@ async function downloadPNG() {
     link.download = filename;
 
     document.body.appendChild(link);
-
     link.click();
-
     link.remove();
 
     setTimeout(() => {
@@ -4437,7 +4136,6 @@ async function downloadPNG() {
     workspace.innerHTML = "";
 
     exportInProgress = false;
-
     button.disabled = false;
 
     updateExportButton();
@@ -4573,14 +4271,9 @@ window.addEventListener(
 ========================================== */
 
 function initializeApp() {
-  /*
-    Восстанавливаем данные, переданные
-    из Telegram во внешний браузер.
-  */
-
   restoreTransferredEstimate();
 
-  switchPriceType(activePriceType);
+  renderPriceList();
 
   fillEstimateForm();
   renderZones();
@@ -4615,6 +4308,10 @@ window.TileApp = {
   },
 
   getPrice,
+
+  getDefaultPriceList() {
+    return createDefaultPriceList();
+  },
 
   getEstimates() {
     return clone(estimates);
