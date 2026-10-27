@@ -4185,15 +4185,15 @@ const money=n=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(N
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pointDescriptions=["Прорезаем штробы, высверливаем отверстия, укладываем провода.", "Подготавливаем каналы в стенах для бра, выводим провода.", "Выводим провода на потолок, соединяем в распредкоробке.", "Монтируем пластиковые коробки, защищаем от грязи.", "Крепим розетки и выключатели после отделки.", "Монтаж щита, подключение вводного кабеля, сборка.", "Уравнивание потенциалов.", "Дополнительная плата за влагозащиту."];
 const pointDefaults=[
- {group:'Подготовка и монтаж',name:'Подготовка мест под розетки/выключатели',unit:'точка',price:2500},
- {group:'Подготовка и монтаж',name:'Разводка проводки под бра',unit:'точка',price:2000},
- {group:'Подготовка и монтаж',name:'Выводы под люстры / освещение',unit:'точка',price:1500},
- {group:'Подготовка и монтаж',name:'Установка подрозетников',unit:'шт.',price:450},
- {group:'Подготовка и монтаж',name:'Финишная установка розеток',unit:'шт.',price:600},
- {group:'Подготовка и монтаж',name:'Монтаж электрощита (договорная)',unit:'шт.',price:3000,isCustom:true},
- {group:'Дополнительные работы',name:'Система безопасности для ванной',unit:'шт.',price:3000,isCustom:true},
- {group:'Дополнительные работы',name:'Доплата за каждую розетку в ванной',unit:'шт.',price:500},
- {group:'Дополнительные работы',name:'Непредвиденные и дополнительные работы',unit:'договорная',price:0,isCustom:true}
+ {group:'Подготовка и монтаж',name:'Подготовка мест под розетки/выключатели',unit:'точка',price:2500,category:'rough'},
+ {group:'Подготовка и монтаж',name:'Разводка проводки под бра',unit:'точка',price:2000,category:'rough'},
+ {group:'Подготовка и монтаж',name:'Выводы под люстры / освещение',unit:'точка',price:1500,category:'rough'},
+ {group:'Подготовка и монтаж',name:'Установка подрозетников',unit:'шт.',price:450,category:'rough'},
+ {group:'Подготовка и монтаж',name:'Финишная установка розеток',unit:'шт.',price:600,category:'finish'},
+ {group:'Подготовка и монтаж',name:'Монтаж электрощита (договорная)',unit:'шт.',price:3000,isCustom:true,category:'extra'},
+ {group:'Дополнительные работы',name:'Система безопасности для ванной',unit:'шт.',price:3000,isCustom:true,category:'extra'},
+ {group:'Дополнительные работы',name:'Доплата за каждую розетку в ванной',unit:'шт.',price:500,category:'extra'},
+ {group:'Дополнительные работы',name:'Непредвиденные и дополнительные работы',unit:'договорная',price:0,isCustom:true,category:'extra'}
 ];
 const meterDefaults=[
  {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 20×40',unit:'м',price:160},
@@ -4235,8 +4235,9 @@ function initModule(key,cfg){
  const state={priceList:read(prefix+'_priceList',cfg.defaults.map(x=>({...x}))),estimates:read(prefix+'_estimates',[]),draft:read(prefix+'_draft',null),editingId:null};states[key]=state;
  // Repair/merge price list by index while preserving saved prices and labels.
  if(!Array.isArray(state.priceList)||state.priceList.length!==cfg.defaults.length) state.priceList=cfg.defaults.map(x=>({...x}));
+ else state.priceList=state.priceList.map((item,i)=>({...cfg.defaults[i],...item,category:cfg.defaults[i].category,isCustom:cfg.defaults[i].isCustom||false}));
  function saveDraft(){write(prefix+'_draft',state.draft)}
- function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
+ function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,category:item.category,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
  function updateElectricalSummary(){
   const lines=getLines();
   const active=lines.filter(x=>x.qty>0);
@@ -4246,10 +4247,20 @@ function initModule(key,cfg){
  }
  function calc(){
   const lines=getLines();
-  const sum=lines.reduce((a,x)=>a+x.price*x.qty,0);
+  let sum=lines.reduce((a,x)=>a+x.price*x.qty,0);
+  if(key==='elec'){
+   const roughSum=lines.filter(x=>x.category==='rough').reduce((a,x)=>a+x.price*x.qty,0);
+   const finishSum=lines.filter(x=>x.category==='finish').reduce((a,x)=>a+x.price*x.qty,0);
+   const extraSum=lines.filter(x=>x.category==='extra').reduce((a,x)=>a+x.price*x.qty,0);
+   const baseSum=roughSum+finishSum+extraSum;
+   const logisticsSum=(state.draft?.logistics==='15')?baseSum*0.15:0;
+   sum=baseSum+logisticsSum;
+   const setText=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=money(value)};
+   setText('sum-rough',roughSum);setText('sum-finish',finishSum);setText('sum-logistics',logisticsSum);setText('sum-extra',extraSum);
+  }
   document.getElementById(cfg.total).textContent=money(sum);
   updateElectricalSummary();
-  state.draft={customer:document.getElementById(cfg.customer).value,quantities:lines.map(x=>x.qty),editingId:state.editingId};
+  state.draft={...(state.draft||{}),customer:document.getElementById(cfg.customer).value,quantities:lines.map(x=>x.qty),editingId:state.editingId};
   saveDraft();
   return sum;
  }
@@ -4259,14 +4270,24 @@ function initModule(key,cfg){
     let heading='';
     if(x.group!==last){last=x.group;heading=`<h3 class="card-title" style="margin-top:18px">${esc(last)}</h3>`}
     const quantity=Number(state.draft?.quantities?.[i])||0;
-    const customHint=x.isCustom?(Number(x.price)>0?`от ${money(x.price)}`:'договорная'):'';
-    return `${heading}<div class="zone-number-row electrical-work-row"><label for="${prefix}-qty-${i}"><span class="electrical-work-title">${esc(x.name)}</span><span class="setting-unit">${money(x.price)} / ${esc(x.unit)}</span>${x.isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:''}<span class="electrical-line-total" id="${prefix}-line-${i}">Сумма: ${money(quantity*x.price)}</span></label><input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${quantity}" aria-label="Количество: ${esc(x.name)}"></div>`
+    const customHint=Number(x.price)>0?`от ${money(x.price)}`:'договорная';
+    const isCustom=key==='elec'&&x.isCustom===true;
+    const mainPrice=isCustom?'':`<span class="setting-unit">${money(x.price)} / ${esc(x.unit)}</span>`;
+    const hint=isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:'';
+    return `${heading}<div class="zone-number-row electrical-work-row"><label for="${prefix}-qty-${i}"><span class="electrical-work-title">${esc(x.name)}</span>${mainPrice}${hint}<span class="electrical-line-total" id="${prefix}-line-${i}">Сумма: ${money(quantity*x.price)}</span></label><input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${quantity}" aria-label="Количество: ${esc(x.name)}"></div>`
   }).join('');
   host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{
     const q=Math.max(0,Number(inp.value)||0);
     document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent='Сумма: '+money(q*state.priceList[Number(inp.dataset.qty)].price);
     calc();
   }));
+  if(key==='elec'){
+   const summary=host.parentElement.querySelector('.estimate-summary');
+   if(summary){
+    summary.innerHTML=`<div class="field" style="margin-top:15px;"><label>Логистика</label><select id="elec-logistics" data-logistics><option value="none" ${state.draft?.logistics==='none'||!state.draft?.logistics?'selected':''}>Без логистики</option><option value="15" ${state.draft?.logistics==='15'?'selected':''}>Логистика (+15% от работ)</option></select></div><div class="summary-line"><span>Черновой монтаж</span><strong id="sum-rough">0 ₽</strong></div><div class="summary-line"><span>Чистовая установка</span><strong id="sum-finish">0 ₽</strong></div><div class="summary-line"><span>Логистика и материалы</span><strong id="sum-logistics">0 ₽</strong></div><div class="summary-line"><span>Дополнительные работы</span><strong id="sum-extra">0 ₽</strong></div><div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="elec-total">0 ₽</div></div>`;
+    summary.querySelector('[data-logistics]').addEventListener('change',event=>{state.draft={...(state.draft||{}),logistics:event.target.value};saveDraft();calc()});
+   }
+  }
   calc();
  }
  function renderPrices(){
@@ -4274,9 +4295,13 @@ function initModule(key,cfg){
   host.innerHTML=state.priceList.map((x,i)=>{
     let heading='';
     if(x.group!==last){last=x.group;heading=`<h3 class="card-title" style="margin-top:18px">${esc(last)}</h3>`}
-    const customHint=x.isCustom?(Number(x.price)>0?`от ${money(x.price)}`:'договорная'):'';
-    return `${heading}<div class="setting-row"><label for="${prefix}-price-${i}">${esc(x.name)}<span class="setting-unit">${esc(x.unit)}</span>${x.isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:''}${key==='elec'?`<span class="setting-unit">${esc(pointDescriptions[i]||'')}</span>`:''}</label><input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`
+    const customHint=Number(x.price)>0?`от ${money(x.price)}`:'договорная';
+    const isCustom=key==='elec'&&x.isCustom===true;
+    const unitText=isCustom?'':`<span class="setting-unit">${esc(x.unit)}</span>`;
+    const hint=isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:'';
+    return `${heading}<div class="setting-row"><label for="${prefix}-price-${i}">${esc(x.name)}${unitText}${hint}${key==='elec'?`<span class="setting-unit">${esc(pointDescriptions[i]||'')}</span>`:''}</label><input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`
   }).join('');
+  if(key==='elec') host.insertAdjacentHTML('beforeend',`<div class="card" style="margin-top:15px;"><h2 class="card-title">Примечания</h2><div class="muted small" style="line-height:1.6;">• Материалы (провода, коробки, защита): ≈80% от стоимости работ.<br>Пример для квартиры 40 м²:<br>- 200 м провода 3×1.5 мм².<br>- 200 м провода 3×2.5 мм².<br><br>• Непредвиденные расходы: по факту.</div></div>`);
  }
  function renderEstimates(){
   const host=document.getElementById(cfg.estimates);
@@ -4331,9 +4356,9 @@ function initModule(key,cfg){
   if(tab==='prices')renderPrices();
   window.scrollTo(0,0);
  }
- function newEstimate(){state.editingId=null;state.draft={customer:'',quantities:cfg.defaults.map(()=>0)};document.getElementById(cfg.customer).value='';renderWork();switchTab('calc');document.getElementById(cfg.customer).focus()}
- function openEstimate(id){const e=state.estimates.find(x=>x.id===id);if(!e)return;state.editingId=e.id;state.draft={customer:e.customer,quantities:state.priceList.map((_,i)=>e.lines.find(x=>x.index===i)?.qty||0)};document.getElementById(cfg.customer).value=e.customer||'';renderWork();switchTab('calc')}
- function saveEstimate(){const lines=getLines();const total=lines.reduce((a,x)=>a+x.qty*x.price,0);const old=state.estimates.find(x=>x.id===state.editingId);const e={id:state.editingId||('e'+Date.now()+Math.random().toString(16).slice(2,6)),customer:document.getElementById(cfg.customer).value.trim()||'Без названия',date:old?.date||new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines,total};if(old)state.estimates=state.estimates.map(x=>x.id===old.id?e:x);else state.estimates.push(e);write(prefix+'_estimates',state.estimates);state.editingId=e.id;renderEstimates();switchTab('estimates');}
+ function newEstimate(){state.editingId=null;state.draft={customer:'',quantities:cfg.defaults.map(()=>0),...(key==='elec'?{logistics:'none'}:{})};document.getElementById(cfg.customer).value='';renderWork();switchTab('calc');document.getElementById(cfg.customer).focus()}
+ function openEstimate(id){const e=state.estimates.find(x=>x.id===id);if(!e)return;state.editingId=e.id;state.draft={customer:e.customer,quantities:state.priceList.map((_,i)=>e.lines.find(x=>x.index===i)?.qty||0),...(key==='elec'?{logistics:e.logistics||'none'}:{})};document.getElementById(cfg.customer).value=e.customer||'';renderWork();switchTab('calc')}
+ function saveEstimate(){const lines=getLines();const total=key==='elec'?calc():lines.reduce((a,x)=>a+x.qty*x.price,0);const old=state.estimates.find(x=>x.id===state.editingId);const e={id:state.editingId||('e'+Date.now()+Math.random().toString(16).slice(2,6)),customer:document.getElementById(cfg.customer).value.trim()||'Без названия',date:old?.date||new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines,total,...(key==='elec'?{logistics:state.draft?.logistics||'none'}:{})};if(old)state.estimates=state.estimates.map(x=>x.id===old.id?e:x);else state.estimates.push(e);write(prefix+'_estimates',state.estimates);state.editingId=e.id;renderEstimates();switchTab('estimates');}
  async function exportEstimate(e){if(!e){alert('Сначала сохраните смету.');return}const lines=e.lines.filter(x=>x.qty>0);const node=document.createElement('div');node.style.cssText='position:fixed;left:-10000px;top:0;width:700px;padding:28px;background:#fff;color:#172033;font-family:Arial,sans-serif';node.innerHTML=`<h1 style="margin:0 0 8px">${key==='elec'?'Электрика по точкам':'Электрика метраж'}</h1><p>${esc(e.customer)} · ${esc(e.date)}</p><hr>${lines.map(x=>`<p style="display:flex;justify-content:space-between;gap:20px"><span>${esc(x.name)} — ${x.qty} ${esc(x.unit)} × ${money(x.price)}</span><b>${money(x.qty*x.price)}</b></p>`).join('')}<hr><h2>Итого: ${money(e.total)}</h2>`;document.body.appendChild(node);try{if(!window.html2canvas)throw new Error('html2canvas unavailable');const canvas=await html2canvas(node,{scale:2,backgroundColor:'#fff'});const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('PNG error');const file=new File([blob],`${prefix}-estimate.png`,{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Смета',text:e.customer})}else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();URL.revokeObjectURL(a.href)}}catch(err){alert('Не удалось создать или отправить PNG. Попробуйте открыть смету в браузере с поддержкой html2canvas.')}finally{node.remove()}}
  const moduleRoot = document.getElementById(cfg.app);
  const bottomNav = moduleRoot.querySelector(':scope > .bottom-nav');
