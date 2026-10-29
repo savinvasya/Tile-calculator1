@@ -1013,6 +1013,7 @@ input[type="date"] { color-scheme: dark; }
 #elec-app .setting-unit,
 #meters-app .setting-unit { display:block; margin-top:4px; color:var(--hint); font-size:12px; line-height:1.35; }
 
+#meters-app .gkl-price-accordion{margin:12px 0;border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--card)} #meters-app .gkl-price-accordion summary{font-weight:750;cursor:pointer;padding:6px 0;line-height:1.4} #meters-app .gkl-price-accordion[open] summary{margin-bottom:12px}
 .cut-accordion-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}.cut-accordion-toggle{width:100%;text-align:left;justify-content:flex-start;min-height:44px;font-weight:700}.cut-accordion-panel{padding:8px 0 2px;overflow:hidden}
 </style>
 </head>
@@ -1534,6 +1535,19 @@ function showMessage(message, type = "success") {
 
 const PRICE_SCHEMA = [
   {
+    id: "preparation",
+    title: "Подготовка поверхности",
+    icon: "🛠️",
+    fields: [
+      {key: "screed", label: "Стяжка пола", value: 500, unit: "м²", isRub: true},
+      {key: "selfLeveling", label: "Наливной пол", value: 300, unit: "м²", isRub: true},
+      {key: "plaster", label: "Штукатурка стен", value: 400, unit: "м²", isRub: true},
+      {key: "leveling", label: "Выравнивание поверхности", value: 250, unit: "м²", isRub: true},
+      {key: "primerBefore", label: "Грунтовка до гидроизоляции", value: 3, unit: "м²"},
+      {key: "waterproof", label: "Гидроизоляция, 2 слоя", value: 25, unit: "м²"}
+    ]
+  },
+  {
     id: "base",
     title: "Базовая ставка",
     icon: "💰",
@@ -1719,19 +1733,6 @@ const PRICE_SCHEMA = [
       {key: "2", label: "Шов 2 мм", value: 120},
       {key: "2.5", label: "Шов 2,5 мм", value: 150},
       {key: "3", label: "Шов 3 мм", value: 170}
-    ]
-  },
-  {
-    id: "preparation",
-    title: "Подготовка поверхности",
-    icon: "🛠️",
-    fields: [
-      {key: "screed", label: "Стяжка пола", value: 500, unit: "м²", isRub: true},
-      {key: "selfLeveling", label: "Наливной пол", value: 300, unit: "м²", isRub: true},
-      {key: "plaster", label: "Штукатурка стен", value: 400, unit: "м²", isRub: true},
-      {key: "leveling", label: "Выравнивание поверхности", value: 250, unit: "м²", isRub: true},
-      {key: "primerBefore", label: "Грунтовка до гидроизоляции", value: 3, unit: "м²"},
-      {key: "waterproof", label: "Гидроизоляция, 2 слоя", value: 25, unit: "м²"}
     ]
   }
 ];
@@ -4476,14 +4477,25 @@ function initModule(key,cfg){
  if(!Array.isArray(state.priceList) || state.priceList.length === 0) {
    state.priceList = cfg.defaults.map(x=>({...x}));
  } else {
+   // Собираем имена всех уже сохраненных строк
+   const existingNames = new Set(state.priceList.map(x => x.name));
+   // Добавляем недостающие строки из дефолтного списка
+   cfg.defaults.forEach(def => {
+     if (!existingNames.has(def.name)) {
+       state.priceList.push({...def});
+     }
+   });
+   // Восстанавливаем категории и свойства
    state.priceList = state.priceList.map(item => {
-     const def = cfg.defaults.find(d => d.name === item.name && d.group === item.group);
+     const def = cfg.defaults.find(d => d.name === item.name);
      return {
        ...item,
        category: item.category || (def ? def.category : undefined),
        isCustom: item.isCustom !== undefined ? item.isCustom : (def ? def.isCustom : false)
      };
    });
+   // Принудительно сохраняем объединенный список
+   write(prefix+'_priceList', state.priceList);
  }
  function saveDraft(){write(prefix+'_draft',state.draft)}
  function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,category:item.category,isCustom:key==='elec'&&item.isCustom===true,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
@@ -4548,8 +4560,13 @@ function initModule(key,cfg){
     write(prefix+'_priceList', state.priceList);
   }
   // ----------------------------
+  const searchTerm = (document.getElementById(prefix + '-search-work')?.value || '').trim().toLocaleLowerCase('ru-RU');
   const groups = [];
   state.priceList.forEach((item, i) => {
+    // Если есть поисковый запрос и название работы не совпадает — пропускаем
+    if (searchTerm && !String(item.name).toLocaleLowerCase('ru-RU').includes(searchTerm)) {
+      return;
+    }
     let group = groups.find(g => g.name === item.group);
     if (!group) { group = { name: item.group, items: [] }; groups.push(group); }
     group.items.push({ item, index: i });
@@ -4724,17 +4741,15 @@ function initModule(key,cfg){
   calc();
  }
  function renderPrices(){
-  const host=document.getElementById(cfg.prices);let last='';
-  host.innerHTML=state.priceList.map((x,i)=>{
-    let heading='';
-    if(x.group!==last){last=x.group;heading=`<h3 class="card-title" style="margin-top:18px">${esc(last)}</h3>`}
-    const customHint=Number(x.price)>0?`от ${money(x.price)}`:'договорная';
-    const isCustom=key==='elec'&&x.isCustom===true;
-    const unitText=isCustom?'':`<span class="setting-unit">${esc(x.unit)}</span>`;
-    const hint=isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:'';
-    return `${heading}<div class="setting-row"><label for="${prefix}-price-${i}">${esc(x.name)}${unitText}${hint}${key==='elec'&&!isCustom?`<span class="setting-unit">${esc(pointDescriptions[i]||'')}</span>`:''}</label><input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="1" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}"></div>`
-  }).join('');
-  if(key==='elec') host.insertAdjacentHTML('beforeend',`<div class="card" style="margin-top:15px;"><h2 class="card-title">Примечания</h2><div class="muted small" style="line-height:1.6;">• Материалы (провода, коробки, защита): ≈80% от стоимости работ.<br>Пример для квартиры 40 м²:<br>- 200 м провода 3×1.5 мм².<br>- 200 м провода 3×2.5 мм².<br><br>• Непредвиденные расходы: по факту.</div></div>`);
+  const host=document.getElementById(cfg.prices);
+  const groups=new Map();
+  state.priceList.forEach((x,i)=>{if(!groups.has(x.group))groups.set(x.group,[]);groups.get(x.group).push({x,i});});
+  
+  host.innerHTML=[...groups].map(([group,items],idx)=>`     <details class="gkl-price-accordion" ${idx===0?'open':''}>       <summary>${esc(group)}</summary>       ${items.map(({x,i})=>`         <div class="setting-row">           <label for="${prefix}-price-${i}">             ${esc(x.name)}             <span class="setting-unit">${key==='elec'&&x.isCustom===true?'договорная':esc(x.unit)}</span>             ${key==='elec'&&!x.isCustom?`<span class="setting-unit">${esc(pointDescriptions[i]||'')}</span>`:''}           </label>           <input class="setting-input" id="${prefix}-price-${i}" type="number" min="0" step="any" data-price="${i}" value="${Number(x.price)||0}" aria-label="Цена: ${esc(x.name)}">         </div>`).join('')}     </details>`).join('');
+  
+  if(key==='elec') {
+    host.insertAdjacentHTML('beforeend', `<div class="card" style="margin-top:15px;"><h2 class="card-title">Примечания</h2><div class="muted small" style="line-height:1.6;">• Материалы (провода, коробки, защита): ≈80% от стоимости работ.<br>Пример для квартиры 40 м²:<br>- 200 м провода 3×1.5 мм².<br>- 200 м провода 3×2.5 мм².<br><br>• Непредвиденные расходы: по факту.</div></div>`);
+  }
  }
  function renderEstimates(){
   const host=document.getElementById(cfg.estimates);
@@ -4998,7 +5013,30 @@ showModule('menu');
   </section>
   <section class="page module-panel" data-gkl-panel="prices" id="gkl-page-prices" hidden><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu type="button">🏠 В меню</button><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Гипсокартон</p></header><section class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="gkl-price-list"></div><div class="module-actions"><button class="btn btn-primary" id="gkl-save-prices" type="button" style="flex:1">Сохранить цены</button><button class="btn btn-secondary" id="gkl-download-prices-png" type="button" style="flex:1">📸 Сохранить в PNG</button></div></section></section>
  </main>
- <nav class="bottom-nav" aria-label="Навигация: Гипсокартон"><button class="nav-button active" data-gkl-tab="estimates" type="button"><span class="nav-icon">📋</span><span class="nav-label">Сметы</span></button><button class="nav-button" data-gkl-tab="calc" type="button"><span class="nav-icon">🧮</span><span class="nav-label">Новый расчёт</span></button><button class="nav-button" data-gkl-tab="prices" type="button"><span class="nav-icon">💰</span><span class="nav-label">Прайс-лист</span></button></nav>
+ <nav class="bottom-nav" aria-label="Навигация: Гипсокартон">
+  <button class="nav-button active" data-gkl-tab="estimates" type="button">
+    <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+    </svg>
+    <span class="nav-label">Сметы</span>
+  </button>
+  <button class="nav-button" data-gkl-tab="calc" type="button">
+    <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+      <rect height="20" rx="2" width="14" x="5" y="2"></rect>
+      <path d="M8 6h8v4H8z"></path>
+      <path d="M8 14h1M12 14h1M16 14h1M8 18h1M12 18h1M16 18h1"></path>
+    </svg>
+    <span class="nav-label">Новый расчёт</span>
+  </button>
+  <button class="nav-button" data-gkl-tab="prices" type="button">
+    <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+      <circle cx="7" cy="7" r="2"></circle>
+      <circle cx="17" cy="17" r="2"></circle>
+      <path d="M19 5 5 19"></path>
+    </svg>
+    <span class="nav-label">Прайс-лист</span>
+  </button>
+</nav>
 </div>
 
 <style>
