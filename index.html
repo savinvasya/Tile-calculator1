@@ -1013,6 +1013,7 @@ input[type="date"] { color-scheme: dark; }
 #elec-app .setting-unit,
 #meters-app .setting-unit { display:block; margin-top:4px; color:var(--hint); font-size:12px; line-height:1.35; }
 
+.cut-accordion-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}.cut-accordion-toggle{width:100%;text-align:left;justify-content:flex-start;min-height:44px;font-weight:700}.cut-accordion-panel{padding:8px 0 2px;overflow:hidden}
 </style>
 </head>
 <body>
@@ -1022,9 +1023,10 @@ input[type="date"] { color-scheme: dark; }
 <div class="menu-brand">🛠️</div>
 <h1>Калькулятор работ</h1>
 <p class="menu-subtitle">Выберите раздел для расчёта</p>
-<button class="menu-button" data-open-module="tile"><span class="menu-icon">🧱</span><span><b>Плитка</b><small>Расчёт плиточных работ</small></span><span class="menu-arrow">›</span></button>
+<button class="menu-button" data-open-module="tile"><span class="menu-icon">💠</span><span><b>Плитка</b><small>Расчёт плиточных работ</small></span><span class="menu-arrow">›</span></button>
 <button class="menu-button" data-open-module="elec"><span class="menu-icon">⚡</span><span><b>Электрика по точкам</b><small>Расчёт по количеству точек</small></span><span class="menu-arrow">›</span></button>
 <button class="menu-button" data-open-module="meters"><span class="menu-icon">📏</span><span><b>Электрика метраж</b><small>Кабель, штробы, короба и щиты</small></span><span class="menu-arrow">›</span></button>
+<button class="menu-button" data-open-module="gkl"><span class="menu-icon">🧱</span><span><b>Гипсокартон</b><small>Монтаж каркаса и ГКЛ</small></span><span class="menu-arrow">›</span></button>
 </div>
 </section>
 <div class="app-container" hidden="" id="tile-app">
@@ -1673,8 +1675,12 @@ const PRICE_SCHEMA = [
     title: "Подготовка поверхности",
     icon: "🛠️",
     fields: [
-      {key: "primerBefore", label: "Грунтовка до гидроизоляции", value: 3},
-      {key: "waterproof", label: "Гидроизоляция, 2 слоя", value: 25}
+      {key: "screed", label: "Стяжка пола", value: 500, unit: "м²", isRub: true},
+      {key: "selfLeveling", label: "Наливной пол", value: 300, unit: "м²", isRub: true},
+      {key: "plaster", label: "Штукатурка стен", value: 400, unit: "м²", isRub: true},
+      {key: "leveling", label: "Выравнивание поверхности", value: 250, unit: "м²", isRub: true},
+      {key: "primerBefore", label: "Грунтовка до гидроизоляции", value: 3, unit: "м²"},
+      {key: "waterproof", label: "Гидроизоляция, 2 слоя", value: 25, unit: "м²"}
     ]
   }
 ];
@@ -1775,9 +1781,9 @@ function renderPriceList() {
     const rows = group.fields.map(field => {
       const value = priceList[group.id][field.key];
 
-      const unit = group.unit || (
-        group.id === "base" ? "₽/м²" : "%"
-      );
+      const unit = field.isRub
+        ? "₽/м²"
+        : (group.unit || (group.id === "base" ? "₽/м²" : "%"));
 
       const inputId = `price-${group.id}-${field.key}`;
 
@@ -1910,9 +1916,13 @@ function createEmptyZone(type = "floor") {
     type,
     area: 0,
     tilePrice: 0,
+    extraWork: 0,
     addons,
     customAddons,
     cuts,
+    showCuts: false,
+    showHoles: false,
+    showPrep: false,
     holes,
     grout: {
       type: "cement",
@@ -1939,6 +1949,10 @@ function normalizeZone(source) {
   zone.id = source.id ?? uniqueId();
   zone.area = num(source.area);
   zone.tilePrice = num(source.tilePrice);
+  zone.extraWork = num(source.extraWork);
+  zone.showCuts = Boolean(source.showCuts);
+  zone.showHoles = Boolean(source.showHoles);
+  zone.showPrep = Boolean(source.showPrep);
   zone.customAddons = source.customAddons && typeof source.customAddons === "object"
     ? { ...source.customAddons }
     : {};
@@ -2117,10 +2131,14 @@ function calculateZone(zone) {
   ) {
     return Object.entries(values).reduce(
       (total, [key, quantity]) => {
-        const percent = getPrice(groupId, key);
+          const field = SCHEMA_MAP[groupId]?.fields.find(item => item.key === key);
+        const rate = getPrice(groupId, key);
 
-        return total +
-          num(quantity) * rateBase * percent / 100;
+        if (groupId === "preparation" && field?.isRub) {
+          return total + num(quantity) * rate;
+        }
+
+        return total + num(quantity) * rateBase * rate / 100;
       },
       0
     );
@@ -2171,7 +2189,8 @@ function calculateZone(zone) {
     holesCost +
     prepCost +
     groutCost +
-    siliconeCost;
+    siliconeCost +
+    num(zone.extraWork);
 
   zone.totalPrice = total;
 
@@ -2267,13 +2286,13 @@ function addonSelectHTML(zone, groupId) {
    11. ЧИСЛОВЫЕ ПОЛЯ
 ========================================== */
 
-function quantityFieldsHTML(zone, groupId) {
+function quantityFieldsHTML(zone, groupId, onlyKeys = null) {
   const group = SCHEMA_MAP[groupId];
 
   const targetKey =
     groupId === "preparation" ? "prep" : groupId;
 
-  return group.fields.map(field => {
+  return group.fields.filter(field => !onlyKeys || onlyKeys.includes(field.key)).map(field => {
     const value = zone[targetKey][field.key] ?? 0;
 
     const unit =
@@ -2281,7 +2300,7 @@ function quantityFieldsHTML(zone, groupId) {
         ? field.unit || "м/п"
         : groupId === "holes"
           ? "шт."
-          : "м²";
+          : field.unit || "м²";
 
     const percent = getPrice(groupId, field.key);
 
@@ -2290,7 +2309,7 @@ function quantityFieldsHTML(zone, groupId) {
         <label>
           ${escapeHTML(field.label)}
           <span class="setting-unit">
-            ${fmt(percent)}% · ${unit}
+            ${groupId === "preparation" && field.isRub ? `${money(percent)} / м²` : `${fmt(percent)}% · ${unit}`}
           </span>
         </label>
 
@@ -2395,6 +2414,14 @@ function zoneHTML(zone, index) {
         </div>
 
         <div class="zone-group">
+          <button type="button" class="btn ${zone.showPrep ? 'btn-primary' : 'btn-secondary'} gkl-accordion-toggle" data-toggle-zone="prep" style="width:100%; margin-bottom:10px; display:flex; justify-content:space-between; border:2px solid var(--accent); font-size:16px; font-weight:750;"><span>Подготовка основания</span><span>${zone.showPrep ? '−' : '+'}</span></button>
+          <div class="zone-prep-container" ${zone.showPrep ? '' : 'hidden'}>
+            <p class="zone-group-description">Стоимость от базовой ставки.</p>
+            ${quantityFieldsHTML(zone, "preparation")}
+          </div>
+        </div>
+
+        <div class="zone-group">
           <h4>Надбавки за укладку</h4>
           <p class="zone-group-description">
             Проценты берутся из единого Прайс-листа.
@@ -2403,13 +2430,17 @@ function zoneHTML(zone, index) {
         </div>
 
         <div class="zone-group">
-          <h4>Рез плитки и соединения</h4>
-          ${quantityFieldsHTML(zone, "cuts")}
+          <button type="button" class="btn ${zone.showCuts ? 'btn-primary' : 'btn-secondary'} gkl-accordion-toggle" data-toggle-zone="cuts" style="width:100%; margin-bottom:10px; display:flex; justify-content:space-between; border:2px solid var(--accent); font-size:16px; font-weight:750;"><span>Рез плитки и соединения</span><span>${zone.showCuts ? '−' : '+'}</span></button>
+          <div class="zone-cuts-container" ${zone.showCuts ? '' : 'hidden'}>
+            ${quantityFieldsHTML(zone, "cuts")}
+          </div>
         </div>
 
         <div class="zone-group">
-          <h4>Отверстия</h4>
-          ${quantityFieldsHTML(zone, "holes")}
+          <button type="button" class="btn ${zone.showHoles ? 'btn-primary' : 'btn-secondary'} gkl-accordion-toggle" data-toggle-zone="holes" style="width:100%; margin-bottom:10px; display:flex; justify-content:space-between; border:2px solid var(--accent); font-size:16px; font-weight:750;"><span>Отверстия</span><span>${zone.showHoles ? '−' : '+'}</span></button>
+          <div class="zone-holes-container" ${zone.showHoles ? '' : 'hidden'}>
+            ${quantityFieldsHTML(zone, "holes")}
+          </div>
         </div>
 
         <div class="zone-group">
@@ -2479,12 +2510,12 @@ function zoneHTML(zone, index) {
           </div>
         </div>
 
-        <div class="zone-group">
-          <h4>Подготовка поверхности</h4>
-          <p class="zone-group-description">
-            Стоимость от базовой ставки.
-          </p>
-          ${quantityFieldsHTML(zone, "preparation")}
+        <div class="zone-group" style="margin-top:20px; border-top: 2px dashed var(--border); padding-top:15px;">
+          <h4 style="color:var(--accent);">Дополнительные работы</h4>
+          <div class="field">
+            <label>Сумма доп. работ, ₽</label>
+            <input type="number" min="0" step="any" inputmode="decimal" data-zone-field="extraWork" value="${zone.extraWork || 0}">
+          </div>
         </div>
 
         <div class="zone-summary">
@@ -2660,6 +2691,10 @@ function handleZoneInput(event) {
       zone.tilePrice = num(value);
       break;
 
+    case "extraWork":
+      zone.extraWork = num(value);
+      break;
+
     case "addon": {
       const group = input.dataset.group;
 
@@ -2755,15 +2790,23 @@ byId("zonesContainer").addEventListener(
 byId("zonesContainer").addEventListener(
   "click",
   event => {
-    const button = event.target.closest(
-      '[data-action="delete-zone"]'
-    );
-
+    const accordionButton = event.target.closest('[data-toggle-zone]');
+    if (accordionButton) {
+      const card = accordionButton.closest('[data-zone-id]');
+      const zone = currentEstimate.zones.find(z => String(z.id) === String(card?.dataset.zoneId));
+      if (!card || !zone) return;
+      const group = accordionButton.dataset.toggleZone;
+      if (group !== 'cuts' && group !== 'holes' && group !== 'prep') return;
+      const prop = group === 'cuts' ? 'showCuts' : group === 'holes' ? 'showHoles' : 'showPrep';
+      zone[prop] = !zone[prop];
+      persistDraft();
+      renderZones();
+      return;
+    }
+    const button = event.target.closest('[data-action="delete-zone"]');
     if (!button) return;
-
     const card = button.closest("[data-zone-id]");
     if (!card) return;
-
     deleteZone(card.dataset.zoneId);
   }
 );
@@ -4450,10 +4493,10 @@ document.addEventListener('focusout', event => {
 
 // Глобальная навигация
 function showModule(name) {
- const valid = ['menu', 'tile', 'elec', 'meters'];
+ const valid = ['menu', 'tile', 'elec', 'meters', 'gkl'];
  if (!valid.includes(name)) return;
  document.getElementById('page-menu').hidden = name !== 'menu';
- for (const moduleName of ['tile', 'elec', 'meters']) {
+ for (const moduleName of ['tile', 'elec', 'meters', 'gkl']) {
    const container = document.getElementById(moduleName + '-app');
    const isActive = name === moduleName;
    container.classList.toggle('active', isActive);
@@ -4461,7 +4504,32 @@ function showModule(name) {
  }
  window.scrollTo(0, 0);
 }
-document.querySelectorAll('[data-open-module]').forEach(b=>b.addEventListener('click',()=>{const name=b.dataset.openModule;showModule(name);if(name==='tile'&&window.TileApp)window.TileApp.refreshDashboard()}));document.querySelectorAll('[data-back-menu]').forEach(b=>b.addEventListener('click',()=>showModule('menu')));
+window.showModule = showModule;
+document.addEventListener('click', event => {
+ const backButton = event.target.closest('[data-back-menu]');
+ if (backButton) { event.preventDefault(); showModule('menu'); }
+});
+document.querySelectorAll('[data-open-module]').forEach(b=>b.addEventListener('click',()=>{const name=b.dataset.openModule;showModule(name);if(name==='tile'&&window.TileApp)window.TileApp.refreshDashboard()}));
+
+// Очистка нуля в полях количества модуля «Гипсокартон».
+// Слушатели глобальные, поэтому не дублируются при перерисовке модуля.
+document.addEventListener('focusin', function(event) {
+  const input = event.target.closest('input[data-gkl-qty="true"]');
+  if (input && /^0(?:\.0+)?$/.test(input.value.trim())) {
+    input.value = '';
+  }
+});
+
+document.addEventListener('focusout', function(event) {
+  const input = event.target.closest('input[data-gkl-qty="true"]');
+  if (input && input.value === '') {
+    input.value = '0';
+    // Вызываем пересчет, чтобы сумма не сломалась
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+});
+
 // Запуск всегда с главного меню; состояния модулей сохранены независимо.
 showModule('menu');
 })();
@@ -4478,5 +4546,238 @@ showModule('menu');
 </div>
 </div>
 </div>
+
+<!-- ГИПСОКАРТОН: НЕЗАВИСИМЫЙ МОДУЛЬ -->
+<div id="gkl-app" class="app-container" hidden>
+ <main class="app electrical-app">
+  <section class="page active module-panel" data-gkl-panel="estimates" id="gkl-page-estimates">
+   <header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu type="button">🏠 В меню</button><h1 class="page-title">Гипсокартон</h1><p class="page-subtitle">Мои сметы</p></header>
+   <div class="stats-grid"><div class="stat-card"><div class="stat-icon">📋</div><div class="stat-label">Всего смет</div><div class="stat-value" id="gkl-stat-count">0</div></div><div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Сумма в работе</div><div class="stat-value" id="gkl-stat-approved">0 ₽</div></div><div class="stat-card"><div class="stat-icon">📐</div><div class="stat-label">Общий объём</div><div class="stat-value" id="gkl-stat-volume">0</div></div><div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">Средний чек</div><div class="stat-value" id="gkl-stat-average">0 ₽</div></div></div>
+   <div class="search-wrap"><input class="search-input" id="gkl-search" type="search" placeholder="🔎 Поиск по заказчику"></div>
+   <div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" id="gkl-new" type="button">+ Создать</button></div><div id="gkl-estimates-list"></div>
+  </section>
+  <section class="page module-panel" data-gkl-panel="calc" id="gkl-page-calc" hidden>
+   <header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu type="button">🏠 В меню</button><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Монтаж каркаса и ГКЛ</p></header>
+   <section class="card"><div class="field"><label for="gkl-customer">Заказчик / объект</label><input id="gkl-customer" type="text" placeholder="Имя заказчика или объект"></div><div id="gkl-work-list"></div>
+    
+    <div class="estimate-summary" id="gkl-summary"><div class="summary-line"><span>Сумма каркаса</span><strong id="gkl-sum-frame">0 ₽</strong></div><div class="summary-line"><span>Сумма подвесов</span><strong id="gkl-sum-hangers">0 ₽</strong></div><div class="summary-line"><span>Сумма ГКЛ на профиль</span><strong id="gkl-sum-on-profile">0 ₽</strong></div><div class="summary-line"><span>Сумма ГКЛ без профиля</span><strong id="gkl-sum-no-profile">0 ₽</strong></div><div class="summary-line"><span>Надбавка за высоту и потолки (50%)</span><strong id="gkl-sum-height">0 ₽</strong></div><div class="summary-line"><span>Надбавка за дюбель-гвозди</span><strong id="gkl-sum-dowels">0 ₽</strong></div><div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="gkl-total">0 ₽</div></div></div>
+    <div class="electrical-calc-actions"><button class="btn btn-primary btn-large" id="gkl-save" type="button">💾 Сохранить смету</button><button class="btn btn-secondary btn-large" id="gkl-export" type="button">📥 Скачать смету в PNG</button></div>
+   </section>
+  </section>
+  <section class="page module-panel" data-gkl-panel="prices" id="gkl-page-prices" hidden><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu type="button">🏠 В меню</button><h1 class="page-title">Прайс-лист</h1><p class="page-subtitle">Гипсокартон</p></header><section class="card"><h2 class="card-title">Стоимость работ</h2><p class="muted small">Измените стоимость и нажмите «Сохранить цены».</p><div id="gkl-price-list"></div><div class="module-actions"><button class="btn btn-primary" id="gkl-save-prices" type="button" style="flex:1">Сохранить цены</button><button class="btn btn-secondary" id="gkl-download-prices-png" type="button" style="flex:1">📸 Сохранить в PNG</button></div></section></section>
+ </main>
+ <nav class="bottom-nav" aria-label="Навигация: Гипсокартон"><button class="nav-button active" data-gkl-tab="estimates" type="button"><span class="nav-icon">📋</span><span class="nav-label">Сметы</span></button><button class="nav-button" data-gkl-tab="calc" type="button"><span class="nav-icon">🧮</span><span class="nav-label">Новый расчёт</span></button><button class="nav-button" data-gkl-tab="prices" type="button"><span class="nav-icon">💰</span><span class="nav-label">Прайс-лист</span></button></nav>
+</div>
+
+<style>
+#gkl-app[hidden]{display:none!important}#gkl-app .gkl-checkbox-row{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:15px}#gkl-app .gkl-checkbox-row input{width:20px;height:20px;flex-shrink:0;accent-color:var(--accent)}#gkl-app .module-panel[hidden]{display:none!important}#gkl-app .module-panel{max-width:760px;margin:0 auto;padding:18px 14px calc(var(--nav-height) + 35px + env(safe-area-inset-bottom))}#gkl-app .electrical-work-row{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:12px;align-items:center}#gkl-app .electrical-work-row label{min-width:0;overflow-wrap:anywhere}#gkl-app .electrical-line-total{display:block;margin-top:4px;color:var(--hint);font-size:12px}#gkl-app .setting-row{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:12px;align-items:center}#gkl-app .setting-unit{display:block;margin-top:4px;color:var(--hint);font-size:12px}#gkl-app .bottom-nav{z-index:1000}#gkl-app .module-actions{display:flex;gap:8px;flex-wrap:wrap}#gkl-app .module-actions .btn{min-height:44px}
+
+#gkl-app .gkl-work-section{margin:22px 0 0;padding:20px 16px;border:1px solid var(--border);border-radius:16px;background:var(--card)}
+#gkl-app .gkl-work-section h3{margin:0 0 16px;font-size:20px;line-height:1.35}
+#gkl-app .gkl-choice{display:block;margin:0 0 14px;font-weight:650}
+#gkl-app .gkl-choice select{display:block;width:100%;margin-top:9px;min-height:46px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--secondary);color:var(--text);font:inherit}
+#gkl-app .gkl-choice .gkl-checkbox-row{margin:0}
+#gkl-app .gkl-active-work{padding-top:4px}
+#gkl-app .gkl-price-accordion{margin:12px 0;border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--card)}
+#gkl-app .gkl-price-accordion summary{font-weight:750;cursor:pointer;padding:6px 0;line-height:1.4}
+#gkl-app .gkl-price-accordion[open] summary{margin-bottom:12px}
+#gkl-app .gkl-work-section .electrical-work-row{padding:11px 0;border-bottom:1px solid var(--border)}
+
+#gkl-app .gkl-accordion-item{margin:10px 0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
+#gkl-app .gkl-accordion-toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:50px;text-align:left;border-radius:0;padding:12px 16px;font-size:15px;font-weight:750;transition:background-color .2s ease,color .2s ease}
+#gkl-app .gkl-accordion-content{padding:8px 15px 14px;animation:gkl-reveal .2s ease-out}
+@keyframes gkl-reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#gkl-app .gkl-accordion-content{animation:none}}
+
+
+/* Отступ стрелки в селекте логистики */
+#elec-logistics {
+  background-position: right 15px center !important;
+  padding-right: 35px !important;
+}
+</style>
+<script>
+// Независимый калькулятор гипсокартона.
+const gklDefaults = (() => {
+ const items=[];
+ const add=(group,name,unit,price,kind)=>items.push({group,name,unit,price,kind});
+ for(const [i,thickness] of [30,50,75,100].entries()){
+  const g=`1. Каркас (за единицу) — профиль ${thickness} мм`;
+  [['Направляющие','м/п',100],['Стойки','шт.',150],['Закладная брус','м/п',100],['Окно','шт.',700],['Дверь','шт.',500],['Лента','м/п',30]].forEach(([name,unit,base])=>add(g,name,unit,base+i*(name==='Окно'||name==='Дверь'?100:10),'frame'));
+ }
+ add('2. Каркас на дюбель-гвоздь','Надбавка за дюбель-гвозди','%',10,'dowel');
+ for(const [name,base] of [['Прямой',80],['Анкерный',60]])for(const [i,wall] of ['дерево','кирпич','бетон'].entries())add('3. Подвесы (шт.)',`${name} (${wall})`,'шт.',base+i*10,'hangers');
+ for(const [i,t] of ['8 мм','9.5 мм','1.2 см','1.6 см'].entries()){
+  const group=`4. Гипсокартон (на профиль, за м²) — ${t}`;
+  [['Лист','м²',150],['Рез','м/п',70],['Отверстие до 5 см','шт.',50],['Отверстие 5–10 см','шт.',70]].forEach(([name,unit,base])=>add(group,name,unit,base+i*10,'onProfile'));
+ }
+ for(const [i,t] of ['8 мм','9.5 мм','1.2 см','1.6 см'].entries()){
+  const group=`5. Гипсокартон (без профиля, за м²) — ${t}`;
+  [['ПВА',230],['Гребенка',330],['Слой',430],['Саморез',300],['Дюбель',350]].forEach(([name,base])=>add(group,name,'м²',base+i*10,'noProfile'));
+ }
+ return items;
+})();
+(function initGkl(){
+ const prefix='gkl';
+ const defaults=gklDefaults;
+ const readGkl=(key,fallback)=>{try{const v=localStorage.getItem(key);return v===null?fallback:JSON.parse(v)}catch{return fallback}};
+ const writeGkl=(key,val)=>{try{localStorage.setItem(key,JSON.stringify(val))}catch{alert('Не удалось сохранить данные гипсокартона.')}};
+ const escGkl=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const moneyGkl=x=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(x||0)+' ₽';
+ const $=id=>document.getElementById('gkl-'+id);
+ const state={prices:readGkl('gkl_priceList',defaults.map(x=>({...x}))),estimates:readGkl('gkl_estimates',[]),draft:readGkl('gkl_draft',null),editingId:null};
+ if(!Array.isArray(state.prices))state.prices=[];
+ state.prices=defaults.map((x,i)=>({...x,price:Math.max(0,Number(state.prices[i]?.price??x.price)||0)}));
+ if(!Array.isArray(state.estimates))state.estimates=[];
+ const emptyDraft=()=>({customer:'',showSurcharge:false,quantities:defaults.map(()=>0),quantitiesHigh:defaults.map(()=>0),activeProfiles:{},activeSuspensions:{},activeGklProfile:{},activeGklNoProfile:{},activeProfilesHigh:{},activeGklProfileHigh:{},activeGklNoProfileHigh:{}});
+ if(!state.draft||!Array.isArray(state.draft.quantities))state.draft=emptyDraft();
+ else state.draft={...emptyDraft(),...state.draft,showSurcharge:state.draft.showSurcharge===true,quantities:defaults.map((_,i)=>Math.max(0,Number(state.draft.quantities[i])||0)),quantitiesHigh:defaults.map((_,i)=>Math.max(0,Number(state.draft.quantitiesHigh?.[i])||0))};
+ if(state.draft.selectedProfileThickness!=null)state.draft.activeProfiles[String(state.draft.selectedProfileThickness)]=true;
+ if(state.draft.selectedGklProfileThickness)state.draft.activeGklProfile[String(state.draft.selectedGklProfileThickness)]=true;
+ if(state.draft.selectedGklNoProfileThickness)state.draft.activeGklNoProfile[String(state.draft.selectedGklNoProfileThickness)]=true;
+ if(state.draft.showSuspensions){state.draft.activeSuspensions['Прямой']=true;state.draft.activeSuspensions['Анкерный']=true;}
+ for(const k of ['activeProfiles','activeSuspensions','activeGklProfile','activeGklNoProfile','activeProfilesHigh','activeGklProfileHigh','activeGklNoProfileHigh'])if(!state.draft[k]||typeof state.draft[k]!=='object')state.draft[k]={};
+ const saveDraft=()=>writeGkl('gkl_draft',state.draft);
+ const profileThicknesses=['30','50','75','100'];
+ const gklThicknesses=['8 мм','9.5 мм','1.2 см','1.6 см'];
+ function lines(high=false){return state.prices.map((p,i)=>({...p,index:i,high,qty:high&&!state.draft.showSurcharge?0:Math.max(0,Number((high?state.draft.quantitiesHigh:state.draft.quantities)[i])||0)}));}
+ function compute(){
+  const normal=lines(false),high=lines(true),all=[...normal,...high];
+  const totals={frame:0,hangers:0,onProfile:0,noProfile:0};
+  const highTotals={frame:0,hangers:0,onProfile:0,noProfile:0};
+  for(const x of normal)if(x.kind in totals)totals[x.kind]+=x.qty*x.price;
+  for(const x of high)if(x.kind in highTotals)highTotals[x.kind]+=x.qty*x.price;
+  const heightSurcharge=Object.values(highTotals).reduce((a,b)=>a+b,0)*0.5;
+  const combined={};for(const k of Object.keys(totals))combined[k]=totals[k]+highTotals[k]*1.5;
+  const rate=state.prices.find(x=>x.kind==='dowel')?.price||0;
+  const dowels=(totals.frame+highTotals.frame*1.5)*rate/100;
+  const total=Object.values(totals).reduce((a,b)=>a+b,0)+Object.values(highTotals).reduce((a,b)=>a+b,0)*1.5+dowels;
+  for(const [id,v] of [['sum-frame',combined.frame],['sum-hangers',combined.hangers],['sum-on-profile',combined.onProfile],['sum-no-profile',combined.noProfile],['sum-height',heightSurcharge],['sum-dowels',dowels],['total',total]])$(id).textContent=moneyGkl(v);
+  all.forEach(x=>{const el=$(x.high?'line-'+x.index+'-high':'line-'+x.index);if(el)el.textContent='Сумма: '+moneyGkl(x.qty*x.price*(x.high?1.5:1));});
+  state.draft.customer=$('customer').value;saveDraft();
+  return {all,totals:combined,normalTotals:totals,highTotals,heightSurcharge,dowels,rate,multiplier:1.5,total,ceiling:false,high:false};
+ }
+ function workRows(kind,groupSuffix,isHigh=false){
+  return state.prices.map((x,i)=>({x,i})).filter(({x})=>x.kind===kind&&(!groupSuffix||(kind==='hangers'?x.name.startsWith(groupSuffix+' ('):x.group.endsWith(groupSuffix)))).map(({x,i})=>{
+   const qty=Math.max(0,Number((isHigh?state.draft.quantitiesHigh:state.draft.quantities)[i])||0),id=isHigh?i+'-high':i;
+   return `<div class="zone-number-row electrical-work-row"><label for="gkl-qty-${id}"><span class="electrical-work-title">${escGkl(x.name)}</span><span class="setting-unit">${moneyGkl(x.price)} / ${escGkl(x.unit)}${isHigh?' · +50%':''}</span><span class="electrical-line-total" id="gkl-line-${id}">Сумма: 0 ₽</span></label><input class="setting-input" id="gkl-qty-${id}" data-qty="${i}" ${isHigh?'data-qty-high="true"':''} type="number" min="0" step="any" value="${qty}" aria-label="Количество: ${escGkl(x.name)}${isHigh?' с наценкой':''}"></div>`;
+  }).join('');
+ }
+ function accordionButton(label,field,key,kind,suffix,isHigh=false){
+  const active=!!state.draft[field][key];
+  return `<div class="gkl-accordion-item ${active?'is-open':''}"><button type="button" class="btn ${active?'btn-primary':'btn-secondary'} gkl-accordion-toggle" data-gkl-toggle="${field}" data-gkl-key="${escGkl(key)}" aria-expanded="${active}"><span>${escGkl(label)}</span><span aria-hidden="true">${active?'−':'+'}</span></button><div class="gkl-active-work gkl-accordion-content" ${active?'':'hidden'}>${workRows(kind,suffix,isHigh)}</div></div>`;
+ }
+ function renderWork(){
+  $('work-list').innerHTML=`
+   <section class="gkl-work-section"><h3>1. Каркас</h3><p class="muted">Обычные работы.</p>
+    ${profileThicknesses.map(t=>accordionButton('Профиль '+t+' мм','activeProfiles',t,'frame','профиль '+t+' мм')).join('')}
+   </section>
+   <section class="gkl-work-section"><h3>2. Подвесы</h3>
+    ${['Прямой','Анкерный'].map(t=>accordionButton('Добавить '+(t==='Прямой'?'Прямые подвесы':'Анкерные подвесы'),'activeSuspensions',t,'hangers',t)).join('')}
+   </section>
+   <section class="gkl-work-section"><h3>3. Гипсокартон на профиль</h3>
+    ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t,'activeGklProfile',t,'onProfile','— '+t)).join('')}
+   </section>
+   <section class="gkl-work-section"><h3>4. Гипсокартон без профиля</h3>
+    ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t,'activeGklNoProfile',t,'noProfile','— '+t)).join('')}
+   </section>
+   <div class="card" style="margin-top:20px; border:2px dashed var(--accent);">
+    <label class="gkl-checkbox-row" style="font-weight:750; font-size:16px;">
+     <input type="checkbox" id="gkl-show-surcharge" ${state.draft.showSurcharge===true?'checked':''}>
+     <span>Работы выше 3х метров / Потолки (+50% к цене)</span>
+    </label>
+    <p class="muted small" style="margin-top:10px;">Поставьте галочку, чтобы добавить работы с наценкой. Они появятся ниже.</p>
+   </div>
+   ${state.draft.showSurcharge?`<section class="gkl-work-section"><h3>1.1. Каркас (с наценкой +50%)</h3><p class="muted">Работы на высоте и потолках.</p>
+    ${profileThicknesses.map(t=>accordionButton('Профиль '+t+' мм · +50%','activeProfilesHigh',t,'frame','профиль '+t+' мм',true)).join('')}
+   </section>
+   <section class="gkl-work-section"><h3>3.1. Гипсокартон на профиль (+50%)</h3>
+    ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t+' · +50%','activeGklProfileHigh',t,'onProfile','— '+t,true)).join('')}
+   </section>
+   <section class="gkl-work-section"><h3>4.1. Гипсокартон без профиля (+50%)</h3>
+    ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t+' · +50%','activeGklNoProfileHigh',t,'noProfile','— '+t,true)).join('')}
+   </section>`:''}`;
+  const surchargeToggle=$('show-surcharge');
+  if(surchargeToggle)surchargeToggle.addEventListener('change',event=>{
+   state.draft.showSurcharge=event.target.checked;
+   if(!state.draft.showSurcharge)state.draft.quantitiesHigh=defaults.map(()=>0);
+   saveDraft();renderWork();
+  });
+  $('work-list').querySelectorAll('[data-qty]').forEach(input=>input.addEventListener('input',()=>{
+   const target=input.dataset.qtyHigh==='true'?state.draft.quantitiesHigh:state.draft.quantities;
+   target[Number(input.dataset.qty)]=Math.max(0,Number(input.value)||0);compute();
+  }));
+  $('work-list').querySelectorAll('[data-gkl-toggle]').forEach(btn=>btn.addEventListener('click',()=>{
+   const field=btn.dataset.gklToggle,key=btn.dataset.gklKey;
+   state.draft[field][key]=!state.draft[field][key];const active=!!state.draft[field][key];
+   const panel=btn.nextElementSibling;if(panel)panel.hidden=!active;
+   btn.classList.toggle('btn-primary',active);btn.classList.toggle('btn-secondary',!active);btn.setAttribute('aria-expanded',String(active));btn.parentElement.classList.toggle('is-open',active);
+   const indicator=btn.querySelector('[aria-hidden="true"]');if(indicator)indicator.textContent=active?'−':'+';saveDraft();compute();
+  }));
+  compute();
+ }
+ function renderPrices(){
+  const groups=new Map();
+  state.prices.forEach((x,i)=>{if(!groups.has(x.group))groups.set(x.group,[]);groups.get(x.group).push({x,i});});
+  $('price-list').innerHTML=[...groups].map(([group,items],idx)=>`<details class="gkl-price-accordion" ${idx===0?'open':''}><summary>${escGkl(group)}</summary>${items.map(({x,i})=>`<div class="setting-row"><label for="gkl-price-${i}">${escGkl(x.name)}<span class="setting-unit">${x.kind==='dowel'?'Процент от суммы каркаса':escGkl(x.unit)}</span></label><input class="setting-input" id="gkl-price-${i}" data-price="${i}" type="number" min="0" step="any" value="${x.price}"></div>`).join('')}</details>`).join('');
+ }
+ function renderEstimates(){
+  const es=state.estimates, total=es.reduce((a,e)=>a+(Number(e.total)||0),0);
+  $('stat-count').textContent=String(es.length);$('stat-approved').textContent=moneyGkl(total);
+  $('stat-volume').textContent=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(es.reduce((a,e)=>a+(e.lines||[]).filter(x=>x.unit==='м²').reduce((b,x)=>b+(Number(x.qty)||0),0),0));
+  $('stat-average').textContent=moneyGkl(es.length?total/es.length:0);
+  const term=$('search').value.trim().toLocaleLowerCase('ru-RU');
+  const filtered=es.filter(e=>String(e.customer||'').toLocaleLowerCase('ru-RU').includes(term));
+  $('estimates-list').innerHTML=filtered.length?filtered.slice().reverse().map(e=>`<article class="estimate-card"><button class="estimate-card-main" type="button" data-gkl-open="${escGkl(e.id)}"><span class="estimate-top"><span class="estimate-date">📅 ${escGkl(e.date||'')}</span><span class="status-badge status-draft">Смета</span></span><span class="estimate-customer">${escGkl(e.customer||'Без названия')}</span><span class="estimate-address">🧱 ${(e.lines||[]).filter(x=>x.qty>0).length} позиций</span><span class="estimate-bottom"><span class="estimate-area">ГКЛ</span><strong class="estimate-price">${moneyGkl(e.total)}</strong></span></button><button type="button" class="estimate-delete-btn" data-gkl-delete="${escGkl(e.id)}" aria-label="Удалить смету">🗑️</button></article>`).join(''):`<div class="card"><p class="muted">${term?'Сметы не найдены.':'Пока нет сохранённых смет.'}</p></div>`;
+  $('estimates-list').querySelectorAll('[data-gkl-open]').forEach(b=>b.addEventListener('click',()=>openEstimate(b.dataset.gklOpen)));
+  $('estimates-list').querySelectorAll('[data-gkl-delete]').forEach(b=>b.addEventListener('click',()=>{
+   const action=()=>{state.estimates=state.estimates.filter(e=>String(e.id)!==String(b.dataset.gklDelete));writeGkl('gkl_estimates',state.estimates);renderEstimates();};
+   if(typeof showDeleteModal==='function')showDeleteModal(action);else if(confirm('Удалить смету?'))action();
+  }));
+ }
+ function switchTab(tab){
+  $('app').querySelectorAll('[data-gkl-panel]').forEach(el=>{const active=el.dataset.gklPanel===tab;el.hidden=!active;el.classList.toggle('active',active);});
+  $('app').querySelectorAll('[data-gkl-tab]').forEach(el=>{const active=el.dataset.gklTab===tab;el.classList.toggle('active',active);el.setAttribute('aria-current',active?'page':'false');});
+  if(tab==='estimates')renderEstimates();if(tab==='prices')renderPrices();window.scrollTo(0,0);
+ }
+ function newEstimate(){state.editingId=null;state.draft=emptyDraft();$('customer').value='';renderWork();switchTab('calc');$('customer').focus();}
+ function openEstimate(id){
+  const e=state.estimates.find(x=>String(x.id)===String(id));if(!e)return;
+  state.editingId=e.id;
+  state.draft={...emptyDraft(),customer:e.customer||'',showSurcharge:e.showSurcharge===true,quantities:defaults.map((_,i)=>Math.max(0,Number(e.quantities?.[i]??e.lines?.find(x=>x.index===i&&!x.high)?.qty)||0)),quantitiesHigh:defaults.map((_,i)=>Math.max(0,Number(e.quantitiesHigh?.[i]??e.lines?.find(x=>x.index===i&&x.high)?.qty)||0)),
+   activeProfiles:{...(e.activeProfiles||{})},activeSuspensions:{...(e.activeSuspensions||{})},activeGklProfile:{...(e.activeGklProfile||{})},activeGklNoProfile:{...(e.activeGklNoProfile||{})},activeProfilesHigh:{...(e.activeProfilesHigh||{})},activeGklProfileHigh:{...(e.activeGklProfileHigh||{})},activeGklNoProfileHigh:{...(e.activeGklNoProfileHigh||{})}};
+  if(e.selectedProfileThickness!=null)state.draft.activeProfiles[String(e.selectedProfileThickness)]=true;
+  if(e.selectedGklProfileThickness)state.draft.activeGklProfile[String(e.selectedGklProfileThickness)]=true;
+  if(e.selectedGklNoProfileThickness)state.draft.activeGklNoProfile[String(e.selectedGklNoProfileThickness)]=true;
+  if(e.showSuspensions){state.draft.activeSuspensions['Прямой']=true;state.draft.activeSuspensions['Анкерный']=true;}
+  $('customer').value=state.draft.customer;renderWork();switchTab('calc');
+ }
+ function snapshot(){
+  const r=compute();return {showSurcharge:state.draft.showSurcharge===true,id:state.editingId||('g'+Date.now()+Math.random().toString(16).slice(2,6)),customer:$('customer').value.trim()||'Без названия',date:new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines:r.all,quantities:[...state.draft.quantities],quantitiesHigh:[...state.draft.quantitiesHigh],totals:r.totals,highTotals:r.highTotals,heightSurcharge:r.heightSurcharge,dowels:r.dowels,rate:r.rate,multiplier:r.multiplier,total:r.total,activeProfiles:{...state.draft.activeProfiles},activeSuspensions:{...state.draft.activeSuspensions},activeGklProfile:{...state.draft.activeGklProfile},activeGklNoProfile:{...state.draft.activeGklNoProfile},activeProfilesHigh:{...state.draft.activeProfilesHigh},activeGklProfileHigh:{...state.draft.activeGklProfileHigh},activeGklNoProfileHigh:{...state.draft.activeGklNoProfileHigh}};
+ }
+ function saveEstimate(){const e=snapshot(),old=state.estimates.find(x=>String(x.id)===String(state.editingId));if(old){e.date=old.date;state.estimates=state.estimates.map(x=>String(x.id)===String(old.id)?e:x);}else state.estimates.push(e);state.editingId=e.id;writeGkl('gkl_estimates',state.estimates);renderEstimates();switchTab('estimates');}
+ async function exportEstimate(){const e=snapshot();if(typeof window.html2canvas!=='function'){alert('Библиотека html2canvas недоступна.');return;}
+  const node=document.createElement('div');node.style.cssText='position:fixed;left:-10000px;top:0;width:720px;padding:30px;background:#fff;color:#172033;font:16px Arial,sans-serif';
+  const rows=e.lines.filter(x=>x.qty>0&&x.kind!=='dowel').map(x=>`<tr><td style="padding:7px;border-bottom:1px solid #ddd">${escGkl(x.group)} — ${escGkl(x.name)}</td><td style="padding:7px;border-bottom:1px solid #ddd">${x.qty} ${escGkl(x.unit)}</td><td style="padding:7px;border-bottom:1px solid #ddd">${moneyGkl(x.price)}</td><td style="padding:7px;border-bottom:1px solid #ddd">${moneyGkl(x.qty*x.price*(x.unit==='м²'?e.multiplier:1))}</td></tr>`).join('');
+  node.innerHTML=`<h1>Смета — Гипсокартон</h1><p><b>Заказчик:</b> ${escGkl(e.customer)} · ${escGkl(e.date)}</p><p>Работы с наценкой +50% вынесены в отдельные разделы.</p><table style="border-collapse:collapse;width:100%"><thead><tr><th>Работа</th><th>Количество</th><th>Цена</th><th>Сумма</th></tr></thead><tbody>${rows}</tbody></table><hr><p>Надбавка за высоту и потолки (+50%): ${moneyGkl(e.heightSurcharge)}</p><p>Каркас: ${moneyGkl(e.totals.frame)} · Подвесы: ${moneyGkl(e.totals.hangers)}</p><p>ГКЛ на профиль: ${moneyGkl(e.totals.onProfile)} · Без профиля: ${moneyGkl(e.totals.noProfile)}</p><p>Дюбель-гвозди (${e.rate}%): ${moneyGkl(e.dowels)}</p><h2>Итого: ${moneyGkl(e.total)}</h2>`;
+  document.body.appendChild(node);try{const canvas=await html2canvas(node,{scale:2,backgroundColor:'#ffffff'});const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('PNG');const file=new File([blob],'Смета_Гипсокартон.png',{type:'image/png'});if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'Смета — Гипсокартон'});}else{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}}catch(err){if(err?.name!=='AbortError')alert('Не удалось экспортировать PNG.');}finally{node.remove();}
+ }
+ // Обработчик зарегистрирован после создания разметки ГКЛ.
+ $('app').addEventListener('click',event=>{
+  if(event.target.closest('[data-back-menu]')){
+   event.preventDefault();
+   showModule('menu');
+  }
+ });
+ $('app').querySelectorAll('[data-gkl-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.gklTab)));
+ $('new').addEventListener('click',newEstimate);$('search').addEventListener('input',renderEstimates);
+ $('customer').addEventListener('input',compute);
+ $('save').addEventListener('click',saveEstimate);$('export').addEventListener('click',exportEstimate);
+ $('save-prices').addEventListener('click',()=>{state.prices.forEach((x,i)=>x.price=Math.max(0,Number($('price-'+i)?.value)||0));writeGkl('gkl_priceList',state.prices);renderPrices();renderWork();alert('Цены сохранены.');});
+ $('download-prices-png').addEventListener('click',()=>downloadModulePriceListPNG('gkl-price-list','Прайс_Гипсокартон.png'));
+ $('customer').value=state.draft.customer||'';renderWork();renderEstimates();
+})();
+
+</script>
 </body>
 </html>
