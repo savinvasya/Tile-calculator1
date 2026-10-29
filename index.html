@@ -1015,9 +1015,112 @@ input[type="date"] { color-scheme: dark; }
 
 #meters-app .gkl-price-accordion{margin:12px 0;border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--card)} #meters-app .gkl-price-accordion summary{font-weight:750;cursor:pointer;padding:6px 0;line-height:1.4} #meters-app .gkl-price-accordion[open] summary{margin-bottom:12px}
 .cut-accordion-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}.cut-accordion-toggle{width:100%;text-align:left;justify-content:flex-start;min-height:44px;font-weight:700}.cut-accordion-panel{padding:8px 0 2px;overflow:hidden}
+
+
+/* Subscription access screens */
+#subscription-loading,
+#subscription-paywall,
+#subscription-error {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg, #0f172a);
+  color: var(--text, #f8fafc);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: center;
+}
+#subscription-loading[hidden],
+#subscription-paywall[hidden],
+#subscription-error[hidden] { display: none !important; }
+.subscription-panel {
+  width: min(100%, 420px);
+  padding: 30px 24px;
+  border: 1px solid var(--border, #334155);
+  border-radius: 24px;
+  background: var(--card, #1e293b);
+  box-shadow: 0 24px 70px rgba(0,0,0,.28);
+}
+.subscription-mark {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--accent, #3b82f6) 18%, transparent);
+  color: var(--accent, #60a5fa);
+  font-size: 30px;
+}
+.subscription-panel h1 { margin: 0 0 12px; font-size: 25px; line-height: 1.2; }
+.subscription-panel p { margin: 0 0 22px; color: var(--hint, #94a3b8); font-size: 15px; line-height: 1.55; }
+.subscription-actions { display: grid; gap: 12px; }
+.subscription-button {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent, #3b82f6);
+  color: var(--accent-text, #fff);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform .15s ease, opacity .15s ease;
+}
+.subscription-button:active { transform: scale(.985); }
+.subscription-button:disabled { cursor: wait; opacity: .6; }
+.subscription-button.secondary { border: 1px solid var(--border, #334155); background: transparent; color: var(--text, #f8fafc); }
+#subscription-status { min-height: 20px; margin: 14px 0 0; color: var(--hint, #94a3b8); font-size: 13px; }
+.subscription-spinner {
+  width: 44px; height: 44px; margin: 0 auto 22px;
+  border: 4px solid var(--border, #334155);
+  border-top-color: var(--accent, #3b82f6);
+  border-radius: 50%; animation: subscription-spin .8s linear infinite;
+}
+@keyframes subscription-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .subscription-spinner { animation-duration: 2s; } }
+
 </style>
 </head>
 <body>
+
+<div id="subscription-loading" role="status" aria-live="polite">
+  <div class="subscription-panel">
+    <div class="subscription-spinner" aria-hidden="true"></div>
+    <h1>Проверка доступа...</h1>
+    <p>Подождите немного. Подключаемся к серверу и проверяем вашу подписку.</p>
+  </div>
+</div>
+<div id="subscription-paywall" hidden>
+  <div class="subscription-panel">
+    <div class="subscription-mark" aria-hidden="true">🔒</div>
+    <h1>Доступ ограничен</h1>
+    <p>Пробный период закончился или ещё не начался. Оформите подписку, чтобы продолжить пользоваться калькулятором.</p>
+    <div class="subscription-actions">
+      <button class="subscription-button" id="subscription-buy-month" type="button">Купить на 1 месяц (700 ⭐)</button>
+      <button class="subscription-button" id="subscription-buy-year" type="button">Купить на 1 год (6300 ⭐)</button>
+    </div>
+    <p id="subscription-status" aria-live="polite"></p>
+  </div>
+</div>
+<div id="subscription-error" hidden>
+  <div class="subscription-panel">
+    <div class="subscription-mark" aria-hidden="true">!</div>
+    <h1>Не удалось проверить доступ</h1>
+    <p>Сервер может запускаться после простоя или временно быть недоступен. Проверьте соединение и попробуйте ещё раз.</p>
+    <div class="subscription-actions">
+      <button class="subscription-button" id="subscription-retry" type="button">Попробовать снова</button>
+    </div>
+    <p id="subscription-error-status" aria-live="polite"></p>
+  </div>
+</div>
+
 <!-- ГЛАВНОЕ МЕНЮ -->
 <section class="menu-screen" id="page-menu">
 <div class="menu-inner">
@@ -5177,14 +5280,8 @@ const gklDefaults = (() => {
    <section class="gkl-work-section"><h3>4.1. Гипсокартон без профиля (+50%)</h3>
     ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t+' · +50%','activeGklNoProfileHigh',t,'noProfile','— '+t,true)).join('')}
    </section>`:''}`;
-  const dowelCheckboxFlags={
-   'enable-dowels':'enableDowels',
-   'enable-dowels-high':'enableDowelsHigh',
-   'enable-hanger-dowels':'enableHangerDowels',
-   'enable-hanger-dowels-high':'enableHangerDowelsHigh'
-  };
-  Object.entries(dowelCheckboxFlags).forEach(([id,flag])=>{
-   const el=$(id);if(!el)return;
+  ['enableDowels','enableDowelsHigh','enableHangerDowels','enableHangerDowelsHigh'].forEach(flag=>{
+   const el=$(flag);if(!el)return;
    el.addEventListener('change',event=>{
     state.draft[flag]=event.currentTarget.checked===true;
     saveDraft();
@@ -5297,5 +5394,126 @@ const gklDefaults = (() => {
 })();
 
 </script>
+
+<script>
+(() => {
+  'use strict';
+  const API_BASE = 'https://smeta-server-k0it.onrender.com';
+  const loading = document.getElementById('subscription-loading');
+  const paywall = document.getElementById('subscription-paywall');
+  const errorScreen = document.getElementById('subscription-error');
+  const status = document.getElementById('subscription-status');
+  const errorStatus = document.getElementById('subscription-error-status');
+  const monthButton = document.getElementById('subscription-buy-month');
+  const yearButton = document.getElementById('subscription-buy-year');
+  const retryButton = document.getElementById('subscription-retry');
+  let busy = false;
+
+  function showScreen(screen) {
+    loading.hidden = screen !== 'loading';
+    paywall.hidden = screen !== 'paywall';
+    errorScreen.hidden = screen !== 'error';
+  }
+
+  function getInitData() {
+    return window.Telegram?.WebApp?.initData || '';
+  }
+
+  async function postJSON(path, payload) {
+    const response = await fetch(API_BASE + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    let data;
+    try { data = await response.json(); }
+    catch (_) { throw new Error('Сервер вернул некорректный ответ.'); }
+    if (!response.ok) {
+      throw new Error(data?.detail || data?.message || ('Ошибка сервера (' + response.status + ').'));
+    }
+    return data;
+  }
+
+  async function checkAccess() {
+    const initData = getInitData();
+    // При открытии обычного HTML в браузере без Telegram Mini App не блокируем тестирование.
+    if (!initData) {
+      showScreen('app');
+      return true;
+    }
+    showScreen('loading');
+    errorStatus.textContent = '';
+    try {
+      const data = await postJSON('/api/check_subscription', { initData });
+      if (data?.has_access === true) {
+        showScreen('app');
+        return true;
+      }
+      if (data?.has_access === false) {
+        status.textContent = '';
+        showScreen('paywall');
+        return false;
+      }
+      throw new Error('В ответе сервера отсутствует поле has_access.');
+    } catch (error) {
+      errorStatus.textContent = error?.message || 'Неизвестная ошибка.';
+      showScreen('error');
+      return false;
+    }
+  }
+
+  async function buySubscription(plan, button) {
+    if (busy) return;
+    const initData = getInitData();
+    if (!initData) {
+      status.textContent = 'Оплата доступна только внутри Telegram.';
+      return;
+    }
+    const webApp = window.Telegram?.WebApp;
+    if (!webApp || typeof webApp.openInvoice !== 'function') {
+      status.textContent = 'Оплата доступна только в поддерживаемой версии Telegram.';
+      return;
+    }
+    busy = true;
+    monthButton.disabled = true;
+    yearButton.disabled = true;
+    status.textContent = 'Создаём ссылку на оплату...';
+    try {
+      const data = await postJSON('/api/buy_subscription', { initData, plan });
+      if (!data?.invoice_link) throw new Error('Сервер не вернул ссылку на оплату.');
+      status.textContent = 'Ожидаем подтверждение оплаты...';
+      webApp.openInvoice(data.invoice_link, async (invoiceStatus) => {
+        if (invoiceStatus === 'paid') {
+          status.textContent = 'Оплата прошла. Обновляем доступ...';
+          await checkAccess();
+        } else if (invoiceStatus === 'cancelled') {
+          status.textContent = 'Оплата отменена.';
+        } else if (invoiceStatus === 'failed') {
+          status.textContent = 'Не удалось провести оплату. Попробуйте ещё раз.';
+        } else if (invoiceStatus === 'pending') {
+          status.textContent = 'Платёж ещё обрабатывается. Если доступ не обновился, попробуйте проверить его позже.';
+        }
+        busy = false;
+        monthButton.disabled = false;
+        yearButton.disabled = false;
+      });
+    } catch (error) {
+      status.textContent = error?.message || 'Не удалось создать платёж. Попробуйте ещё раз.';
+      busy = false;
+      monthButton.disabled = false;
+      yearButton.disabled = false;
+    }
+  }
+
+  monthButton.addEventListener('click', () => buySubscription('month', monthButton));
+  yearButton.addEventListener('click', () => buySubscription('year', yearButton));
+  retryButton.addEventListener('click', checkAccess);
+
+  // Telegram WebApp подготавливается как можно раньше, не вмешиваясь в код калькулятора.
+  try { window.Telegram?.WebApp?.ready?.(); } catch (_) {}
+  checkAccess();
+})();
+</script>
+
 </body>
 </html>
