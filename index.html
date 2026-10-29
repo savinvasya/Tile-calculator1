@@ -5021,6 +5021,7 @@ function showModule(name) {
  document.getElementById('page-menu').hidden = name !== 'menu';
  for (const moduleName of ['tile', 'elec', 'meters', 'gkl']) {
    const container = document.getElementById(moduleName + '-app');
+   if (!container) continue;
    const isActive = name === moduleName;
    container.classList.toggle('active', isActive);
    container.hidden = !isActive;
