@@ -4560,7 +4560,7 @@ showModule('menu');
    <header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu type="button">🏠 В меню</button><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Монтаж каркаса и ГКЛ</p></header>
    <section class="card"><div class="field"><label for="gkl-customer">Заказчик / объект</label><input id="gkl-customer" type="text" placeholder="Имя заказчика или объект"></div><div id="gkl-work-list"></div>
     
-    <div class="estimate-summary" id="gkl-summary"><div class="summary-line"><span>Сумма каркаса</span><strong id="gkl-sum-frame">0 ₽</strong></div><div class="summary-line"><span>Сумма подвесов</span><strong id="gkl-sum-hangers">0 ₽</strong></div><div class="summary-line"><span>Сумма ГКЛ на профиль</span><strong id="gkl-sum-on-profile">0 ₽</strong></div><div class="summary-line"><span>Сумма ГКЛ без профиля</span><strong id="gkl-sum-no-profile">0 ₽</strong></div><div class="summary-line"><span>Надбавка за высоту и потолки (50%)</span><strong id="gkl-sum-height">0 ₽</strong></div><div class="summary-line"><span>Надбавка за дюбель-гвозди</span><strong id="gkl-sum-dowels">0 ₽</strong></div><div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="gkl-total">0 ₽</div></div></div>
+    <div class="estimate-summary" id="gkl-summary"><div class="summary-line"><span>Сумма каркаса</span><strong id="gkl-sum-frame">0 ₽</strong></div><div class="summary-line"><span>Сумма подвесов</span><strong id="gkl-sum-hangers">0 ₽</strong></div><div class="summary-line"><span>Сумма ГКЛ на профиль</span><strong id="gkl-sum-on-profile">0 ₽</strong></div><div class="summary-line"><span>Сумма ГКЛ без профиля</span><strong id="gkl-sum-no-profile">0 ₽</strong></div><div class="summary-line"><span>Надбавка за высоту и потолки (50%)</span><strong id="gkl-sum-height">0 ₽</strong></div><div class="summary-line"><span>Итого за дюбель-гвозди</span><strong id="gkl-sum-dowels-total">0 ₽</strong></div><div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="gkl-total">0 ₽</div></div></div>
     <div class="electrical-calc-actions"><button class="btn btn-primary btn-large" id="gkl-save" type="button">💾 Сохранить смету</button><button class="btn btn-secondary btn-large" id="gkl-export" type="button">📥 Скачать смету в PNG</button></div>
    </section>
   </section>
@@ -4629,14 +4629,14 @@ const gklDefaults = (() => {
  if(!Array.isArray(state.prices))state.prices=[];
  state.prices=defaults.map((x,i)=>({...x,price:Math.max(0,Number(state.prices[i]?.price??x.price)||0)}));
  if(!Array.isArray(state.estimates))state.estimates=[];
- const emptyDraft=()=>({customer:'',showSurcharge:false,quantities:defaults.map(()=>0),quantitiesHigh:defaults.map(()=>0),activeProfiles:{},activeSuspensions:{},activeGklProfile:{},activeGklNoProfile:{},activeProfilesHigh:{},activeGklProfileHigh:{},activeGklNoProfileHigh:{}});
+ const emptyDraft=()=>({customer:'',showSurcharge:false,enableDowels:true,enableDowelsHigh:true,enableHangerDowels:true,enableHangerDowelsHigh:true,quantities:defaults.map(()=>0),quantitiesHigh:defaults.map(()=>0),activeProfiles:{},activeSuspensions:{},activeSuspensionsHigh:{},activeGklProfile:{},activeGklNoProfile:{},activeProfilesHigh:{},activeGklProfileHigh:{},activeGklNoProfileHigh:{}});
  if(!state.draft||!Array.isArray(state.draft.quantities))state.draft=emptyDraft();
- else state.draft={...emptyDraft(),...state.draft,showSurcharge:state.draft.showSurcharge===true,quantities:defaults.map((_,i)=>Math.max(0,Number(state.draft.quantities[i])||0)),quantitiesHigh:defaults.map((_,i)=>Math.max(0,Number(state.draft.quantitiesHigh?.[i])||0))};
+ else state.draft={...emptyDraft(),...state.draft,showSurcharge:state.draft.showSurcharge===true,enableDowels:state.draft.enableDowels!==false,enableDowelsHigh:state.draft.enableDowelsHigh!==false,enableHangerDowels:state.draft.enableHangerDowels!==false,enableHangerDowelsHigh:state.draft.enableHangerDowelsHigh!==false,quantities:defaults.map((_,i)=>Math.max(0,Number(state.draft.quantities[i])||0)),quantitiesHigh:defaults.map((_,i)=>Math.max(0,Number(state.draft.quantitiesHigh?.[i])||0))};
  if(state.draft.selectedProfileThickness!=null)state.draft.activeProfiles[String(state.draft.selectedProfileThickness)]=true;
  if(state.draft.selectedGklProfileThickness)state.draft.activeGklProfile[String(state.draft.selectedGklProfileThickness)]=true;
  if(state.draft.selectedGklNoProfileThickness)state.draft.activeGklNoProfile[String(state.draft.selectedGklNoProfileThickness)]=true;
  if(state.draft.showSuspensions){state.draft.activeSuspensions['Прямой']=true;state.draft.activeSuspensions['Анкерный']=true;}
- for(const k of ['activeProfiles','activeSuspensions','activeGklProfile','activeGklNoProfile','activeProfilesHigh','activeGklProfileHigh','activeGklNoProfileHigh'])if(!state.draft[k]||typeof state.draft[k]!=='object')state.draft[k]={};
+ for(const k of ['activeProfiles','activeSuspensions','activeSuspensionsHigh','activeGklProfile','activeGklNoProfile','activeProfilesHigh','activeGklProfileHigh','activeGklNoProfileHigh'])if(!state.draft[k]||typeof state.draft[k]!=='object')state.draft[k]={};
  const saveDraft=()=>writeGkl('gkl_draft',state.draft);
  const profileThicknesses=['30','50','75','100'];
  const gklThicknesses=['8 мм','9.5 мм','1.2 см','1.6 см'];
@@ -4649,13 +4649,17 @@ const gklDefaults = (() => {
   for(const x of high)if(x.kind in highTotals)highTotals[x.kind]+=x.qty*x.price;
   const heightSurcharge=Object.values(highTotals).reduce((a,b)=>a+b,0)*0.5;
   const combined={};for(const k of Object.keys(totals))combined[k]=totals[k]+highTotals[k]*1.5;
-  const rate=state.prices.find(x=>x.kind==='dowel')?.price||0;
-  const dowels=(totals.frame+highTotals.frame*1.5)*rate/100;
+  const rate=Math.max(0,Number(state.prices.find(x=>x.kind==='dowel')?.price)||0);
+  const dowelsNormal=state.draft.enableDowels!==false?totals.frame*rate/100:0;
+  const dowelsHigh=state.draft.enableDowelsHigh!==false?highTotals.frame*1.5*rate/100:0;
+  const hangerDowels=state.draft.enableHangerDowels!==false?totals.hangers*rate/100:0;
+  const hangerDowelsHigh=state.draft.enableHangerDowelsHigh!==false?highTotals.hangers*1.5*rate/100:0;
+  const dowels=dowelsNormal+dowelsHigh+hangerDowels+hangerDowelsHigh;
   const total=Object.values(totals).reduce((a,b)=>a+b,0)+Object.values(highTotals).reduce((a,b)=>a+b,0)*1.5+dowels;
-  for(const [id,v] of [['sum-frame',combined.frame],['sum-hangers',combined.hangers],['sum-on-profile',combined.onProfile],['sum-no-profile',combined.noProfile],['sum-height',heightSurcharge],['sum-dowels',dowels],['total',total]])$(id).textContent=moneyGkl(v);
+  for(const [id,v] of [['sum-frame',combined.frame],['sum-hangers',combined.hangers],['sum-on-profile',combined.onProfile],['sum-no-profile',combined.noProfile],['sum-height',heightSurcharge],['sum-dowels',dowelsNormal],['sum-dowels-high',dowelsHigh],['sum-hanger-dowels',hangerDowels],['sum-hanger-dowels-high',hangerDowelsHigh],['sum-dowels-total',dowels],['total',total]]){const el=$(id);if(el)el.textContent=moneyGkl(v)}
   all.forEach(x=>{const el=$(x.high?'line-'+x.index+'-high':'line-'+x.index);if(el)el.textContent='Сумма: '+moneyGkl(x.qty*x.price*(x.high?1.5:1));});
   state.draft.customer=$('customer').value;saveDraft();
-  return {all,totals:combined,normalTotals:totals,highTotals,heightSurcharge,dowels,rate,multiplier:1.5,total,ceiling:false,high:false};
+  return {all,totals:combined,normalTotals:totals,highTotals,heightSurcharge,dowels,dowelsNormal,dowelsHigh,hangerDowels,hangerDowelsHigh,rate,multiplier:1.5,total,ceiling:false,high:false};
  }
  function workRows(kind,groupSuffix,isHigh=false){
   return state.prices.map((x,i)=>({x,i})).filter(({x})=>x.kind===kind&&(!groupSuffix||(kind==='hangers'?x.name.startsWith(groupSuffix+' ('):x.group.endsWith(groupSuffix)))).map(({x,i})=>{
@@ -4668,12 +4672,16 @@ const gklDefaults = (() => {
   return `<div class="gkl-accordion-item ${active?'is-open':''}"><button type="button" class="btn ${active?'btn-primary':'btn-secondary'} gkl-accordion-toggle" data-gkl-toggle="${field}" data-gkl-key="${escGkl(key)}" aria-expanded="${active}"><span>${escGkl(label)}</span><span aria-hidden="true">${active?'−':'+'}</span></button><div class="gkl-active-work gkl-accordion-content" ${active?'':'hidden'}>${workRows(kind,suffix,isHigh)}</div></div>`;
  }
  function renderWork(){
+  const dowelRate=state.prices.find(x=>x.kind==='dowel')?.price||0;
+  const dowelBlock=(title,id,flag)=>`<div class="summary-line" style="margin-top:15px; padding-top:10px; border-top:1px dashed var(--border); display:flex; justify-content:space-between; align-items:center;"><div><span style="font-size:14px; font-weight:600;">${title}</span><div class="muted small" style="margin-top:4px;">Процент: ${dowelRate}%</div></div><strong id="gkl-${id}">0 ₽</strong></div><label class="gkl-checkbox-row" style="margin-top:10px;"><input type="checkbox" id="gkl-${flag}" ${state.draft[flag] !== false ? 'checked' : ''}><span>Учитывать дюбель-гвозди в расчете</span></label>`;
   $('work-list').innerHTML=`
    <section class="gkl-work-section"><h3>1. Каркас</h3><p class="muted">Обычные работы.</p>
     ${profileThicknesses.map(t=>accordionButton('Профиль '+t+' мм','activeProfiles',t,'frame','профиль '+t+' мм')).join('')}
+    ${dowelBlock('Дюбель-гвозди для каркаса','sum-dowels','enableDowels')}
    </section>
    <section class="gkl-work-section"><h3>2. Подвесы</h3>
     ${['Прямой','Анкерный'].map(t=>accordionButton('Добавить '+(t==='Прямой'?'Прямые подвесы':'Анкерные подвесы'),'activeSuspensions',t,'hangers',t)).join('')}
+    ${dowelBlock('Дюбель-гвозди для подвесов','sum-hanger-dowels','enableHangerDowels')}
    </section>
    <section class="gkl-work-section"><h3>3. Гипсокартон на профиль</h3>
     ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t,'activeGklProfile',t,'onProfile','— '+t)).join('')}
@@ -4682,14 +4690,16 @@ const gklDefaults = (() => {
     ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t,'activeGklNoProfile',t,'noProfile','— '+t)).join('')}
    </section>
    <div class="card" style="margin-top:20px; border:2px dashed var(--accent);">
-    <label class="gkl-checkbox-row" style="font-weight:750; font-size:16px;">
-     <input type="checkbox" id="gkl-show-surcharge" ${state.draft.showSurcharge===true?'checked':''}>
-     <span>Работы выше 3х метров / Потолки (+50% к цене)</span>
-    </label>
+    <label class="gkl-checkbox-row" style="font-weight:750; font-size:16px;"><input type="checkbox" id="gkl-show-surcharge" ${state.draft.showSurcharge===true?'checked':''}><span>Работы выше 3х метров / Потолки (+50% к цене)</span></label>
     <p class="muted small" style="margin-top:10px;">Поставьте галочку, чтобы добавить работы с наценкой. Они появятся ниже.</p>
    </div>
-   ${state.draft.showSurcharge?`<section class="gkl-work-section"><h3>1.1. Каркас (с наценкой +50%)</h3><p class="muted">Работы на высоте и потолках.</p>
+   ${state.draft.showSurcharge?`<section class="gkl-work-section"><h3>1.1. Каркас (+50%)</h3><p class="muted">Работы на высоте и потолках.</p>
     ${profileThicknesses.map(t=>accordionButton('Профиль '+t+' мм · +50%','activeProfilesHigh',t,'frame','профиль '+t+' мм',true)).join('')}
+    ${dowelBlock('Дюбель-гвозди для каркаса (+50%)','sum-dowels-high','enableDowelsHigh')}
+   </section>
+   <section class="gkl-work-section"><h3>2.1. Подвесы (+50%)</h3>
+    ${['Прямой','Анкерный'].map(t=>accordionButton((t==='Прямой'?'Прямые подвесы':'Анкерные подвесы')+' · +50%','activeSuspensionsHigh',t,'hangers',t,true)).join('')}
+    ${dowelBlock('Дюбель-гвозди для подвесов (+50%)','sum-hanger-dowels-high','enableHangerDowelsHigh')}
    </section>
    <section class="gkl-work-section"><h3>3.1. Гипсокартон на профиль (+50%)</h3>
     ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t+' · +50%','activeGklProfileHigh',t,'onProfile','— '+t,true)).join('')}
@@ -4697,6 +4707,16 @@ const gklDefaults = (() => {
    <section class="gkl-work-section"><h3>4.1. Гипсокартон без профиля (+50%)</h3>
     ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t+' · +50%','activeGklNoProfileHigh',t,'noProfile','— '+t,true)).join('')}
    </section>`:''}`;
+  ['enableDowels', 'enableDowelsHigh', 'enableHangerDowels', 'enableHangerDowelsHigh'].forEach(flag => {
+   const el = $(flag);
+   if (!el) return;
+   el.checked = state.draft[flag] !== false;
+   el.addEventListener('change', (event) => {
+    state.draft[flag] = event.target.checked;
+    saveDraft();
+    compute();
+   });
+  });
   const surchargeToggle=$('show-surcharge');
   if(surchargeToggle)surchargeToggle.addEventListener('change',event=>{
    state.draft.showSurcharge=event.target.checked;
@@ -4744,8 +4764,8 @@ const gklDefaults = (() => {
  function openEstimate(id){
   const e=state.estimates.find(x=>String(x.id)===String(id));if(!e)return;
   state.editingId=e.id;
-  state.draft={...emptyDraft(),customer:e.customer||'',showSurcharge:e.showSurcharge===true,quantities:defaults.map((_,i)=>Math.max(0,Number(e.quantities?.[i]??e.lines?.find(x=>x.index===i&&!x.high)?.qty)||0)),quantitiesHigh:defaults.map((_,i)=>Math.max(0,Number(e.quantitiesHigh?.[i]??e.lines?.find(x=>x.index===i&&x.high)?.qty)||0)),
-   activeProfiles:{...(e.activeProfiles||{})},activeSuspensions:{...(e.activeSuspensions||{})},activeGklProfile:{...(e.activeGklProfile||{})},activeGklNoProfile:{...(e.activeGklNoProfile||{})},activeProfilesHigh:{...(e.activeProfilesHigh||{})},activeGklProfileHigh:{...(e.activeGklProfileHigh||{})},activeGklNoProfileHigh:{...(e.activeGklNoProfileHigh||{})}};
+  state.draft={...emptyDraft(),customer:e.customer||'',showSurcharge:e.showSurcharge===true,enableDowels:e.enableDowels!==false,enableDowelsHigh:e.enableDowelsHigh!==false,enableHangerDowels:e.enableHangerDowels!==false,enableHangerDowelsHigh:e.enableHangerDowelsHigh!==false,quantities:defaults.map((_,i)=>Math.max(0,Number(e.quantities?.[i]??e.lines?.find(x=>x.index===i&&!x.high)?.qty)||0)),quantitiesHigh:defaults.map((_,i)=>Math.max(0,Number(e.quantitiesHigh?.[i]??e.lines?.find(x=>x.index===i&&x.high)?.qty)||0)),
+   activeProfiles:{...(e.activeProfiles||{})},activeSuspensions:{...(e.activeSuspensions||{})},activeSuspensionsHigh:{...(e.activeSuspensionsHigh||{})},activeGklProfile:{...(e.activeGklProfile||{})},activeGklNoProfile:{...(e.activeGklNoProfile||{})},activeProfilesHigh:{...(e.activeProfilesHigh||{})},activeGklProfileHigh:{...(e.activeGklProfileHigh||{})},activeGklNoProfileHigh:{...(e.activeGklNoProfileHigh||{})}};
   if(e.selectedProfileThickness!=null)state.draft.activeProfiles[String(e.selectedProfileThickness)]=true;
   if(e.selectedGklProfileThickness)state.draft.activeGklProfile[String(e.selectedGklProfileThickness)]=true;
   if(e.selectedGklNoProfileThickness)state.draft.activeGklNoProfile[String(e.selectedGklNoProfileThickness)]=true;
@@ -4753,7 +4773,7 @@ const gklDefaults = (() => {
   $('customer').value=state.draft.customer;renderWork();switchTab('calc');
  }
  function snapshot(){
-  const r=compute();return {showSurcharge:state.draft.showSurcharge===true,id:state.editingId||('g'+Date.now()+Math.random().toString(16).slice(2,6)),customer:$('customer').value.trim()||'Без названия',date:new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines:r.all,quantities:[...state.draft.quantities],quantitiesHigh:[...state.draft.quantitiesHigh],totals:r.totals,highTotals:r.highTotals,heightSurcharge:r.heightSurcharge,dowels:r.dowels,rate:r.rate,multiplier:r.multiplier,total:r.total,activeProfiles:{...state.draft.activeProfiles},activeSuspensions:{...state.draft.activeSuspensions},activeGklProfile:{...state.draft.activeGklProfile},activeGklNoProfile:{...state.draft.activeGklNoProfile},activeProfilesHigh:{...state.draft.activeProfilesHigh},activeGklProfileHigh:{...state.draft.activeGklProfileHigh},activeGklNoProfileHigh:{...state.draft.activeGklNoProfileHigh}};
+  const r=compute();return {enableDowels:state.draft.enableDowels!==false,enableDowelsHigh:state.draft.enableDowelsHigh!==false,enableHangerDowels:state.draft.enableHangerDowels!==false,enableHangerDowelsHigh:state.draft.enableHangerDowelsHigh!==false,showSurcharge:state.draft.showSurcharge===true,id:state.editingId||('g'+Date.now()+Math.random().toString(16).slice(2,6)),customer:$('customer').value.trim()||'Без названия',date:new Date().toLocaleDateString('ru-RU'),updated:new Date().toISOString(),lines:r.all,quantities:[...state.draft.quantities],quantitiesHigh:[...state.draft.quantitiesHigh],totals:r.totals,highTotals:r.highTotals,heightSurcharge:r.heightSurcharge,dowels:r.dowels,rate:r.rate,multiplier:r.multiplier,total:r.total,activeProfiles:{...state.draft.activeProfiles},activeSuspensions:{...state.draft.activeSuspensions},activeSuspensionsHigh:{...state.draft.activeSuspensionsHigh},activeGklProfile:{...state.draft.activeGklProfile},activeGklNoProfile:{...state.draft.activeGklNoProfile},activeProfilesHigh:{...state.draft.activeProfilesHigh},activeGklProfileHigh:{...state.draft.activeGklProfileHigh},activeGklNoProfileHigh:{...state.draft.activeGklNoProfileHigh}};
  }
  function saveEstimate(){const e=snapshot(),old=state.estimates.find(x=>String(x.id)===String(state.editingId));if(old){e.date=old.date;state.estimates=state.estimates.map(x=>String(x.id)===String(old.id)?e:x);}else state.estimates.push(e);state.editingId=e.id;writeGkl('gkl_estimates',state.estimates);renderEstimates();switchTab('estimates');}
  async function exportEstimate(){const e=snapshot();if(typeof window.html2canvas!=='function'){alert('Библиотека html2canvas недоступна.');return;}
