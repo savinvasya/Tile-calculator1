@@ -1256,7 +1256,10 @@ input[type="date"] { color-scheme: dark; }
 <div class="stat-card"><div class="stat-icon">📐</div><div class="stat-label">Общий объём</div><div class="stat-value" id="meters-stat-volume">0</div></div>
 <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">Средний чек</div><div class="stat-value" id="meters-stat-average">0 ₽</div></div>
 </div>
-<div class="search-wrap"><input class="search-input" id="meters-search" type="search" placeholder="🔎 Поиск по заказчику" aria-label="Поиск смет"></div><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-meters-new="" type="button">+ Создать</button></div><div id="meters-estimates-list"></div></section><section class="page" data-meters-panel="calc" hidden="" id="meters-page-calc"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика метраж</p></header><section class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"/></div></section><section class="card"><h2 class="card-title">Перечень работ</h2><div id="meters-work-list"></div><section class="estimate-summary">
+<div class="search-wrap"><input class="search-input" id="meters-search" type="search" placeholder="🔎 Поиск по заказчику" aria-label="Поиск смет"></div><div class="section-heading"><h2>Мои сметы</h2><button class="btn btn-primary" data-meters-new="" type="button">+ Создать</button></div><div id="meters-estimates-list"></div></section><section class="page" data-meters-panel="calc" hidden="" id="meters-page-calc"><header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu="" type="button">🏠 В меню</button><h1 class="page-title">Новый расчёт</h1><p class="page-subtitle">Электрика метраж</p></header><section class="card"><h2 class="card-title">Информация об объекте</h2><div class="field"><label for="meters-customer">Заказчик / объект</label><input id="meters-customer" placeholder="Имя или адрес"/></div></section><section class="card"><h2 class="card-title">Перечень работ</h2><div class="search-wrap" style="margin-bottom: 15px;">
+  <input class="search-input" id="meters-search-work" type="search" placeholder="🔎 Поиск по работам..." aria-label="Поиск по работам">
+</div>
+<div id="meters-work-list"></div><section class="estimate-summary">
 <div class="summary-line"><span>Количество позиций</span><strong id="meters-summary-count">0</strong></div>
 <div class="summary-line"><span>Общий объём</span><strong id="meters-summary-volume">0</strong></div>
 <div class="grand-total"><div class="grand-total-label">Итоговая стоимость</div><div class="grand-total-value" id="meters-total">0 ₽</div></div>
@@ -4239,32 +4242,136 @@ const pointDefaults=[
  {group:'Дополнительные работы',name:'Непредвиденные и дополнительные работы',unit:'договорная',price:0,isCustom:true,category:'extra'}
 ];
 const meterDefaults=[
- {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 20×40',unit:'м',price:160},
- {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 40×40',unit:'м',price:180},
- {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 60×40',unit:'м',price:230},
- {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 100×40',unit:'м',price:320},
- {group:'1. Кабель-канал (пог. м)',name:'Кабель-канал 100×60',unit:'м',price:370},
- {group:'2. Проводка и кабель (пог. м)',name:'Ретро-проводка на изоляторах',unit:'м',price:220},
- {group:'2. Проводка и кабель (пог. м)',name:'СИП-4 (2×16)',unit:'м',price:170},
- {group:'2. Проводка и кабель (пог. м)',name:'СИП-4 (4×16)',unit:'м',price:190},
+ /* ==========================================
+    1. ШТРОБЫ, КАНАЛЫ, КОРОБА
+    ========================================== */
+ {group:'1. Штробы, каналы, короба',name:'Кабель-канал 20×40',unit:'м',price:160},
+ {group:'1. Штробы, каналы, короба',name:'Кабель-канал 40×40',unit:'м',price:180},
+ {group:'1. Штробы, каналы, короба',name:'Кабель-канал 60×40',unit:'м',price:230},
+ {group:'1. Штробы, каналы, короба',name:'Кабель-канал 100×40',unit:'м',price:320},
+ {group:'1. Штробы, каналы, короба',name:'Кабель-канал 100×60',unit:'м',price:370},
  ...[
  ['20×20','пеноблок / штукатурка',340],['20×20','кирпич / дерево',380],['20×20','бетон',600],
  ['20×40','пеноблок / штукатурка',430],['20×40','кирпич / дерево',480],['20×40','бетон',650],
  ['40×40','пеноблок / штукатурка',440],['40×40','кирпич / дерево',540],['40×40','бетон',770],
  ['100×40','пеноблок / штукатурка',650],['100×40','кирпич / дерево',870],['100×40','бетон',1250]
- ].map(x=>({group:'3. Штробление (пог. м)',name:`Штроба до ${x[0]}, ${x[1]}`,unit:'м',price:x[2]})),
- {group:'4. Электрощиты (шт.)',name:'Наружный электрощит',unit:'шт.',price:1750},
+ ].map(x=>({group:'1. Штробы, каналы, короба',name:`Штроба до ${x[0]}, ${x[1]}`,unit:'м',price:x[2]})),
+ {group:'1. Штробы, каналы, короба',name:'Штукатурка штроб',unit:'м.п.',price:220},
+
+ /* ==========================================
+    2. ПРОКЛАДКА КАБЕЛЯ
+    ========================================== */
+ {group:'2. Прокладка кабеля',name:'Прокладка кабеля в штробе сечением до 4 мм²',unit:'м.п.',price:120},
+ {group:'2. Прокладка кабеля',name:'Прокладка кабеля в штробе сечением более 4 мм²',unit:'м.п.',price:130},
+ {group:'2. Прокладка кабеля',name:'Прокладка кабеля открытым способом сечением до 4 мм²',unit:'м.п.',price:120},
+ {group:'2. Прокладка кабеля',name:'Прокладка кабеля открытым способом сечением от 4 мм²',unit:'м.п.',price:130},
+ {group:'2. Прокладка кабеля',name:'Прокладка кабеля в гофре сечением до 4 мм² (включая протяжку)',unit:'м.п.',price:180},
+ {group:'2. Прокладка кабеля',name:'Прокладка кабеля в гофре сечением от 4 мм² до 10 мм² включительно (включая протяжку)',unit:'м.п.',price:210},
+ {group:'2. Прокладка кабеля',name:'Протяжка кабеля в гофре',unit:'м.п.',price:75},
+ {group:'2. Прокладка кабеля',name:'Прокладка кабеля в кабель-канале сечением до 4 мм² (без учета монтажа кабель-канала)',unit:'м.п.',price:100},
+ {group:'2. Прокладка кабеля',name:'Прокладка кабеля в кабель-канале сечением более 4 мм² (без учета монтажа кабель-канала)',unit:'м.п.',price:120},
+ {group:'2. Прокладка кабеля',name:'Ретро-проводка на изоляторах',unit:'м',price:230},
+ {group:'2. Прокладка кабеля',name:'СИП-4 (2×16)',unit:'м',price:170},
+ {group:'2. Прокладка кабеля',name:'СИП-4 (4×16)',unit:'м',price:200},
+ {group:'2. Прокладка кабеля',name:'Монтаж слаботочных проводов (телефон, интернет, ТВ)',unit:'м.п.',price:100},
+
+ /* ==========================================
+    3. ЩИТЫ, АВТОМАТЫ, СЧЕТЧИКИ И ЗАЗЕМЛЕНИЕ
+    ========================================== */
+ {group:'3. Щиты и счетчики',name:'Наружный электрощит',unit:'шт.',price:1450},
  ...[
- ['8 модулей','гипсокартон',2150],['8 модулей','кирпич',3000],['8 модулей','бетон',3350],
+ ['8 модулей','гипсокартон',2150],['8 модулей','кирпич',2850],['8 модулей','бетон',3400],
  ['12 модулей','гипсокартон',2650],['12 модулей','кирпич',3650],['12 модулей','бетон',4850],
- ['18 модулей','гипсокартон',3150],['18 модулей','кирпич',4550],['18 модулей','бетон',5850],
- ['24 модуля','гипсокартон',3650],['24 модуля','кирпич',5250],['24 модуля','бетон',6650],
- ['36 модулей','гипсокартон',4150],['36 модулей','кирпич',6750],['36 модулей','бетон',8250],
- ['54 модуля','гипсокартон',4650],['54 модуля','кирпич',8250],['54 модуля','бетон',10500]
- ].map(x=>({group:'4. Электрощиты (шт.)',name:`Установка щита ${x[0]}, ${x[1]}`,unit:'шт.',price:x[2]})),
- ...[
- ['Установка ретро-распаечной коробки',670],['Установка наружной розетки',530],['Установка трансформатора для галогенных светильников',580],['Установка / подключение встроенной стиральной машины',2550],['Установка / подключение встроенной посудомоечной машины',2450]
- ].map(x=>({group:'5. Прочие работы (шт.)',name:x[0],unit:'шт.',price:x[1]}))
+ ['18 модулей','гипсокартон',3300],['18 модулей','кирпич',4650],['18 модулей','бетон',5850],
+ ['24 модуля','гипсокартон',3950],['24 модуля','кирпич',5600],['24 модуля','бетон',6900],
+ ['36 модулей','гипсокартон',4500],['36 модулей','кирпич',7000],['36 модулей','бетон',8250],
+ ['54 модуля','гипсокартон',5100],['54 модуля','кирпич',8300],['54 модуля','бетон',10200]
+ ].map(x=>({group:'3. Щиты и счетчики',name:`Установка щита ${x[0]}, ${x[1]}`,unit:'шт.',price:x[2]})),
+ {group:'3. Щиты и счетчики',name:'Установка автомата однополюсного',unit:'шт.',price:580},
+ {group:'3. Щиты и счетчики',name:'Установка автомата двухполюсного',unit:'шт.',price:730},
+ {group:'3. Щиты и счетчики',name:'Установка автомата трехполюсного',unit:'шт.',price:850},
+ {group:'3. Щиты и счетчики',name:'Установка УЗО двухполюсного',unit:'шт.',price:830},
+ {group:'3. Щиты и счетчики',name:'Установка УЗО четырехполюсного',unit:'шт.',price:970},
+ {group:'3. Щиты и счетчики',name:'Установка электросчетчика однофазного',unit:'шт.',price:2350},
+ {group:'3. Щиты и счетчики',name:'Установка электросчетчика трехфазного',unit:'шт.',price:3300},
+ {group:'3. Щиты и счетчики',name:'Подключение силового кабеля',unit:'шт.',price:830},
+ {group:'3. Щиты и счетчики',name:'Устройство контура защитного заземления',unit:'шт.',price:14600},
+ {group:'3. Щиты и счетчики',name:'Опрессовка гильзы изолированной для СИП сечением до 35 мм',unit:'шт.',price:280},
+ {group:'3. Щиты и счетчики',name:'Опрессовка гильзы изолированной для СИП сечением от 50 мм',unit:'шт.',price:330},
+ {group:'3. Щиты и счетчики',name:'Опрессовка наконечника изолированного для СИП сечением до 35 мм',unit:'шт.',price:240},
+
+ /* ==========================================
+    4. ПОДРОЗЕТНИКИ И РАСПРЕДКОРОБКИ
+    ========================================== */
+ {group:'4. Подрозетники и коробки',name:'Высверливание углубления под подрозетник в кирпиче',unit:'шт.',price:440},
+ {group:'4. Подрозетники и коробки',name:'Высверливание углубления под подрозетник в бетоне',unit:'шт.',price:680},
+ {group:'4. Подрозетники и коробки',name:'Высверливание отверстия под подрозетник в гипсокартоне',unit:'шт.',price:310},
+ {group:'4. Подрозетники и коробки',name:'Монтаж подрозетника в готовое отверстие в гипсокартоне',unit:'шт.',price:220},
+ {group:'4. Подрозетники и коробки',name:'Монтаж подрозетника в углубление на раствор или гипс',unit:'шт.',price:270},
+ {group:'4. Подрозетники и коробки',name:'Высверливание углубления под распаечную коробку в кирпиче',unit:'шт.',price:520},
+ {group:'4. Подрозетники и коробки',name:'Высверливание углубления под распаечную коробку в бетоне',unit:'шт.',price:770},
+ {group:'4. Подрозетники и коробки',name:'Высверливание отверстия под распаечную коробку в гипсокартоне',unit:'шт.',price:340},
+ {group:'4. Подрозетники и коробки',name:'Установка наружной распаечной коробки',unit:'шт.',price:410},
+ {group:'4. Подрозетники и коробки',name:'Установка ретро-распаечной коробки',unit:'шт.',price:660},
+ {group:'4. Подрозетники и коробки',name:'Подключение проводов в распаечной коробке (скрутка + пайка/сварка)',unit:'шт.',price:250},
+ {group:'4. Подрозетники и коробки',name:'Подключение проводов в распаечной коробке (клеммники WAGO)',unit:'шт.',price:95},
+ {group:'4. Подрозетники и коробки',name:'Подключение проводов в распаечной коробке (опрессовка гильзами)',unit:'шт.',price:160},
+
+ /* ==========================================
+    5. РОЗЕТКИ И ВЫКЛЮЧАТЕЛИ
+    ========================================== */
+ {group:'5. Розетки и выключатели',name:'Установка механизма розетки в подрозетник',unit:'шт.',price:530},
+ {group:'5. Розетки и выключатели',name:'Установка розетки в коробе (кабель-канале)',unit:'шт.',price:500},
+ {group:'5. Розетки и выключатели',name:'Установка наружной розетки',unit:'шт.',price:530},
+ {group:'5. Розетки и выключатели',name:'Монтаж ретро розетки',unit:'шт.',price:650},
+ {group:'5. Розетки и выключатели',name:'Установка механизма одноклавишного выключателя',unit:'шт.',price:510},
+ {group:'5. Розетки и выключатели',name:'Установка механизма двухклавишного выключателя',unit:'шт.',price:520},
+ {group:'5. Розетки и выключатели',name:'Установка наружного одноклавишного выключателя',unit:'шт.',price:540},
+ {group:'5. Розетки и выключатели',name:'Установка наружного двухклавишного выключателя',unit:'шт.',price:570},
+ {group:'5. Розетки и выключатели',name:'Установка проходного одноклавишного выключателя',unit:'шт.',price:580},
+ {group:'5. Розетки и выключатели',name:'Установка проходного двухклавишного выключателя',unit:'шт.',price:630},
+ {group:'5. Розетки и выключатели',name:'Установка наружного проходного одноклавишного выключателя',unit:'шт.',price:600},
+ {group:'5. Розетки и выключатели',name:'Установка наружного проходного двухклавишного выключателя',unit:'шт.',price:660},
+ {group:'5. Розетки и выключатели',name:'Монтаж ретро выключателя',unit:'шт.',price:630},
+ {group:'5. Розетки и выключатели',name:'Установка компьютерной, телефонной или ТВ розетки',unit:'шт.',price:590},
+ {group:'5. Розетки и выключатели',name:'Установка диммера',unit:'шт.',price:640},
+ {group:'5. Розетки и выключатели',name:'Установка реостата для теплого пола',unit:'шт.',price:940},
+ {group:'5. Розетки и выключатели',name:'Установка звонка',unit:'шт.',price:600},
+
+ /* ==========================================
+    6. ОСВЕЩЕНИЕ И ВЕНТИЛЯЦИЯ
+    ========================================== */
+ {group:'6. Освещение и вентиляция',name:'Монтаж крюка под люстру',unit:'шт.',price:530},
+ {group:'6. Освещение и вентиляция',name:'Сборка простой люстры',unit:'шт.',price:940},
+ {group:'6. Освещение и вентиляция',name:'Сборка сложной люстры',unit:'шт.',price:1850},
+ {group:'6. Освещение и вентиляция',name:'Монтаж простой люстры на крюк',unit:'шт.',price:1100},
+ {group:'6. Освещение и вентиляция',name:'Монтаж сложной люстры на крюк',unit:'шт.',price:2200},
+ {group:'6. Освещение и вентиляция',name:'Монтаж точечных светильников',unit:'шт.',price:550},
+ {group:'6. Освещение и вентиляция',name:'Монтаж светильника Армстронг',unit:'шт.',price:880},
+ {group:'6. Освещение и вентиляция',name:'Монтаж настенного светильника Бра',unit:'шт.',price:790},
+ {group:'6. Освещение и вентиляция',name:'Монтаж светодиодной ленты',unit:'м.п.',price:410},
+ {group:'6. Освещение и вентиляция',name:'Монтаж вентилятора вытяжки',unit:'шт.',price:1250},
+ {group:'6. Освещение и вентиляция',name:'Монтаж накладного канального вентилятора',unit:'шт.',price:1250},
+ {group:'6. Освещение и вентиляция',name:'Установка трансформатора для галогенных светильников',unit:'шт.',price:580},
+
+ /* ==========================================
+    7. ТЕПЛЫЙ ПОЛ, ТЕХНИКА И ВИДЕОНАБЛЮДЕНИЕ
+    ========================================== */
+ {group:'7. Теплый пол и техника',name:'Монтаж электрического теплого пола',unit:'м²',price:880},
+ {group:'7. Теплый пол и техника',name:'Устройство штробы в стяжке под кабель теплого пола',unit:'м.п.',price:390},
+ {group:'7. Теплый пол и техника',name:'Монтаж нагревательного кабеля теплого пола в штробу',unit:'м.п.',price:140},
+ {group:'7. Теплый пол и техника',name:'Установка и подключение электроплиты',unit:'шт.',price:2350},
+ {group:'7. Теплый пол и техника',name:'Установка и подключение варочной панели',unit:'шт.',price:2000},
+ {group:'7. Теплый пол и техника',name:'Установка и подключение духового шкафа',unit:'шт.',price:2200},
+ {group:'7. Теплый пол и техника',name:'Установка и подключение кухонной вытяжки',unit:'шт.',price:2450},
+ {group:'7. Теплый пол и техника',name:'Установка / подключение встроенной стиральной машины',unit:'шт.',price:2750},
+ {group:'7. Теплый пол и техника',name:'Установка / подключение встроенной посудомоечной машины',unit:'шт.',price:2700},
+ {group:'7. Теплый пол и техника',name:'Установка видеодомофона',unit:'шт.',price:3150},
+ {group:'7. Теплый пол и техника',name:'Монтаж камеры видеонаблюдения (аналоговой)',unit:'шт.',price:1950},
+ {group:'7. Теплый пол и техника',name:'Монтаж камеры видеонаблюдения (IP)',unit:'шт.',price:2450},
+ {group:'7. Теплый пол и техника',name:'Монтаж камеры видеонаблюдения (беспроводной)',unit:'шт.',price:1750},
+ {group:'7. Теплый пол и техника',name:'Монтаж аналогового видеорегистратора (DVR)',unit:'шт.',price:2900},
+ {group:'7. Теплый пол и техника',name:'Монтаж сетевого IP-видеорегистратора (NVR)',unit:'шт.',price:3900}
 ];
 const configs={
  elec:{prefix:'elec',defaults:pointDefaults,app:'elec-app',tabs:'data-elec-tab',panels:'data-elec-panel',list:'elec-work-list',prices:'elec-price-list',estimates:'elec-estimates-list',customer:'elec-customer',total:'elec-total',save:'elec-save',export:'elec-export',new:'[data-elec-new]',savePrices:'elec-save-prices'},
@@ -4312,8 +4419,18 @@ function initModule(key,cfg){
  const prefix=cfg.prefix;
  const state={priceList:read(prefix+'_priceList',cfg.defaults.map(x=>({...x}))),estimates:read(prefix+'_estimates',[]),draft:read(prefix+'_draft',null),editingId:null};states[key]=state;
  // Repair/merge price list by index while preserving saved prices and labels.
- if(!Array.isArray(state.priceList)||state.priceList.length!==cfg.defaults.length) state.priceList=cfg.defaults.map(x=>({...x}));
- else state.priceList=state.priceList.map((item,i)=>({...cfg.defaults[i],...item,category:cfg.defaults[i].category,isCustom:cfg.defaults[i].isCustom||false}));
+ if(!Array.isArray(state.priceList) || state.priceList.length === 0) {
+   state.priceList = cfg.defaults.map(x=>({...x}));
+ } else {
+   state.priceList = state.priceList.map(item => {
+     const def = cfg.defaults.find(d => d.name === item.name && d.group === item.group);
+     return {
+       ...item,
+       category: item.category || (def ? def.category : undefined),
+       isCustom: item.isCustom !== undefined ? item.isCustom : (def ? def.isCustom : false)
+     };
+   });
+ }
  function saveDraft(){write(prefix+'_draft',state.draft)}
  function getLines(){return state.priceList.map((item,i)=>({index:i,name:item.name,group:item.group,unit:item.unit,category:item.category,isCustom:key==='elec'&&item.isCustom===true,price:Math.max(0,Number(item.price)||0),qty:Math.max(0,Number(document.getElementById(prefix+'-qty-'+i)?.value)||0)}))}
  function updateElectricalSummary(){
@@ -4342,27 +4459,194 @@ function initModule(key,cfg){
   }
   document.getElementById(cfg.total).textContent=money(sum);
   updateElectricalSummary();
-  state.draft={...(state.draft||{}),customer:document.getElementById(cfg.customer).value,quantities:lines.map(x=>x.qty),editingId:state.editingId};
+  state.draft={...(state.draft||{}),customer:document.getElementById(cfg.customer).value,quantities:lines.map(x=>x.qty),editingId:state.editingId,activeGroups:state.draft.activeGroups||{}};
   saveDraft();
   return sum;
  }
  function renderWork(){
-  const host=document.getElementById(cfg.list);let last='';
-  host.innerHTML=state.priceList.map((x,i)=>{
-    let heading='';
-    if(x.group!==last){last=x.group;heading=`<h3 class="card-title" style="margin-top:18px">${esc(last)}</h3>`}
-    const quantity=Number(state.draft?.quantities?.[i])||0;
-    const customHint=Number(x.price)>0?`от ${money(x.price)}`:'договорная';
-    const isCustom=key==='elec'&&x.isCustom===true;
-    const mainPrice=isCustom?'':`<span class="setting-unit">${money(x.price)} / ${esc(x.unit)}</span>`;
-    const hint=isCustom?`<span class="setting-unit">${esc(customHint)}</span>`:'';
-    return `${heading}<div class="zone-number-row electrical-work-row"><label for="${prefix}-qty-${i}"><span class="electrical-work-title">${esc(x.name)}</span>${mainPrice}${hint}<span class="electrical-line-total" id="${prefix}-line-${i}">Сумма: ${money(isCustom?quantity:quantity*x.price)}</span></label><input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${i}" data-qty="${i}" value="${quantity}" aria-label="Количество: ${esc(x.name)}"></div>`
+  const host=document.getElementById(cfg.list);
+  if (!state.draft.activeGroups) state.draft.activeGroups = {};
+  // --- АВТО-НУМЕРАЦИЯ ГРУПП ---
+  const uniqueGroups = [];
+  state.priceList.forEach(item => {
+    if (!uniqueGroups.includes(item.group)) uniqueGroups.push(item.group);
+  });
+  let groupsChanged = false;
+  const mapOldToNew = {};
+  uniqueGroups.forEach((oldName, idx) => {
+    const cleanName = oldName.replace(/^\d+\.\s*/, '');
+    const newName = `${idx + 1}. ${cleanName}`;
+    if (oldName !== newName) groupsChanged = true;
+    mapOldToNew[oldName] = newName;
+  });
+  if (groupsChanged) {
+    state.priceList.forEach(item => { item.group = mapOldToNew[item.group]; });
+    write(prefix+'_priceList', state.priceList);
+  }
+  // ----------------------------
+  const groups = [];
+  state.priceList.forEach((item, i) => {
+    let group = groups.find(g => g.name === item.group);
+    if (!group) { group = { name: item.group, items: [] }; groups.push(group); }
+    group.items.push({ item, index: i });
+  });
+  let html = `<div style="margin-bottom:15px;"><button type="button" class="btn btn-primary" data-add-group style="width:100%; min-height:50px;">+ Добавить новую группу работ</button></div>`;
+  html += groups.map(g => {
+    const isActive = state.draft.activeGroups[g.name] === true;
+    const rowsHTML = g.items.map(({item, index}) => {
+      const quantity = Number(state.draft?.quantities?.[index]) || 0;
+      const customHint = Number(item.price)>0 ? `от ${money(item.price)}` : 'договорная';
+      const isCustom = key==='elec' && item.isCustom===true;
+      const mainPrice = isCustom ? '' : `<span class="setting-unit">${money(item.price)} / ${esc(item.unit)}</span>`;
+      const hint = isCustom ? `<span class="setting-unit">${esc(customHint)}</span>` : '';
+      return `
+        <div class="zone-number-row electrical-work-row" style="border-bottom:1px solid var(--border); padding:11px 0;">
+          <label for="${prefix}-qty-${index}">
+            <span class="electrical-work-title" style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; width:100%;">
+              <span style="flex:1;">${esc(item.name)}</span>
+              <span style="display:flex; gap:6px; flex-shrink:0;">
+                <button type="button" data-move-up="${index}" style="background:none; border:none; color:var(--hint); cursor:pointer; padding:0; font-size:14px;" title="Вверх">⬆️</button>
+                <button type="button" data-move-down="${index}" style="background:none; border:none; color:var(--hint); cursor:pointer; padding:0; font-size:14px;" title="Вниз">⬇️</button>
+                <button type="button" data-edit-item="${index}" style="background:none; border:none; color:var(--accent); cursor:pointer; padding:0; font-size:15px;" title="Редактировать">✏️</button>
+                <button type="button" data-delete-item="${index}" style="background:none; border:none; color:var(--red); cursor:pointer; padding:0; font-size:15px;" title="Удалить">🗑️</button>
+              </span>
+            </span>
+            ${mainPrice}${hint}
+            <span class="electrical-line-total" id="${prefix}-line-${index}">Сумма: ${money(isCustom?quantity:quantity*item.price)}</span>
+          </label>
+          <input class="setting-input" type="number" min="0" step="0.1" id="${prefix}-qty-${index}" data-qty="${index}" value="${quantity}" aria-label="Количество: ${esc(item.name)}">
+        </div>`;
+    }).join('');
+    return `
+      <div class="gkl-accordion-item ${isActive?'is-open':''}" style="margin:10px 0; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--card);">
+        <div style="display:flex; align-items:stretch;">
+          <button type="button" class="btn ${isActive?'btn-primary':'btn-secondary'} gkl-accordion-toggle" data-toggle-elec-group="${esc(g.name)}" aria-expanded="${isActive}" style="flex:1; justify-content:space-between; border-radius:0; border:none; padding:12px 16px; font-size:15px; font-weight:750;">
+            <span>${esc(g.name)}</span><span aria-hidden="true">${isActive?'−':'+'}</span>
+          </button>
+          <button type="button" data-delete-group="${esc(g.name)}" style="background:${isActive?'var(--accent)':'var(--secondary)'}; color:${isActive?'var(--accent-text)':'var(--red)'}; border:none; border-left:1px solid var(--border); padding:0 16px; cursor:pointer; font-size:16px;" title="Удалить группу">🗑️</button>
+        </div>
+        <div class="gkl-active-work gkl-accordion-content" ${isActive?'':'hidden'} style="padding:8px 15px 14px;">
+          ${rowsHTML}
+          <button type="button" class="btn btn-secondary" data-add-item="${esc(g.name)}" style="width:100%; margin-top:16px; min-height:44px; font-size:14px;">+ Добавить строку в эту группу</button>
+        </div>
+      </div>`;
   }).join('');
+  host.innerHTML = html;
+  host.querySelectorAll('[data-toggle-elec-group]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const groupName = btn.dataset.toggleElecGroup;
+      state.draft.activeGroups[groupName] = !state.draft.activeGroups[groupName];
+      saveDraft(); renderWork();
+    });
+  });
   host.querySelectorAll('[data-qty]').forEach(inp=>inp.addEventListener('input',()=>{
-    const q=Math.max(0,Number(inp.value)||0);
-    document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent='Сумма: '+money((key==='elec'&&state.priceList[Number(inp.dataset.qty)].isCustom===true)?q:q*state.priceList[Number(inp.dataset.qty)].price);
+    const q = Math.max(0,Number(inp.value)||0);
+    document.getElementById(prefix+'-line-'+inp.dataset.qty).textContent = 'Сумма: ' + money((key==='elec' && state.priceList[Number(inp.dataset.qty)].isCustom===true) ? q : q*state.priceList[Number(inp.dataset.qty)].price);
     calc();
   }));
+  host.querySelectorAll('[data-move-up]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const idx = Number(btn.dataset.moveUp);
+      if (idx > 0 && state.priceList[idx].group === state.priceList[idx-1].group) {
+        const tempItem = state.priceList[idx]; state.priceList[idx] = state.priceList[idx-1]; state.priceList[idx-1] = tempItem;
+        if (state.draft.quantities) { const tq = state.draft.quantities[idx]; state.draft.quantities[idx] = state.draft.quantities[idx-1]; state.draft.quantities[idx-1] = tq; }
+        write(prefix+'_priceList', state.priceList); renderWork(); calc();
+      }
+    });
+  });
+  host.querySelectorAll('[data-move-down]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const idx = Number(btn.dataset.moveDown);
+      if (idx < state.priceList.length - 1 && state.priceList[idx].group === state.priceList[idx+1].group) {
+        const tempItem = state.priceList[idx]; state.priceList[idx] = state.priceList[idx+1]; state.priceList[idx+1] = tempItem;
+        if (state.draft.quantities) { const tq = state.draft.quantities[idx]; state.draft.quantities[idx] = state.draft.quantities[idx+1]; state.draft.quantities[idx+1] = tq; }
+        write(prefix+'_priceList', state.priceList); renderWork(); calc();
+      }
+    });
+  });
+  host.querySelectorAll('[data-edit-item]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const index = Number(btn.dataset.editItem);
+      const item = state.priceList[index];
+      const newName = prompt('Введите название работы:', item.name);
+      if (newName === null) return;
+      const newUnit = prompt('Введите единицу измерения (м, м.п., шт., точка, м²):', item.unit);
+      if (newUnit === null) return;
+      const newPrice = prompt('Введите цену:', item.price);
+      if (newPrice === null) return;
+      if (newName.trim()) item.name = newName.trim();
+      if (newUnit.trim()) item.unit = newUnit.trim();
+      const parsedPrice = Number(newPrice);
+      if (Number.isFinite(parsedPrice) && parsedPrice >= 0) item.price = parsedPrice;
+      write(prefix+'_priceList', state.priceList); renderWork(); calc();
+    });
+  });
+  host.querySelectorAll('[data-delete-item]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if(confirm('Удалить эту строку?')) {
+        const index = Number(btn.dataset.deleteItem);
+        state.priceList.splice(index, 1);
+        if (state.draft.quantities) state.draft.quantities.splice(index, 1);
+        write(prefix+'_priceList', state.priceList); renderWork(); calc();
+      }
+    });
+  });
+  host.querySelectorAll('[data-add-item]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const groupName = btn.dataset.addItem;
+      const newName = prompt('Введите название новой работы:');
+      if (!newName || !newName.trim()) return;
+      const newUnit = prompt('Введите единицу измерения (м, м.п., шт., точка, м²):', 'шт.');
+      if (newUnit === null) return;
+      const newPrice = prompt('Введите цену:');
+      if (newPrice === null) return;
+      const parsedPrice = Number(newPrice);
+      if (!Number.isFinite(parsedPrice) || parsedPrice < 0) { alert('Некорректная цена'); return; }
+      state.priceList.push({ group: groupName, name: newName.trim(), unit: newUnit.trim() || 'шт.', price: parsedPrice });
+      if (state.draft.quantities) state.draft.quantities.push(0);
+      write(prefix+'_priceList', state.priceList); renderWork(); calc();
+    });
+  });
+  host.querySelector('[data-add-group]').addEventListener('click', (e) => {
+    e.preventDefault();
+    const groupName = prompt('Введите название новой группы (без номера):');
+    if (!groupName || !groupName.trim()) return;
+    const itemName = prompt('Введите название первой работы в этой группе:');
+    if (!itemName || !itemName.trim()) return;
+    const unit = prompt('Введите единицу измерения (м, м.п., шт., точка, м²):', 'шт.');
+    if (unit === null) return;
+    const priceStr = prompt('Введите цену:');
+    if (priceStr === null) return;
+    const parsedPrice = Number(priceStr);
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) { alert('Некорректная цена'); return; }
+    state.priceList.push({ group: groupName.trim(), name: itemName.trim(), unit: unit.trim() || 'шт.', price: parsedPrice });
+    if (state.draft.quantities) state.draft.quantities.push(0);
+    write(prefix+'_priceList', state.priceList); renderWork(); calc();
+  });
+  host.querySelectorAll('[data-delete-group]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (confirm('Удалить всю группу вместе с работами?')) {
+        const groupName = btn.dataset.deleteGroup;
+        const newPriceList = [];
+        const newQuantities = [];
+        state.priceList.forEach((item, i) => {
+          if (item.group !== groupName) {
+            newPriceList.push(item);
+            if (state.draft.quantities) newQuantities.push(state.draft.quantities[i] || 0);
+          }
+        });
+        state.priceList = newPriceList;
+        if (state.draft.quantities) state.draft.quantities = newQuantities;
+        write(prefix+'_priceList', state.priceList); renderWork(); calc();
+      }
+    });
+  });
   if(key==='elec'){
    const summary=host.parentElement.querySelector('.estimate-summary');
    if(summary){
@@ -4460,6 +4744,7 @@ function initModule(key,cfg){
    button.addEventListener('click', () => switchTab(button.getAttribute(cfg.tabs)));
  });
  document.getElementById(prefix+'-search').addEventListener('input',renderEstimates);
+ const searchWorkInput = document.getElementById(prefix+'-search-work'); if (searchWorkInput) { searchWorkInput.addEventListener('input', renderWork); }
   moduleRoot.querySelector(cfg.new).addEventListener('click',newEstimate);document.getElementById(cfg.save).addEventListener('click',saveEstimate);document.getElementById(cfg.export).addEventListener('click',()=>{const sum=calc();const e={id:state.editingId||'draft',customer:document.getElementById(cfg.customer).value.trim()||'Черновик',date:new Date().toLocaleDateString('ru-RU'),lines:getLines(),total:sum};exportEstimate(e)});
  document.getElementById(cfg.savePrices).addEventListener('click',()=>{document.querySelectorAll(`#${cfg.app} [data-price]`).forEach(inp=>{state.priceList[Number(inp.dataset.price)].price=Math.max(0,Number(inp.value)||0)});write(prefix+'_priceList',state.priceList);renderPrices();renderWork();alert('Цены сохранены.')});
  document.getElementById(prefix+'-download-prices-png').addEventListener('click',()=>downloadModulePriceListPNG(cfg.prices, key==='elec'?'Прайс_Электрика_Точки.png':'Прайс_Электрика_Метраж.png'));
@@ -4650,10 +4935,10 @@ const gklDefaults = (() => {
   const heightSurcharge=Object.values(highTotals).reduce((a,b)=>a+b,0)*0.5;
   const combined={};for(const k of Object.keys(totals))combined[k]=totals[k]+highTotals[k]*1.5;
   const rate=Math.max(0,Number(state.prices.find(x=>x.kind==='dowel')?.price)||0);
-  const dowelsNormal=state.draft.enableDowels!==false?totals.frame*rate/100:0;
-  const dowelsHigh=state.draft.enableDowelsHigh!==false?highTotals.frame*1.5*rate/100:0;
-  const hangerDowels=state.draft.enableHangerDowels!==false?totals.hangers*rate/100:0;
-  const hangerDowelsHigh=state.draft.enableHangerDowelsHigh!==false?highTotals.hangers*1.5*rate/100:0;
+  const dowelsNormal=state.draft.enableDowels===false?0:totals.frame*rate/100;
+  const dowelsHigh=state.draft.enableDowelsHigh===false?0:highTotals.frame*1.5*rate/100;
+  const hangerDowels=state.draft.enableHangerDowels===false?0:totals.hangers*rate/100;
+  const hangerDowelsHigh=state.draft.enableHangerDowelsHigh===false?0:highTotals.hangers*1.5*rate/100;
   const dowels=dowelsNormal+dowelsHigh+hangerDowels+hangerDowelsHigh;
   const total=Object.values(totals).reduce((a,b)=>a+b,0)+Object.values(highTotals).reduce((a,b)=>a+b,0)*1.5+dowels;
   for(const [id,v] of [['sum-frame',combined.frame],['sum-hangers',combined.hangers],['sum-on-profile',combined.onProfile],['sum-no-profile',combined.noProfile],['sum-height',heightSurcharge],['sum-dowels',dowelsNormal],['sum-dowels-high',dowelsHigh],['sum-hanger-dowels',hangerDowels],['sum-hanger-dowels-high',hangerDowelsHigh],['sum-dowels-total',dowels],['total',total]]){const el=$(id);if(el)el.textContent=moneyGkl(v)}
@@ -4707,12 +4992,16 @@ const gklDefaults = (() => {
    <section class="gkl-work-section"><h3>4.1. Гипсокартон без профиля (+50%)</h3>
     ${gklThicknesses.map(t=>accordionButton('ГКЛ '+t+' · +50%','activeGklNoProfileHigh',t,'noProfile','— '+t,true)).join('')}
    </section>`:''}`;
-  ['enableDowels', 'enableDowelsHigh', 'enableHangerDowels', 'enableHangerDowelsHigh'].forEach(flag => {
-   const el = $(flag);
-   if (!el) return;
-   el.checked = state.draft[flag] !== false;
-   el.addEventListener('change', (event) => {
-    state.draft[flag] = event.target.checked;
+  const dowelCheckboxFlags={
+   'enable-dowels':'enableDowels',
+   'enable-dowels-high':'enableDowelsHigh',
+   'enable-hanger-dowels':'enableHangerDowels',
+   'enable-hanger-dowels-high':'enableHangerDowelsHigh'
+  };
+  Object.entries(dowelCheckboxFlags).forEach(([id,flag])=>{
+   const el=$(id);if(!el)return;
+   el.addEventListener('change',event=>{
+    state.draft[flag]=event.currentTarget.checked===true;
     saveDraft();
     compute();
    });
