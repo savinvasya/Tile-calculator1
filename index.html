@@ -1090,39 +1090,9 @@ input[type="date"] { color-scheme: dark; }
 </head>
 <body>
 
-<div id="subscription-loading" role="status" aria-live="polite">
-  <div class="subscription-panel">
-    <div class="subscription-spinner" aria-hidden="true"></div>
-    <h1>Проверка доступа...</h1>
-    <p>Подождите немного. Подключаемся к серверу и проверяем вашу подписку.</p>
-  </div>
-</div>
-<div id="subscription-paywall" hidden>
-  <div class="subscription-panel">
-    <div class="subscription-mark" aria-hidden="true">🔒</div>
-    <h1>Доступ ограничен</h1>
-    <p>Пробный период закончился или ещё не начался. Оформите подписку, чтобы продолжить пользоваться калькулятором.</p>
-    <div class="subscription-actions">
-      <button class="subscription-button" id="subscription-buy-month" type="button">Оплатить 1 месяц — 499 ₽</button>
-      <button class="subscription-button secondary" id="subscription-buy-year" type="button">Оплатить 1 год — 4990 ₽</button>
-    </div>
-    <p id="subscription-status" aria-live="polite"></p>
-    <div style="margin-top: 20px; font-size: 12px; color: var(--hint); line-height: 1.5; text-align: center;">
-      Нажимая кнопку «Оплатить», вы принимаете условия <a href="https://telegra.ph/Publichnaya-oferta-10-30-14" target="_blank" style="color: var(--accent); text-decoration: none;">Публичной оферты</a> и <a href="https://telegra.ph/Politika-konfidencialnosti-10-30-112" target="_blank" style="color: var(--accent); text-decoration: none;">Политики конфиденциальности</a>.
-    </div>
-  </div>
-</div>
-<div id="subscription-error" hidden>
-  <div class="subscription-panel">
-    <div class="subscription-mark" aria-hidden="true">!</div>
-    <h1>Не удалось проверить доступ</h1>
-    <p>Сервер может запускаться после простоя или временно быть недоступен. Проверьте соединение и попробуйте ещё раз.</p>
-    <div class="subscription-actions">
-      <button class="subscription-button" id="subscription-retry" type="button">Попробовать снова</button>
-    </div>
-    <p id="subscription-error-status" aria-live="polite"></p>
-  </div>
-</div>
+
+
+
 
 <!-- ГЛАВНОЕ МЕНЮ -->
 <section class="menu-screen" id="page-menu">
@@ -5398,116 +5368,7 @@ const gklDefaults = (() => {
 
 </script>
 
-<script>
-(() => {
-  'use strict';
-  const API_BASE = 'https://smeta-server-k0it.onrender.com';
-  const loading = document.getElementById('subscription-loading');
-  const paywall = document.getElementById('subscription-paywall');
-  const errorScreen = document.getElementById('subscription-error');
-  const status = document.getElementById('subscription-status');
-  const errorStatus = document.getElementById('subscription-error-status');
-  const monthButton = document.getElementById('subscription-buy-month');
-  const yearButton = document.getElementById('subscription-buy-year');
-  const retryButton = document.getElementById('subscription-retry');
-  let busy = false;
 
-  function showScreen(screen) {
-    loading.hidden = screen !== 'loading';
-    paywall.hidden = screen !== 'paywall';
-    errorScreen.hidden = screen !== 'error';
-  }
-
-  function getInitData() {
-    return window.Telegram?.WebApp?.initData || '';
-  }
-
-  async function postJSON(path, payload) {
-    const response = await fetch(API_BASE + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    let data;
-    try { data = await response.json(); }
-    catch (_) { throw new Error('Сервер вернул некорректный ответ.'); }
-    if (!response.ok) {
-      throw new Error(data?.detail || data?.message || ('Ошибка сервера (' + response.status + ').'));
-    }
-    return data;
-  }
-
-  async function checkAccess() {
-    const initData = getInitData();
-    // При открытии обычного HTML в браузере без Telegram Mini App не блокируем тестирование.
-    if (!initData) {
-      showScreen('app');
-      return true;
-    }
-    showScreen('loading');
-    errorStatus.textContent = '';
-    try {
-      const data = await postJSON('/api/check_subscription', { initData });
-      if (data?.has_access === true) {
-        showScreen('app');
-        return true;
-      }
-      if (data?.has_access === false) {
-        status.textContent = '';
-        showScreen('paywall');
-        return false;
-      }
-      throw new Error('В ответе сервера отсутствует поле has_access.');
-    } catch (error) {
-      errorStatus.textContent = error?.message || 'Неизвестная ошибка.';
-      showScreen('error');
-      return false;
-    }
-  }
-
-  async function buySubscription(plan, button) {
-    if (busy) return;
-    const initData = getInitData();
-    if (!initData) {
-      status.textContent = 'Оплата доступна только внутри Telegram.';
-      return;
-    }
-    busy = true;
-    monthButton.disabled = true;
-    yearButton.disabled = true;
-    status.textContent = 'Создаём ссылку на оплату...';
-    try {
-      const data = await postJSON('/api/buy_subscription', { initData, plan });
-      if (!data?.invoice_link) throw new Error('Сервер не вернул ссылку на оплату.');
-
-      status.textContent = 'Перенаправление на оплату...';
-
-      // Открываем ссылку ЮKassa в браузере
-      window.Telegram?.WebApp?.openLink(data.invoice_link);
-
-      // Так как человек уйдет в браузер и вернется, ставим таймер на проверку статуса через 15 секунд
-      setTimeout(() => { checkAccess(); }, 15000);
-
-      busy = false;
-      monthButton.disabled = false;
-      yearButton.disabled = false;
-    } catch (error) {
-      status.textContent = error?.message || 'Не удалось создать платёж. Попробуйте ещё раз.';
-      busy = false;
-      monthButton.disabled = false;
-      yearButton.disabled = false;
-    }
-  }
-
-  monthButton.addEventListener('click', () => buySubscription('month', monthButton));
-  yearButton.addEventListener('click', () => buySubscription('year', yearButton));
-  retryButton.addEventListener('click', checkAccess);
-
-  // Telegram WebApp подготавливается как можно раньше, не вмешиваясь в код калькулятора.
-  try { window.Telegram?.WebApp?.ready?.(); } catch (_) {}
-  checkAccess();
-})();
-</script>
 
 </body>
 </html>
