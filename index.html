@@ -1103,8 +1103,8 @@ input[type="date"] { color-scheme: dark; }
     <h1>Доступ ограничен</h1>
     <p>Пробный период закончился или ещё не начался. Оформите подписку, чтобы продолжить пользоваться калькулятором.</p>
     <div class="subscription-actions">
-      <button class="subscription-button" id="subscription-buy-month" type="button">Купить на 1 месяц (700 ⭐)</button>
-      <button class="subscription-button" id="subscription-buy-year" type="button">Купить на 1 год (6300 ⭐)</button>
+      <button class="subscription-button" id="subscription-buy-month" type="button">Оплатить 1 месяц — 499 ₽</button>
+      <button class="subscription-button secondary" id="subscription-buy-year" type="button">Оплатить 1 год — 4990 ₽</button>
     </div>
     <p id="subscription-status" aria-live="polite"></p>
   </div>
@@ -5021,7 +5021,6 @@ function showModule(name) {
  document.getElementById('page-menu').hidden = name !== 'menu';
  for (const moduleName of ['tile', 'elec', 'meters', 'gkl']) {
    const container = document.getElementById(moduleName + '-app');
-   if (!container) continue;
    const isActive = name === moduleName;
    container.classList.toggle('active', isActive);
    container.hidden = !isActive;
@@ -5470,11 +5469,6 @@ const gklDefaults = (() => {
       status.textContent = 'Оплата доступна только внутри Telegram.';
       return;
     }
-    const webApp = window.Telegram?.WebApp;
-    if (!webApp || typeof webApp.openInvoice !== 'function') {
-      status.textContent = 'Оплата доступна только в поддерживаемой версии Telegram.';
-      return;
-    }
     busy = true;
     monthButton.disabled = true;
     yearButton.disabled = true;
@@ -5482,22 +5476,18 @@ const gklDefaults = (() => {
     try {
       const data = await postJSON('/api/buy_subscription', { initData, plan });
       if (!data?.invoice_link) throw new Error('Сервер не вернул ссылку на оплату.');
-      status.textContent = 'Ожидаем подтверждение оплаты...';
-      webApp.openInvoice(data.invoice_link, async (invoiceStatus) => {
-        if (invoiceStatus === 'paid') {
-          status.textContent = 'Оплата прошла. Обновляем доступ...';
-          await checkAccess();
-        } else if (invoiceStatus === 'cancelled') {
-          status.textContent = 'Оплата отменена.';
-        } else if (invoiceStatus === 'failed') {
-          status.textContent = 'Не удалось провести оплату. Попробуйте ещё раз.';
-        } else if (invoiceStatus === 'pending') {
-          status.textContent = 'Платёж ещё обрабатывается. Если доступ не обновился, попробуйте проверить его позже.';
-        }
-        busy = false;
-        monthButton.disabled = false;
-        yearButton.disabled = false;
-      });
+
+      status.textContent = 'Перенаправление на оплату...';
+
+      // Открываем ссылку ЮKassa в браузере
+      window.Telegram?.WebApp?.openLink(data.invoice_link);
+
+      // Так как человек уйдет в браузер и вернется, ставим таймер на проверку статуса через 15 секунд
+      setTimeout(() => { checkAccess(); }, 15000);
+
+      busy = false;
+      monthButton.disabled = false;
+      yearButton.disabled = false;
     } catch (error) {
       status.textContent = error?.message || 'Не удалось создать платёж. Попробуйте ещё раз.';
       busy = false;
