@@ -1086,6 +1086,29 @@ input[type="date"] { color-scheme: dark; }
 @keyframes subscription-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .subscription-spinner { animation-duration: 2s; } }
 
+
+/* Независимый планировщик раскладки плитки */
+#layout-app .layout-wrap{max-width:1050px;margin:auto;padding:18px 16px 55px;color:var(--text)}
+#layout-app .layout-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:14px;align-items:start}
+#layout-app .layout-card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px}
+#layout-app .layout-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#layout-app label{display:flex;flex-direction:column;gap:5px;font-size:13px;min-width:0}
+#layout-app input,#layout-app select{width:100%;min-width:0;min-height:42px;border-radius:9px;border:1px solid #66708566;background:var(--bg);color:var(--text);padding:8px;font:inherit}
+#layout-app input[type=range]{padding:0;min-height:30px;accent-color:var(--accent)}
+#layout-app .layout-wide{grid-column:1/-1}
+#layout-app h2{font-size:18px;margin:0 0 14px}
+#layout-app .layout-canvas-wrap{height:440px;position:relative;overflow:hidden;border-radius:12px;background:#182333;touch-action:none;cursor:grab}
+#layout-app .layout-canvas-wrap:active{cursor:grabbing}
+#layout-app canvas{width:100%;height:100%;display:block;touch-action:none}
+#layout-app .layout-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+#layout-app .layout-tools button{min-height:38px;padding:7px 13px;border-radius:9px;border:1px solid #66708566;background:var(--bg);color:var(--text)}
+#layout-app .layout-result{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#layout-app .layout-stat{border:1px solid #66708544;border-radius:10px;padding:10px}
+#layout-app .layout-stat b{display:block;font-size:18px;margin-top:4px}
+#layout-app .layout-hint{font-size:12px;opacity:.75;line-height:1.5}
+#layout-app .layout-cuts{max-height:220px;overflow:auto;font-size:12px;line-height:1.7;white-space:pre-wrap}
+#layout-app .layout-alert{color:#ffba80}
+@media(max-width:740px){#layout-app .layout-grid{grid-template-columns:1fr}#layout-app .layout-canvas-wrap{height:380px}}
 </style>
 </head>
 <body>
@@ -1100,6 +1123,7 @@ input[type="date"] { color-scheme: dark; }
 <button class="menu-button" data-open-module="elec"><span class="menu-icon">⚡</span><span><b>Электрика по точкам</b><small>Расчёт по количеству точек</small></span><span class="menu-arrow">›</span></button>
 <button class="menu-button" data-open-module="meters"><span class="menu-icon">📏</span><span><b>Электрика метраж</b><small>Кабель, штробы, короба и щиты</small></span><span class="menu-arrow">›</span></button>
 <button class="menu-button" data-open-module="gkl"><span class="menu-icon">🧱</span><span><b>Гипсокартон</b><small>Монтаж каркаса и ГКЛ</small></span><span class="menu-arrow">›</span></button>
+<button class="menu-button" data-open-module="layout"><span class="menu-icon">📐</span><span><b>Раскладка плитки</b><small>Визуальный планировщик укладки</small></span><span class="menu-arrow">›</span></button>
 </div>
 </section>
 <div class="app-container" hidden="" id="tile-app">
@@ -4985,10 +5009,10 @@ document.addEventListener('focusout', event => {
 
 // Глобальная навигация
 function showModule(name) {
- const valid = ['menu', 'tile', 'elec', 'meters', 'gkl'];
+ const valid = ['menu', 'tile', 'elec', 'meters', 'gkl', 'layout'];
  if (!valid.includes(name)) return;
  document.getElementById('page-menu').hidden = name !== 'menu';
- for (const moduleName of ['tile', 'elec', 'meters', 'gkl']) {
+ for (const moduleName of ['tile', 'elec', 'meters', 'gkl', 'layout']) {
    const container = document.getElementById(moduleName + '-app');
    const isActive = name === moduleName;
    container.classList.toggle('active', isActive);
@@ -5366,5 +5390,150 @@ const gklDefaults = (() => {
 
 
 
+
+<!-- Независимый модуль раскладки плитки -->
+<div class="app-container" id="layout-app" hidden>
+ <main class="layout-wrap">
+  <header class="page-header"><button class="btn btn-secondary home-menu-btn" data-back-menu type="button">🏠 В меню</button><h1 class="page-title">📐 Раскладка плитки</h1><p class="page-subtitle">План помещения, подрезки и расход материала</p></header>
+  <div class="layout-grid">
+   <div>
+    <section class="layout-card"><h2>Параметры раскладки</h2><div class="layout-fields">
+     <label>Ширина помещения, м<input id="layout-room-w" type="number" min="0.1" max="100" step="0.01" value="3.2"></label>
+     <label>Высота помещения, м<input id="layout-room-h" type="number" min="0.1" max="100" step="0.01" value="2.4"></label>
+     <label>Ширина плитки, см<input id="layout-tile-w" type="number" min="1" max="300" step="0.1" value="60"></label>
+     <label>Высота плитки, см<input id="layout-tile-h" type="number" min="1" max="300" step="0.1" value="30"></label>
+     <label>Шов, мм<input id="layout-joint" type="number" min="0" max="30" step="0.5" value="2"></label>
+     <label>Запас, %<input id="layout-waste" type="number" min="0" max="100" step="1" value="10"></label>
+     <label class="layout-wide">Тип раскладки<select id="layout-pattern"><option value="straight">Прямая</option><option value="half">Со смещением 1/2</option><option value="third">Со смещением 1/3</option><option value="diagonal">Диагональ 45°</option><option value="herringbone">Ёлочка</option></select></label>
+     <label class="layout-wide">Горизонтальное положение (ось X)<select id="layout-position-x"><option value="left">От левого края</option><option value="right">От правого края</option><option value="tile-center">Плитка по центру</option><option value="joint-center">Шов по центру</option></select></label>
+     <label class="layout-wide">Вертикальное положение (ось Y)<select id="layout-position-y"><option value="top">От верха</option><option value="bottom">От низа</option><option value="tile-center">Плитка по центру</option><option value="joint-center">Шов по центру</option></select></label>
+     <label>Сдвиг по X, см<input id="layout-shift-x" type="number" min="-500" max="500" step="0.5" value="0"></label>
+     <label>Сдвиг по Y, см<input id="layout-shift-y" type="number" min="-500" max="500" step="0.5" value="0"></label>
+     <label>Плиток в упаковке<input id="layout-pack" type="number" min="0" max="10000" step="1" value="0" placeholder="Не указано"></label>
+     <label>Цена, ₽<input id="layout-price" type="number" min="0" step="0.01" value="0" placeholder="Не указана"></label>
+     <label class="layout-wide">Как указана цена<select id="layout-price-unit"><option value="sqm">За м²</option><option value="pack">За упаковку</option></select></label>
+    </div><div class="layout-tools"><button class="btn btn-primary" id="layout-save" type="button">💾 Сохранить черновик</button><button id="layout-reset" type="button">↺ Сбросить</button></div><p class="layout-hint" id="layout-save-status" aria-live="polite"></p></section>
+   </div>
+   <div>
+    <section class="layout-card"><h2>План укладки</h2><div class="layout-canvas-wrap" id="layout-viewport"><canvas id="layout-canvas" aria-label="Интерактивная схема раскладки плитки"></canvas></div><div class="layout-tools"><button id="layout-zoom-in" type="button">＋</button><button id="layout-zoom-out" type="button">－</button><button id="layout-fit" type="button">Вписать</button></div><p class="layout-hint">Перетаскивайте план пальцем или мышью. Масштаб: двумя пальцами, колесом мыши или кнопками. Коснитесь плитки, чтобы увидеть размер.</p><p id="layout-picked" class="layout-hint" aria-live="polite">Нажмите на плитку для просмотра размеров.</p></section>
+    <section class="layout-card"><h2>Расчёт материалов</h2><div class="layout-result" id="layout-results"></div><p class="layout-hint" id="layout-warning"></p><h2>Размеры подрезок</h2><div id="layout-cuts" class="layout-cuts"></div></section>
+   </div>
+  </div>
+ </main>
+</div>
+<script>
+(() => {
+ 'use strict';
+ const root=document.getElementById('layout-app');
+ const $=id=>document.getElementById('layout-'+id);
+ const ids=['room-w','room-h','tile-w','tile-h','joint','waste','pattern','position-x','position-y','shift-x','shift-y','pack','price','price-unit'];
+ const defaults=Object.fromEntries(ids.map(id=>[id,$(id).value]));
+ const canvas=$('canvas'),ctx=canvas.getContext('2d'),viewport=$('viewport');
+ let tiles=[],roomW=320,roomH=240,zoom=1,panX=0,panY=0,scale=0,drawWidth=0,drawHeight=0,drag=null,gesture=null,selected=-1;
+ const num=(id,fallback=0)=>{const n=Number($(id).value);return Number.isFinite(n)?n:fallback};
+ const fmt=(n,d=2)=>Number(n).toLocaleString('ru-RU',{maximumFractionDigits:d});
+ const area=poly=>Math.abs(poly.reduce((a,p,i)=>a+p.x*poly[(i+1)%poly.length].y-p.y*poly[(i+1)%poly.length].x,0))/2;
+ function clip(poly,axis,limit,keepGreater){
+  const out=[];if(!poly.length)return out;
+  for(let i=0;i<poly.length;i++){
+   const a=poly[i],b=poly[(i+1)%poly.length],av=a[axis]-limit,bv=b[axis]-limit;
+   const insideA=keepGreater?av>=-1e-8:av<=1e-8,insideB=keepGreater?bv>=-1e-8:bv<=1e-8;
+   if(insideA!==insideB){const t=av/(av-bv);out.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});}
+   if(insideB)out.push(b);
+  }return out;
+ }
+ function clipped(poly){return [['x',0,true],['x',roomW,false],['y',0,true],['y',roomH,false]].reduce((p,args)=>clip(p,...args),poly);}
+ function polygon(x,y,w,h,angle=0){const c=Math.cos(angle),s=Math.sin(angle);return [[0,0],[w,0],[w,h],[0,h]].map(([dx,dy])=>({x:x+dx*c-dy*s,y:y+dx*s+dy*c}));}
+ function add(poly,w,h){const clippedPoly=clipped(poly);if(clippedPoly.length<3)return;const a=area(clippedPoly),full=w*h;if(a<0.01)return;const cut=a<full-0.05;tiles.push({poly:clippedPoly,cut,area:a,w,h,original:poly});}
+ function calculate(){
+  roomW=Math.max(10,Math.min(10000,num('room-w',3.2)*100));roomH=Math.max(10,Math.min(10000,num('room-h',2.4)*100));
+  const w=Math.max(1,Math.min(300,num('tile-w',60))),h=Math.max(1,Math.min(300,num('tile-h',30))),j=Math.max(0,Math.min(3,num('joint')/10));
+  const sx=num('shift-x'),sy=num('shift-y'),pattern=$('pattern').value;
+  // Каждая ось позиционируется независимо. Начало координат — верхний левый угол.
+  // Центр шва: граница плитки и шва расположена на ±j/2 от середины стены.
+  function axisOffset(position,room,tile,joint){
+   switch(position){
+    case 'right': case 'bottom': return room-tile;
+    case 'tile-center': return (room-tile)/2;
+    case 'joint-center': return (room+joint)/2;
+    default: return 0;
+   }
+  }
+  const ox=axisOffset($('position-x').value,roomW,w,j)+sx;
+  const oy=axisOffset($('position-y').value,roomH,h,j)+sy;
+  tiles=[];selected=-1;
+  let limited=false;
+  const maxTiles=25000;
+  if(pattern==='diagonal'){
+   const ang=Math.PI/4,c=Math.SQRT1_2,px=w+j,py=h+j;
+   const corners=[[0,0],[roomW,0],[roomW,roomH],[0,roomH]].map(([x,y])=>({u:(x-ox)*c+(y-oy)*c,v:-(x-ox)*c+(y-oy)*c}));
+   const minU=Math.min(...corners.map(p=>p.u)),maxU=Math.max(...corners.map(p=>p.u)),minV=Math.min(...corners.map(p=>p.v)),maxV=Math.max(...corners.map(p=>p.v));
+   for(let row=Math.floor((minV-h)/py);row<=Math.ceil(maxV/py)&&!limited;row++)for(let col=Math.floor((minU-w)/px);col<=Math.ceil(maxU/px);col++){
+    if(tiles.length>=maxTiles){limited=true;break;}
+    const u=col*px,v=row*py;add(polygon(ox+(u-v)*c,oy+(u+v)*c,w,h,ang),w,h);
+   }
+  }else if(pattern==='herringbone'){
+   // Две взаимно перпендикулярные плитки в повторяющемся диагональном мотиве.
+   const step=w+h+j*2,cols=Math.ceil((roomW+Math.abs(ox))/step)+3,rows=Math.ceil((roomH+Math.abs(oy))/step)+3;
+   const startX=Math.floor((-ox-step)/step),startY=Math.floor((-oy-step)/step);
+   for(let r=startY;r<rows&&!limited;r++)for(let c=startX;c<cols;c++){
+    if(tiles.length>=maxTiles){limited=true;break;}
+    const x=ox+c*step,y=oy+r*step;
+    add(polygon(x,y,w,h),w,h);
+    add(polygon(x+w+j,y, h,w),h,w);
+    add(polygon(x,y+h+j,h,w),h,w);
+    add(polygon(x+h+j,y+h+j+w,w,h),w,h);
+   }
+  }else{
+   const px=w+j,py=h+j;
+   const startRow=Math.floor((-oy-h)/py),endRow=Math.ceil((roomH-oy)/py);
+   for(let row=startRow;row<=endRow&&!limited;row++){
+    const shift=pattern==='half'?((row%2+2)%2)*px/2:pattern==='third'?((row%3+3)%3)*px/3:0;
+    const startCol=Math.floor((-ox-shift-w)/px),endCol=Math.ceil((roomW-ox-shift)/px);
+    for(let col=startCol;col<=endCol;col++){
+     if(tiles.length>=maxTiles){limited=true;break;}
+     add(polygon(ox+shift+col*px,oy+row*py,w,h),w,h);
+    }
+   }
+  }
+  const full=tiles.filter(t=>!t.cut).length,cuts=tiles.filter(t=>t.cut),roomArea=roomW*roomH/10000;
+  const waste=Math.max(0,Math.min(100,num('waste'))),pack=Math.max(0,Math.floor(num('pack'))),price=Math.max(0,num('price'));
+  const totalPieces=Math.ceil(roomArea*(1+waste/100)/(w*h/10000)),packs=pack?Math.ceil(totalPieces/pack):null;
+  const cost=price?($('price-unit').value==='pack'?(packs===null?null:packs*price):roomArea*(1+waste/100)*price):null;
+  const stats=[['Целых плиток',fmt(full,0)],['Подрезанных фрагментов',fmt(cuts.length,0)],['Площадь помещения',fmt(roomArea)+' м²'],['С запасом '+fmt(waste)+'%',fmt(roomArea*(1+waste/100))+' м²'],['К закупке, плиток',fmt(totalPieces,0)],['Упаковок',packs===null?'Укажите фасовку':fmt(packs,0)],['Стоимость',cost===null?'Укажите цену и фасовку при необходимости':fmt(cost)+' ₽']];
+  $('results').replaceChildren(...stats.map(([k,v])=>{const el=document.createElement('div');el.className='layout-stat';const small=document.createElement('span');small.textContent=k;const b=document.createElement('b');b.textContent=v;el.append(small,b);return el}));
+  const lines=cuts.slice(0,350).map((t,i)=>{const xs=t.poly.map(p=>p.x),ys=t.poly.map(p=>p.y);return `${i+1}. ${fmt(Math.max(...xs)-Math.min(...xs),1)} × ${fmt(Math.max(...ys)-Math.min(...ys),1)} см${pattern==='diagonal'?' (габарит фрагмента)':''}`});
+  $('cuts').textContent=lines.length?lines.join('\n')+(cuts.length>350?'\n… ещё '+(cuts.length-350)+' фрагментов':''):'Подрезок нет';
+  $('warning').textContent=(limited?'Слишком много плиток: визуализация ограничена 25 000 фрагментов. ':'')+'Количество к закупке рассчитано по площади и запасу; фактический расход при сложных подрезках может быть выше. Для «Ёлочки» показана схематичная модель.';
+  draw();
+ }
+ function fit(){const rect=viewport.getBoundingClientRect();drawWidth=rect.width;drawHeight=rect.height;scale=Math.min((rect.width-36)/roomW,(rect.height-36)/roomH);zoom=1;panX=0;panY=0;draw();}
+ function draw(){const rect=viewport.getBoundingClientRect();if(!rect.width)return;const dpr=Math.min(window.devicePixelRatio||1,2);drawWidth=rect.width;drawHeight=rect.height;canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);
+  const k=scale*zoom,tx=(rect.width-roomW*k)/2+panX,ty=(rect.height-roomH*k)/2+panY;
+  ctx.fillStyle='#e5eaf0';ctx.fillRect(tx,ty,roomW*k,roomH*k);
+  ctx.save();ctx.beginPath();ctx.rect(tx,ty,roomW*k,roomH*k);ctx.clip();
+  tiles.forEach((t,i)=>{ctx.beginPath();t.poly.forEach((p,n)=>n?ctx.lineTo(tx+p.x*k,ty+p.y*k):ctx.moveTo(tx+p.x*k,ty+p.y*k));ctx.closePath();ctx.fillStyle=i===selected?'#f6c453':t.cut?'#d88e73':'#72a9ba';ctx.fill();ctx.strokeStyle='#253949';ctx.lineWidth=Math.min(3,Math.max(0.5,k*0.12));ctx.stroke();if(t.cut&&k>0.8){ctx.save();ctx.clip();ctx.strokeStyle='#ffffff66';ctx.lineWidth=1;const xs=t.poly.map(p=>tx+p.x*k),ys=t.poly.map(p=>ty+p.y*k),xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);for(let x=xmin-(ymax-ymin);x<xmax+(ymax-ymin);x+=12){ctx.beginPath();ctx.moveTo(x,ymin);ctx.lineTo(x+ymax-ymin,ymax);ctx.stroke();}ctx.restore();}});
+  ctx.restore();ctx.strokeStyle='#e8edf5';ctx.lineWidth=2;ctx.strokeRect(tx,ty,roomW*k,roomH*k);
+  ctx.fillStyle='#ffffff';ctx.font='12px sans-serif';ctx.fillText(fmt(roomW/100)+' м',Math.max(8,tx),Math.max(14,ty-8));
+ }
+ function pointerWorld(e){const r=canvas.getBoundingClientRect(),k=scale*zoom;return{x:(e.clientX-r.left-(r.width-roomW*k)/2-panX)/k,y:(e.clientY-r.top-(r.height-roomH*k)/2-panY)/k};}
+ function hit(poly,p){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if(((a.y>p.y)!==(b.y>p.y))&&(p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x))inside=!inside;}return inside;}
+ function select(e){const p=pointerWorld(e);selected=tiles.findIndex(t=>hit(t.poly,p));const t=tiles[selected];if(t){const xs=t.poly.map(p=>p.x);const ys=t.poly.map(p=>p.y);const w=Math.max(...xs)-Math.min(...xs);const h=Math.max(...ys)-Math.min(...ys);$('picked').textContent=`${t.cut?'Подрезка':'Целая плитка'}: Ширина ${fmt(w,1)} см, Высота ${fmt(h,1)} см`;}else{$('picked').textContent='Плитка не выбрана';}draw();}
+ const pointers=new Map();let down=null;
+ viewport.addEventListener('pointerdown',e=>{viewport.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){drag={x:e.clientX,y:e.clientY,panX,panY};down={x:e.clientX,y:e.clientY};gesture=null;}else if(pointers.size===2){const a=[...pointers.values()];gesture={dist:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),zoom};drag=null;}});
+ viewport.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2&&gesture){const a=[...pointers.values()];zoom=Math.max(.2,Math.min(12,gesture.zoom*Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)/Math.max(1,gesture.dist)));draw();}else if(pointers.size===1&&drag){panX=drag.panX+e.clientX-drag.x;panY=drag.panY+e.clientY-drag.y;draw();}});
+ function end(e){if(!pointers.has(e.pointerId))return;pointers.delete(e.pointerId);if(down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<7&&!gesture)select(e);drag=null;down=null;if(pointers.size<2)gesture=null;}
+ viewport.addEventListener('pointerup',end);viewport.addEventListener('pointercancel',end);
+ viewport.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.2,Math.min(12,zoom*(e.deltaY<0?1.12:1/1.12)));draw();},{passive:false});
+ $('zoom-in').addEventListener('click',()=>{zoom=Math.min(12,zoom*1.25);draw()});$('zoom-out').addEventListener('click',()=>{zoom=Math.max(.2,zoom/1.25);draw()});$('fit').addEventListener('click',fit);
+ ids.forEach(id=>$(id).addEventListener('input',calculate));
+ $('save').addEventListener('click',()=>{try{localStorage.setItem('tile_layout_draft_v1',JSON.stringify(Object.fromEntries(ids.map(id=>[id,$(id).value]))));$('save-status').textContent='Черновик сохранён на устройстве.';}catch(e){$('save-status').textContent='Не удалось сохранить черновик.';}});
+ $('reset').addEventListener('click',()=>{ids.forEach(id=>$(id).value=defaults[id]);try{localStorage.removeItem('tile_layout_draft_v1')}catch(e){}$('save-status').textContent='Параметры сброшены.';calculate();fit()});
+ try{const saved=JSON.parse(localStorage.getItem('tile_layout_draft_v1')||'null');if(saved&&typeof saved==='object')ids.forEach(id=>{if(Object.prototype.hasOwnProperty.call(saved,id))$(id).value=saved[id]});}catch(e){}
+ const observer=new ResizeObserver(()=>{if(!root.hidden){if(!scale||!drawWidth)fit();else draw();}});observer.observe(viewport);
+ const visibility=new MutationObserver(()=>{if(!root.hidden)requestAnimationFrame(()=>{if(!scale||!drawWidth)fit();else draw()})});visibility.observe(root,{attributes:true,attributeFilter:['hidden']});
+ calculate();requestAnimationFrame(()=>{if(!root.hidden)fit()});
+})();
+</script>
 </body>
 </html>
